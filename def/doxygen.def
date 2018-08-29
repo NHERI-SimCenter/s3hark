@@ -1,0 +1,76 @@
+AutoGen Definitions dummy;
+file = {
+  file-id   = 'main_8cpp';
+  file-name = 'main.cpp';
+    func = {
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'main_8cpp_1aee88e082cb559cb58b373fad096337f3';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+QString
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'openStyleFiles';
+      func-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SiteResponseTool/main.cpp';
+      func-mem-desc-line = '8';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    func-member = {
+      func-mem-kind = 'function';
+      func-mem-id   = 'main_8cpp_1a0ddf1224851353fc92bfbff6f499fa97';
+      func-mem-virt = normal;
+      func-mem-prot = public;
+      func-mem-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+      func-mem-name = 'main';
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+int
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'argc';
+      }; /*        func-mem-param--param */
+      func-mem-param = {
+        func-mem-param-type = <<_EnD_oF_dEf_TeXt_
+char *
+_EnD_oF_dEf_TeXt_;
+        func-mem-param-declname = 'argv';
+        func-mem-param-array = '[]';
+      }; /*        func-mem-param--param */
+      func-mem-desc-file = '/Users/pmackenz/Development/SimCenter/SiteResponseTool/main.cpp';
+      func-mem-desc-line = '46';
+      func-mem-briefdesc =    <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+      func-mem-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+    }; /* func-member */
+    };
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SiteResponseTool/main.cpp';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
+file = {
+  file-id   = '_r_e_a_d_m_e_8md';
+  file-name = 'README.md';
+  file-full-name  = '/Users/pmackenz/Development/SimCenter/SiteResponseTool/README.md';
+  file-first-line = '1';
+  file-briefdesc  = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+  file-documentation = <<_EnD_oF_dEf_TeXt_
+
+_EnD_oF_dEf_TeXt_;
+}; /* file */
