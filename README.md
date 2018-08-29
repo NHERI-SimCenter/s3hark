@@ -2,7 +2,7 @@
 
 [logo]: https://nheri-simcenter.github.io/SiteResponseTool/docs/NHERI-SRT-Icon.png "Site Response Tool Logo"
 
-# SiteResponseTool
+# Site Response Tool
 Educational tool for studying the site specific response to earthquakes
 
 ## Downloads
@@ -11,6 +11,7 @@ Educational tool for studying the site specific response to earthquakes
 
 ## Software class documentation
 
+* The main documentation site at: [nheri-simcenter.github.io/SiteResponseTool/](https://nheri-simcenter.github.io/SiteResponseTool/)
 * An (as-yet-incomplete) documentation of the code can be found at: [nheri-simcenter.github.io/SiteResponseTool/docs/index.html](https://nheri-simcenter.github.io/SiteResponseTool/docs/index.html)
 * view the source on [github.com/NHERI-SimCenter/SiteResponseTool](https://github.com/NHERI-SimCenter/SiteResponseTool)
 
