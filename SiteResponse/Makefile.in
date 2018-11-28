@@ -1,0 +1,32 @@
+source = $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+FF  = gfortran
+CC  = clang
+CXX = clang++
+
+CXXOPTFLAG = -Wall -D_LINUX -D_UNIX -Wno-reorder -O3 -ffloat-store -g -O0
+FFNOPTFLAG = -Wall -O
+CCOPTFLAG  = -Wall -Wno-reorder -O2
+
+LINCLUDE = -I$(source) \
+	   -I$(source)/FEM \
+	   -I$(source)/SiteResponse \
+	   -I/usr/local/Cellar/lapack/3.8.0_1/include
+	   
+
+NUMLIBS = -L/usr/lib -L/usr/local/lib -L/usr/local/Cellar/lapack/3.8.0_1/lib -lblas -llapack -llapacke -lm -ldl -lgfortran
+
+MINCLUDE = -I/usr/include -I/usr/local/Cellar/lapack/3.8.0_1/include
+
+FEMlib  = $(source)/lib/libFEM.a
+SRTlib  = $(source)/lib/libSRT.a
+
+.f.o:
+	$(FF) -c $(FFOPTFLAG) $(LINCLUDE) $<
+
+.c.o:
+	$(CC) -c $(CCOPTFLAG) $(LINCLUDE) $<
+
+.cpp.o:
+	$(CXX) -c $(CXXOPTFLAG) $(LINCLUDE) $<
+

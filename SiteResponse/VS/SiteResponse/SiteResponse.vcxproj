@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\FEM\Analysis.cpp" />
+    <ClCompile Include="..\..\FEM\AnalysisModel.cpp" />
+    <ClCompile Include="..\..\FEM\ArrayOfTaggedObjects.cpp" />
+    <ClCompile Include="..\..\FEM\ArrayOfTaggedObjectsIter.cpp" />
+    <ClCompile Include="..\..\FEM\BandGenLinLapackSolver.cpp" />
+    <ClCompile Include="..\..\FEM\BandGenLinSOE.cpp" />
+    <ClCompile Include="..\..\FEM\BandGenLinSolver.cpp" />
+    <ClCompile Include="..\..\FEM\BeamIntegration.cpp" />
+    <ClCompile Include="..\..\FEM\Brick.cpp" />
+    <ClCompile Include="..\..\FEM\Channel.cpp" />
+    <ClCompile Include="..\..\FEM\CompositeResponse.cpp" />
+    <ClCompile Include="..\..\FEM\ConstraintHandler.cpp" />
+    <ClCompile Include="..\..\FEM\ConvergenceTest.cpp" />
+    <ClCompile Include="..\..\FEM\CrdTransf.cpp" />
+    <ClCompile Include="..\..\FEM\CTestNormDispIncr.cpp" />
+    <ClCompile Include="..\..\FEM\DataFileStream.cpp" />
+    <ClCompile Include="..\..\FEM\DataFileStreamAdd.cpp" />
+    <ClCompile Include="..\..\FEM\DirectIntegrationAnalysis.cpp" />
+    <ClCompile Include="..\..\FEM\DOF_Group.cpp" />
+    <ClCompile Include="..\..\FEM\DOF_GrpIter.cpp" />
+    <ClCompile Include="..\..\FEM\DOF_Numberer.cpp" />
+    <ClCompile Include="..\..\FEM\Domain.cpp" />
+    <ClCompile Include="..\..\FEM\DomainComponent.cpp" />
+    <ClCompile Include="..\..\FEM\DummyElementAPI.cpp" />
+    <ClCompile Include="..\..\FEM\DummyStream.cpp" />
+    <ClCompile Include="..\..\FEM\EarthquakePattern.cpp" />
+    <ClCompile Include="..\..\FEM\ElasticIsotropicMaterial.cpp" />
+    <ClCompile Include="..\..\FEM\ElasticIsotropicThreeDimensional.cpp" />
+    <ClCompile Include="..\..\FEM\ElasticMaterial.cpp" />
+    <ClCompile Include="..\..\FEM\ElasticSection3d.cpp" />
+    <ClCompile Include="..\..\FEM\Element.cpp" />
+    <ClCompile Include="..\..\FEM\ElementalLoadIter.cpp" />
+    <ClCompile Include="..\..\FEM\ElementRecorder.cpp" />
+    <ClCompile Include="..\..\FEM\ElementResponse.cpp" />
+    <ClCompile Include="..\..\FEM\ElementStateParameter.cpp" />
+    <ClCompile Include="..\..\FEM\EquiSolnAlgo.cpp" />
+    <ClCompile Include="..\..\FEM\FE_EleIter.cpp" />
+    <ClCompile Include="..\..\FEM\FE_Element.cpp" />
+    <ClCompile Include="..\..\FEM\FileStream.cpp" />
+    <ClCompile Include="..\..\FEM\Graph.cpp" />
+    <ClCompile Include="..\..\FEM\GraphNumberer.cpp" />
+    <ClCompile Include="..\..\FEM\GroundMotion.cpp" />
+    <ClCompile Include="..\..\FEM\ID.cpp" />
+    <ClCompile Include="..\..\FEM\ImposedMotionSP.cpp" />
+    <ClCompile Include="..\..\FEM\IncrementalIntegrator.cpp" />
+    <ClCompile Include="..\..\FEM\Information.cpp" />
+    <ClCompile Include="..\..\FEM\Integrator.cpp" />
+    <ClCompile Include="..\..\FEM\J2CyclicBoundingSurface.cpp" />
+    <ClCompile Include="..\..\FEM\LegendreBeamIntegration.cpp" />
+    <ClCompile Include="..\..\FEM\LinearCrdTransf3d.cpp" />
+    <ClCompile Include="..\..\FEM\LinearSeries.cpp" />
+    <ClCompile Include="..\..\FEM\LinearSOE.cpp" />
+    <ClCompile Include="..\..\FEM\LinearSOESolver.cpp" />
+    <ClCompile Include="..\..\FEM\Load.cpp" />
+    <ClCompile Include="..\..\FEM\LoadControl.cpp" />
+    <ClCompile Include="..\..\FEM\LoadPattern.cpp" />
+    <ClCompile Include="..\..\FEM\LoadPatternIter.cpp" />
+    <ClCompile Include="..\..\FEM\MapOfTaggedObjects.cpp" />
+    <ClCompile Include="..\..\FEM\MapOfTaggedObjectsIter.cpp" />
+    <ClCompile Include="..\..\FEM\Material.cpp" />
+    <ClCompile Include="..\..\FEM\MaterialResponse.cpp" />
+    <ClCompile Include="..\..\FEM\Matrix.cpp" />
+    <ClCompile Include="..\..\FEM\MatrixUtil.cpp" />
+    <ClCompile Include="..\..\FEM\Message.cpp" />
+    <ClCompile Include="..\..\FEM\MovableObject.cpp" />
+    <ClCompile Include="..\..\FEM\MP_Constraint.cpp" />
+    <ClCompile Include="..\..\FEM\MultiSupportPattern.cpp" />
+    <ClCompile Include="..\..\FEM\NDMaterial.cpp" />
+    <ClCompile Include="..\..\FEM\Newmark.cpp" />
+    <ClCompile Include="..\..\FEM\NewtonRaphson.cpp" />
+    <ClCompile Include="..\..\FEM\NodalLoad.cpp" />
+    <ClCompile Include="..\..\FEM\NodalLoadIter.cpp" />
+    <ClCompile Include="..\..\FEM\Node.cpp" />
+    <ClCompile Include="..\..\FEM\NodeRecorder.cpp" />
+    <ClCompile Include="..\..\FEM\OPS_Stream.cpp" />
+    <ClCompile Include="..\..\FEM\Parameter.cpp" />
+    <ClCompile Include="..\..\FEM\PathSeries.cpp" />
+    <ClCompile Include="..\..\FEM\PathTimeSeries.cpp" />
+    <ClCompile Include="..\..\FEM\PenaltyConstraintHandler.cpp" />
+    <ClCompile Include="..\..\FEM\PenaltyMP_FE.cpp" />
+    <ClCompile Include="..\..\FEM\PenaltySP_FE.cpp" />
+    <ClCompile Include="..\..\FEM\PlainNumberer.cpp" />
+    <ClCompile Include="..\..\FEM\PySimple1.cpp" />
+    <ClCompile Include="..\..\FEM\QzSimple1.cpp" />
+    <ClCompile Include="..\..\FEM\RCM.cpp" />
+    <ClCompile Include="..\..\FEM\Recorder.cpp" />
+    <ClCompile Include="..\..\FEM\Response.cpp" />
+    <ClCompile Include="..\..\FEM\SectionForceDeformation.cpp" />
+    <ClCompile Include="..\..\FEM\shp3d.cpp" />
+    <ClCompile Include="..\..\FEM\SimpsonTimeSeriesIntegrator.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomAllSP_Iter.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomEleIter.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomMP_Iter.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomNodIter.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomParamIter.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomPC_Iter.cpp" />
+    <ClCompile Include="..\..\FEM\SingleDomSP_Iter.cpp" />
+    <ClCompile Include="..\..\FEM\SolutionAlgorithm.cpp" />
+    <ClCompile Include="..\..\FEM\SP_Constraint.cpp" />
+    <ClCompile Include="..\..\FEM\SSPbrick.cpp" />
+    <ClCompile Include="..\..\FEM\StandardStream.cpp" />
+    <ClCompile Include="..\..\FEM\StaticAnalysis.cpp" />
+    <ClCompile Include="..\..\FEM\StaticIntegrator.cpp" />
+    <ClCompile Include="..\..\FEM\Subdomain.cpp" />
+    <ClCompile Include="..\..\FEM\SubdomainNodIter.cpp" />
+    <ClCompile Include="..\..\FEM\TaggedObject.cpp" />
+    <ClCompile Include="..\..\FEM\TimeSeries.cpp" />
+    <ClCompile Include="..\..\FEM\TimeSeriesIntegrator.cpp" />
+    <ClCompile Include="..\..\FEM\TransformationConstraintHandler.cpp" />
+    <ClCompile Include="..\..\FEM\TransformationDOF_Group.cpp" />
+    <ClCompile Include="..\..\FEM\TransformationFE.cpp" />
+    <ClCompile Include="..\..\FEM\TransientAnalysis.cpp" />
+    <ClCompile Include="..\..\FEM\TransientIntegrator.cpp" />
+    <ClCompile Include="..\..\FEM\TrapezoidalTimeSeriesIntegrator.cpp" />
+    <ClCompile Include="..\..\FEM\TzSimple1.cpp" />
+    <ClCompile Include="..\..\FEM\UniaxialMaterial.cpp" />
+    <ClCompile Include="..\..\FEM\UniformExcitation.cpp" />
+    <ClCompile Include="..\..\FEM\VariableTimeStepDirectIntegrationAnalysis.cpp" />
+    <ClCompile Include="..\..\FEM\Vector.cpp" />
+    <ClCompile Include="..\..\FEM\Vertex.cpp" />
+    <ClCompile Include="..\..\FEM\VertexIter.cpp" />
+    <ClCompile Include="..\..\FEM\ViscousMaterial.cpp" />
+    <ClCompile Include="..\..\FEM\ZeroLength.cpp" />
+    <ClCompile Include="..\..\SiteResponse\FEModel.cpp" />
+    <ClCompile Include="..\..\SiteResponse\Main.cpp" />
+    <ClCompile Include="..\..\SiteResponse\outcropMotion.cpp" />
+    <ClCompile Include="..\..\SiteResponse\siteLayering.cpp" />
+    <ClCompile Include="..\..\SiteResponse\soillayer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\FEM\Analysis.h" />
+    <ClInclude Include="..\..\FEM\AnalysisModel.h" />
+    <ClInclude Include="..\..\FEM\ArrayOfTaggedObjects.h" />
+    <ClInclude Include="..\..\FEM\ArrayOfTaggedObjectsIter.h" />
+    <ClInclude Include="..\..\FEM\BandGenLinLapackSolver.h" />
+    <ClInclude Include="..\..\FEM\BandGenLinSOE.h" />
+    <ClInclude Include="..\..\FEM\BandGenLinSolver.h" />
+    <ClInclude Include="..\..\FEM\BeamFiberMaterial.h" />
+    <ClInclude Include="..\..\FEM\BeamFiberMaterial2d.h" />
+    <ClInclude Include="..\..\FEM\BeamIntegration.h" />
+    <ClInclude Include="..\..\FEM\Brick.h" />
+    <ClInclude Include="..\..\FEM\Channel.h" />
+    <ClInclude Include="..\..\FEM\classTags.h" />
+    <ClInclude Include="..\..\FEM\ColorMap.h" />
+    <ClInclude Include="..\..\FEM\CompositeResponse.h" />
+    <ClInclude Include="..\..\FEM\ConstraintHandler.h" />
+    <ClInclude Include="..\..\FEM\ConvergenceTest.h" />
+    <ClInclude Include="..\..\FEM\CrdTransf.h" />
+    <ClInclude Include="..\..\FEM\CTestNormDispIncr.h" />
+    <ClInclude Include="..\..\FEM\DataFileStream.h" />
+    <ClInclude Include="..\..\FEM\DataFileStreamAdd.h" />
+    <ClInclude Include="..\..\FEM\DirectIntegrationAnalysis.h" />
+    <ClInclude Include="..\..\FEM\DispBeamColumn3d.h" />
+    <ClInclude Include="..\..\FEM\DispBeamColumn3dWithSensitivity.h" />
+    <ClInclude Include="..\..\FEM\DOF_Group.h" />
+    <ClInclude Include="..\..\FEM\DOF_GrpIter.h" />
+    <ClInclude Include="..\..\FEM\DOF_Numberer.h" />
+    <ClInclude Include="..\..\FEM\Domain.h" />
+    <ClInclude Include="..\..\FEM\DomainComponent.h" />
+    <ClInclude Include="..\..\FEM\DomainDecompositionAnalysis.h" />
+    <ClInclude Include="..\..\FEM\DummyStream.h" />
+    <ClInclude Include="..\..\FEM\EarthquakePattern.h" />
+    <ClInclude Include="..\..\FEM\EigenSOE.h" />
+    <ClInclude Include="..\..\FEM\ElasticIsotropicMaterial.h" />
+    <ClInclude Include="..\..\FEM\ElasticIsotropicThreeDimensional.h" />
+    <ClInclude Include="..\..\FEM\ElasticMaterial.h" />
+    <ClInclude Include="..\..\FEM\ElasticSection3d.h" />
+    <ClInclude Include="..\..\FEM\Element.h" />
+    <ClInclude Include="..\..\FEM\ElementalLoad.h" />
+    <ClInclude Include="..\..\FEM\ElementalLoadIter.h" />
+    <ClInclude Include="..\..\FEM\elementAPI.h" />
+    <ClInclude Include="..\..\FEM\ElementIter.h" />
+    <ClInclude Include="..\..\FEM\ElementRecorder.h" />
+    <ClInclude Include="..\..\FEM\ElementResponse.h" />
+    <ClInclude Include="..\..\FEM\ElementStateParameter.h" />
+    <ClInclude Include="..\..\FEM\EquiSolnAlgo.h" />
+    <ClInclude Include="..\..\FEM\FEM_ObjectBroker.h" />
+    <ClInclude Include="..\..\FEM\FE_Datastore.h" />
+    <ClInclude Include="..\..\FEM\FE_EleIter.h" />
+    <ClInclude Include="..\..\FEM\FE_Element.h" />
+    <ClInclude Include="..\..\FEM\Fiber.h" />
+    <ClInclude Include="..\..\FEM\FiberResponse.h" />
+    <ClInclude Include="..\..\FEM\File.h" />
+    <ClInclude Include="..\..\FEM\FileIter.h" />
+    <ClInclude Include="..\..\FEM\FileStream.h" />
+    <ClInclude Include="..\..\FEM\FrictionModel.h" />
+    <ClInclude Include="..\..\FEM\FrictionResponse.h" />
+    <ClInclude Include="..\..\FEM\G3Globals.h" />
+    <ClInclude Include="..\..\FEM\Graph.h" />
+    <ClInclude Include="..\..\FEM\GraphNumberer.h" />
+    <ClInclude Include="..\..\FEM\GroundMotion.h" />
+    <ClInclude Include="..\..\FEM\ID.h" />
+    <ClInclude Include="..\..\FEM\ImposedMotionSP.h" />
+    <ClInclude Include="..\..\FEM\IncrementalIntegrator.h" />
+    <ClInclude Include="..\..\FEM\Information.h" />
+    <ClInclude Include="..\..\FEM\Integrator.h" />
+    <ClInclude Include="..\..\FEM\J2CyclicBoundingSurface.h" />
+    <ClInclude Include="..\..\FEM\LegendreBeamIntegration.h" />
+    <ClInclude Include="..\..\FEM\LinearCrdTransf3d.h" />
+    <ClInclude Include="..\..\FEM\LinearSeries.h" />
+    <ClInclude Include="..\..\FEM\LinearSOE.h" />
+    <ClInclude Include="..\..\FEM\LinearSOESolver.h" />
+    <ClInclude Include="..\..\FEM\Load.h" />
+    <ClInclude Include="..\..\FEM\LoadControl.h" />
+    <ClInclude Include="..\..\FEM\LoadPattern.h" />
+    <ClInclude Include="..\..\FEM\LoadPatternIter.h" />
+    <ClInclude Include="..\..\FEM\MapOfTaggedObjects.h" />
+    <ClInclude Include="..\..\FEM\MapOfTaggedObjectsIter.h" />
+    <ClInclude Include="..\..\FEM\Material.h" />
+    <ClInclude Include="..\..\FEM\MaterialResponse.h" />
+    <ClInclude Include="..\..\FEM\Matrix.h" />
+    <ClInclude Include="..\..\FEM\MatrixUtil.h" />
+    <ClInclude Include="..\..\FEM\MeshRegion.h" />
+    <ClInclude Include="..\..\FEM\Message.h" />
+    <ClInclude Include="..\..\FEM\MovableObject.h" />
+    <ClInclude Include="..\..\FEM\MP_Constraint.h" />
+    <ClInclude Include="..\..\FEM\MP_ConstraintIter.h" />
+    <ClInclude Include="..\..\FEM\MultiSupportPattern.h" />
+    <ClInclude Include="..\..\FEM\NDMaterial.h" />
+    <ClInclude Include="..\..\FEM\Newmark.h" />
+    <ClInclude Include="..\..\FEM\NewtonRaphson.h" />
+    <ClInclude Include="..\..\FEM\NodalLoad.h" />
+    <ClInclude Include="..\..\FEM\NodalLoadIter.h" />
+    <ClInclude Include="..\..\FEM\Node.h" />
+    <ClInclude Include="..\..\FEM\NodeIter.h" />
+    <ClInclude Include="..\..\FEM\NodeRecorder.h" />
+    <ClInclude Include="..\..\FEM\ObjectBroker.h" />
+    <ClInclude Include="..\..\FEM\OPS_Globals.h" />
+    <ClInclude Include="..\..\FEM\OPS_Stream.h" />
+    <ClInclude Include="..\..\FEM\Parameter.h" />
+    <ClInclude Include="..\..\FEM\ParameterIter.h" />
+    <ClInclude Include="..\..\FEM\PathSeries.h" />
+    <ClInclude Include="..\..\FEM\PathTimeSeries.h" />
+    <ClInclude Include="..\..\FEM\PenaltyConstraintHandler.h" />
+    <ClInclude Include="..\..\FEM\PenaltyMP_FE.h" />
+    <ClInclude Include="..\..\FEM\PenaltySP_FE.h" />
+    <ClInclude Include="..\..\FEM\PlainMap.h" />
+    <ClInclude Include="..\..\FEM\PlainNumberer.h" />
+    <ClInclude Include="..\..\FEM\PlaneStrainMaterial.h" />
+    <ClInclude Include="..\..\FEM\PlaneStressMaterial.h" />
+    <ClInclude Include="..\..\FEM\PlateFiberMaterial.h" />
+    <ClInclude Include="..\..\FEM\Pressure_Constraint.h" />
+    <ClInclude Include="..\..\FEM\Pressure_ConstraintIter.h" />
+    <ClInclude Include="..\..\FEM\PySimple1.h" />
+    <ClInclude Include="..\..\FEM\QzSimple1.h" />
+    <ClInclude Include="..\..\FEM\RCM.h" />
+    <ClInclude Include="..\..\FEM\Recorder.h" />
+    <ClInclude Include="..\..\FEM\Renderer.h" />
+    <ClInclude Include="..\..\FEM\Response.h" />
+    <ClInclude Include="..\..\FEM\SectionForceDeformation.h" />
+    <ClInclude Include="..\..\FEM\shp3d.h" />
+    <ClInclude Include="..\..\FEM\SimpsonTimeSeriesIntegrator.h" />
+    <ClInclude Include="..\..\FEM\SimulationInformation.h" />
+    <ClInclude Include="..\..\FEM\SingleDomAllSP_Iter.h" />
+    <ClInclude Include="..\..\FEM\SingleDomEleIter.h" />
+    <ClInclude Include="..\..\FEM\SingleDomMP_Iter.h" />
+    <ClInclude Include="..\..\FEM\SingleDomNodIter.h" />
+    <ClInclude Include="..\..\FEM\SingleDomParamIter.h" />
+    <ClInclude Include="..\..\FEM\SingleDomPC_Iter.h" />
+    <ClInclude Include="..\..\FEM\SingleDomSP_Iter.h" />
+    <ClInclude Include="..\..\FEM\SolutionAlgorithm.h" />
+    <ClInclude Include="..\..\FEM\SP_Constraint.h" />
+    <ClInclude Include="..\..\FEM\SP_ConstraintIter.h" />
+    <ClInclude Include="..\..\FEM\SSPbrick.h" />
+    <ClInclude Include="..\..\FEM\StandardStream.h" />
+    <ClInclude Include="..\..\FEM\StaticAnalysis.h" />
+    <ClInclude Include="..\..\FEM\StaticIntegrator.h" />
+    <ClInclude Include="..\..\FEM\StringContainer.h" />
+    <ClInclude Include="..\..\FEM\Subdomain.h" />
+    <ClInclude Include="..\..\FEM\SubdomainNodIter.h" />
+    <ClInclude Include="..\..\FEM\TaggedObject.h" />
+    <ClInclude Include="..\..\FEM\TaggedObjectIter.h" />
+    <ClInclude Include="..\..\FEM\TaggedObjectStorage.h" />
+    <ClInclude Include="..\..\FEM\TimeSeries.h" />
+    <ClInclude Include="..\..\FEM\TimeSeriesIntegrator.h" />
+    <ClInclude Include="..\..\FEM\TransformationConstraintHandler.h" />
+    <ClInclude Include="..\..\FEM\TransformationDOF_Group.h" />
+    <ClInclude Include="..\..\FEM\TransformationFE.h" />
+    <ClInclude Include="..\..\FEM\TransientAnalysis.h" />
+    <ClInclude Include="..\..\FEM\TransientIntegrator.h" />
+    <ClInclude Include="..\..\FEM\TrapezoidalTimeSeriesIntegrator.h" />
+    <ClInclude Include="..\..\FEM\TzSimple1.h" />
+    <ClInclude Include="..\..\FEM\UniaxialMaterial.h" />
+    <ClInclude Include="..\..\FEM\UniformExcitation.h" />
+    <ClInclude Include="..\..\FEM\VariableTimeStepDirectIntegrationAnalysis.h" />
+    <ClInclude Include="..\..\FEM\Vector.h" />
+    <ClInclude Include="..\..\FEM\Vertex.h" />
+    <ClInclude Include="..\..\FEM\VertexIter.h" />
+    <ClInclude Include="..\..\FEM\ViscousMaterial.h" />
+    <ClInclude Include="..\..\FEM\ZeroLength.h" />
+    <ClInclude Include="..\..\SiteResponse\FEModel.h" />
+    <ClInclude Include="..\..\SiteResponse\outcropMotion.h" />
+    <ClInclude Include="..\..\SiteResponse\siteLayering.h" />
+    <ClInclude Include="..\..\SiteResponse\soillayer.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{6AA68FDF-93BA-4D2B-BF9E-2EA539955002}</ProjectGuid>
+    <RootNamespace>SiteResponse</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Src\SiteResponse;$(SolutionDir)\Src\FEM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;_bool_h;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Progra~2\IntelSWTools\compilers_and_libraries\windows\mkl\lib\intel64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;mkl_lapack95_lp64.lib;mkl_blas95_lp64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\SiteResponse;$(SolutionDir)\..\FEM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;_bool_h;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Progra~2\IntelSWTools\compilers_and_libraries\windows\mkl\lib\intel64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;mkl_lapack95_lp64.lib;mkl_blas95_lp64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Src\SiteResponse;$(SolutionDir)\Src\FEM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;_bool_h;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Progra~2\IntelSWTools\compilers_and_libraries\windows\mkl\lib\intel64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;mkl_lapack95_lp64.lib;mkl_blas95_lp64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\SiteResponse;$(SolutionDir)\..\FEM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;_bool_h;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Progra~2\IntelSWTools\compilers_and_libraries\windows\mkl\lib\intel64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mkl_intel_lp64.lib;mkl_sequential.lib;mkl_core.lib;mkl_lapack95_lp64.lib;mkl_blas95_lp64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

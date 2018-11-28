@@ -32,4 +32,10 @@
 *.app
 
 # docs
-docs/
+PileGroupTool/
+
+# SiteResponse
+SiteResponse/bin/
+*.ini
+*.out
+SiteResponse/lib/
