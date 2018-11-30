@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/images/left.png</file>
+        <file>resources/images/right.png</file>
+        <file>resources/styles/stylesheet.css</file>
+        <file>resources/ui/plotView.qml</file>
+        <file>resources/ui/FEMView.qml</file>
+        <file>resources/ui/PM4Sand.qml</file>
+        <file>resources/ui/PM4Silt.qml</file>
+        <file>resources/ui/DinoRun/index.html</file>
+    </qresource>
+</RCC>

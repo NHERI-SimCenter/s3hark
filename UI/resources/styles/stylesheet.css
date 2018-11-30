@@ -1,0 +1,33 @@
+/* ---   Styles for SRT    --- */
+/* --- Written: charles.wang --- */
+
+
+
+BonzaTableView
+{
+    selection-background-color: #f2ffcc;
+    /*gridline-color: green;*/
+}
+
+BonzaTableView::item:hover
+{
+    background-color: #47ad22;
+}
+
+QLineEdit
+{
+    selection-color: green
+}
+
+QGroupBox#groupBox_Graphic {
+    /*background-color: green;*/
+    /*border: 3px solid black;*/
+}
+
+QGroupBox {
+    /*background-color: green;*/
+    /*border: 3px solid black;*/
+
+}
+
+
