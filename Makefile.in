@@ -4,19 +4,19 @@ FF  = gfortran
 CC  = clang
 CXX = clang++
 
-CXXOPTFLAG = -Wall -D_LINUX -D_UNIX -Wno-reorder -O3 -ffloat-store -g -O0
+CXXOPTFLAG = -Wall -D_LINUX -D_UNIX -Wno-reorder -O3 -ffloat-store -g -O0 -mmacosx-version-min=10.11
 FFNOPTFLAG = -Wall -O
 CCOPTFLAG  = -Wall -Wno-reorder -O2
 
 LINCLUDE = -I$(source) \
 	   -I$(source)/FEM \
 	   -I$(source)/SiteResponse \
-	   -I/usr/local/Cellar/lapack/3.8.0_1/include
+	   
 	   
 
-NUMLIBS = -L/usr/lib -L/usr/local/lib -L/usr/local/Cellar/lapack/3.8.0_1/lib -lblas -llapack -llapacke -lm -ldl -lgfortran
+NUMLIBS = -L/usr/local/lib -L/usr/local/opt/lapack/lib -lblas -llapack -llapacke -L/usr/lib  -lm -ldl -lgfortran
 
-MINCLUDE = -I/usr/include -I/usr/local/Cellar/lapack/3.8.0_1/include
+MINCLUDE = -I/usr/include -I/usr/local/opt/lapack/include
 
 FEMlib  = $(source)/lib/libFEM.a
 SRTlib  = $(source)/lib/libSRT.a

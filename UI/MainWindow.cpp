@@ -170,6 +170,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //dinoView->setMaximumHeight(400);
     ui->materialLayout->addWidget(dinoView);
     dinoView->setVisible(false);
+    ui->reBtn->setVisible(false);
+
 
     //SiteResponse srt ;
 

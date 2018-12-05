@@ -1,39 +1,15 @@
-include ./Makefile.in
+include ../Makefile.in
 
-# -------------------------
-
-siteResponse: ./SiteResponse/Main.cpp $(FEMlib)
-	make libs
-	@$(CXX) $(CXXOPTFLAG) $(LINCLUDE) $(MINCLUDE) ./SiteResponse/Main.cpp $(SRTlib) $(FEMlib) $(NUMLIBS) -o $(source)/bin/siteresponse
-	
-fem:
-	make tidy
-	make siteResponse
-
-$(FEMlib):
-	@ make libs
+OBJS =  \
+       FEModel.o \
+       soillayer.o \
+       siteLayering.o \
+       outcropMotion.o
 
 archive: $(OBJS)
-	ar rv $(FEMlib) $(OBJS)
-
-libs:
-	(mkdir -p bin)
-	(mkdir -p lib)
-	(cd FEM; make archive)
-	(cd SiteResponse; make archive)
+	ar rv $(SRTlib) $(OBJS)
 
 clean:
-	rm -f $(FEMlib)
-	rm -f $(SRTlib)
-	(cd FEM; make clean)
-	(cd SiteResponse; make clean)
-	
-tidy:
-	rm -f $(source)/bin/siteresponse
-	rm -f $(source)/lib/*.a
-	make clean
+	rm -f $(OBJS)
+	rm -f *.a
 
-install: siteResponse
-	cp $(source)/bin/siteresponse $(HOME)/bin/.
-
-.PHONY: siteResponse

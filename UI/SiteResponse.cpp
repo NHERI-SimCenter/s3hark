@@ -59,7 +59,8 @@ SiteResponse::SiteResponse()
     //SiteResponseModel model(siteLayers, "3D", &motionX, &motionZ);
     SiteResponseModel model(siteLayers, "2D", &motionX);
     model.setOutputDir(bbpOName);
-    model.runTotalStressModel();
+    //model.runTotalStressModel();
+    model.runEffectiveStressModel();
 
 
 }
