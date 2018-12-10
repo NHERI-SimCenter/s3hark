@@ -7,11 +7,15 @@ BonzaTableView
 {
     selection-background-color: #f2ffcc;
     /*gridline-color: green;*/
+    selection-color: black;
+
 }
+
 
 BonzaTableView::item:hover
 {
-    background-color: #47ad22;
+    background-color: #ccff33;
+
 }
 
 QLineEdit

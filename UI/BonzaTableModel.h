@@ -129,11 +129,14 @@ public:
     Q_INVOKABLE void setActive(int row)
     {
         int i;
+
         for (i=0;i<this->rowCount() ;++i)
             setData(this->index(i, CHECKED), "0");
 
         setData(this->index(row, CHECKED), "1");
+
         submitAll();
+
         //emit rowActivated(row);
 
     }

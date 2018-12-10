@@ -18,8 +18,10 @@ static const QString g_colorLabel = "Color";
 #define THICKNESS       3
 #define DENSITY        4
 #define VS          5
-#define COLOR       6
-#define MATERIAL 7
+#define MATERIAL 6
+#define COLOR       7
+#define FEM 8
+
 
 
 #endif // GLOBALCONSTANCES_H

@@ -15,8 +15,13 @@
 #include <QParallelAnimationGroup>
 #include <QThread>
 
+#include <QTabWidget>
+
 #include "SiteResponse.h"
 
+#include <QUiLoader>
+
+#include "TabManager.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -64,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->gotoPageBox->setFixedWidth(60);
     ui->gotoPageBox->hide();
+    ui->curPageLabel->hide();
 
     // margins of centralWidget
     centralWidget()->layout()->setContentsMargins(0, 0, 0, 0);
@@ -123,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
     meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
     meshContainer->setFocusPolicy(Qt::TabFocus);
-    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/FEMView.qml")));
+    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
     ui->meshView_verticalLayout->addWidget(meshContainer);
 
     connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
@@ -135,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
 
     //resize(830 + 80, 350 + 40);
-    resize(830 + 80, 530 + 40);
+    resize(830 + 80, 530 + 20);
 
     ui->tableView->m_sqlModel->deActivateAll();
 
@@ -161,16 +167,72 @@ MainWindow::MainWindow(QWidget *parent) :
     matContainer->hide();
     */
 
+    dinoView = new QWebEngineView(this);
+    dinoView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/DinoRun/index.html"));
+    dinoView->setVisible(false);
 
+    /*
 
     dinoView = new QWebEngineView(this);
     dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
     //view->show();
     //dinoView->setMinimumHeight(400);
     //dinoView->setMaximumHeight(400);
-    ui->materialLayout->addWidget(dinoView);
+    //ui->materialLayout->addWidget(dinoView);
     dinoView->setVisible(false);
-    ui->reBtn->setVisible(false);
+    //ui->reBtn->setVisible(false);
+    ui->tabWidget->addTab(dinoView, "Run");
+    */
+
+/*
+    // add QQuickwidget for displaying soil layers
+    QQuickView *FEMView = new QQuickView();
+    FEMView->rootContext()->setContextProperty("designTableModel", ui->tableView);
+    FEMView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
+    QWidget *FEMContainer = QWidget::createWindowContainer(FEMView, this);
+    //plotContainer->setFixedSize(QSize(200, 800));
+    FEMContainer->setMinimumSize(layerViewWidth,180);
+    FEMContainer->setMaximumSize(layerViewWidth,180);
+    FEMContainer->setFocusPolicy(Qt::TabFocus);
+    FEMView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/FEMView.qml")));
+    ui->tabWidget->addTab(FEMContainer,"FEM");
+    */
+
+
+/*
+    InsertWindow* insertDlg = new InsertWindow(this);
+    QList<QVariant> infos = ui->tableView->currentRowInfo();
+    if( infos.count() >= 5)
+        insertDlg->initInfo(infos);
+
+    connect(insertDlg, SIGNAL(accepted(QList<QVariant>)),
+            ui->tableView, SLOT(insert(QList<QVariant>)) );
+    ui->tabWidget->addTab(insertDlg,"FEM");
+    */
+
+    /*
+    //set path of ui
+    QUiLoader uiLoader;
+    QString uiFileName = ":/UI/test.ui";
+    QFile uiFile(uiFileName);
+    uiFile.open(QIODevice::ReadOnly);
+    // setWorkingDirectory: if uiFile depended on other resources,
+    // setWorkingDirectory needs to be set here
+    //const QDir &workdir(uifileWorkPath);
+    //uiLoader.setWorkingDirectory(workdir);
+    //load ui
+    QWidget* getWidget = uiLoader.load(&uiFile,this);
+    ui->tabWidget->addTab(getWidget,"FEM");
+    //ui->meshView_verticalLayout->addWidget(getWidget);
+    */
+
+    TabManager* theTabManager = new TabManager(ui->tableView, this);
+    theTabManager->init(ui->tabWidget);
+    //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
+    connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
+
+    ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
+
 
 
     //SiteResponse srt ;
@@ -195,7 +257,7 @@ void MainWindow::on_meshBtn_clicked(bool checked)
         ui->groupBox_Mesh->setVisible(false);
         int w = layerViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
-        this->resize(w+80,h+40);
+        this->resize(w+80,h+20);
 
 
     }else{
@@ -204,7 +266,7 @@ void MainWindow::on_meshBtn_clicked(bool checked)
         //int w =  meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int w = layerViewWidth + meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
-        this->resize(w+80,h+40);
+        this->resize(w+80,h+20);
     }
 
 }
@@ -396,7 +458,21 @@ void MainWindow::on_reBtn_clicked()
 {
     //ui->tableView->hide();
 
-    dinoView->setVisible(true);
+
+    //dinoView = new QWebEngineView(this);
+    //dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
+    ui->tabWidget->addTab(dinoView, "Run");
+
+    ui->tabWidget->setCurrentIndex(1);
+
+    ui->tabWidget->setMovable(true);
+    //dinoView->setVisible(true);
+
+    //view->show();
+    //dinoView->setMinimumHeight(400);
+    //dinoView->setMaximumHeight(400);
+    //ui->materialLayout->addWidget(dinoView);
+
 
     /*
     QWidget *w1 = this->ui->tableView;

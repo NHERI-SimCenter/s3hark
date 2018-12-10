@@ -4,7 +4,7 @@
 #                                                 #
 #-------------------------------------------------#
 
-QT       += core gui sql quick qml webenginewidgets
+QT       += core gui sql quick qml webenginewidgets uitools
 
 CONFIG += c++11
 
@@ -46,8 +46,8 @@ SOURCES += main.cpp\
     UI/BonzaTableView.cpp \
     UI/InsertWindow.cpp \
     UI/BonzaTableModel.cpp \
-    UI/SiteResponse.cpp
-
+    UI/SiteResponse.cpp \
+    UI/TabManager.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/DatabaseManager.h \
@@ -55,10 +55,15 @@ HEADERS  += UI/MainWindow.h \
     UI/BonzaTableView.h \
     UI/InsertWindow.h \
     UI/BonzaTableModel.h \
-    UI/SiteResponse.h
+    UI/SiteResponse.h \
+    UI/TabManager.h
+
 
 FORMS    += UI/MainWindow.ui \
-    UI/InsertWindow.ui
+    UI/InsertWindow.ui \
+    UI/PM4Sand.ui \
+    UI/ElasticIsotropic.ui \
+    UI/DefaultMatTab.ui
 
 RESOURCES += \
     resources.qrc

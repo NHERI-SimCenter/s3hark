@@ -20,7 +20,7 @@ signals:
     void accepted( const QList<QVariant> & );
 
 private slots:
-    void submite();
+    void submitx();
 
 private:
     Ui::InsertWindow *ui;

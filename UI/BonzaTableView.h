@@ -29,6 +29,7 @@ class BonzaTableView : public QTableView
     //Q_PROPERTY(double m_nGWT READ getGWT WRITE setGWT NOTIFY gwtChanged)
     Q_PROPERTY(double m_nGWT MEMBER m_nGWT NOTIFY gwtChanged)
 
+
 public:
     explicit BonzaTableView(QWidget *parent = nullptr);
     ~BonzaTableView();
@@ -38,6 +39,8 @@ public:
     QSqlTableModel* sqlModel() { return m_sqlModel; }
 
     QList<QVariant> currentRowInfo() const;
+    QList<QVariant> getRowInfo(int r) const;
+    void updateFEMCell(const QList<QVariant> &valueList);
     int currentPage() const { return m_nCurPage; }
     int totalSize() const { return m_nTotal; }
     int lastPageSize() const { return m_nLastPageSize; }
@@ -48,6 +51,16 @@ public:
 
 
     BonzaTableModel* m_sqlModel;
+
+    QVector<QMap<QString,double>> m_LayerVector;
+
+    Q_INVOKABLE QMap<QString,double> getLayerVector(int layerNum){return m_LayerVector[layerNum];}
+
+    QVector<QString> layerParsName;
+    QVector<double> layerParsValue;
+    Q_INVOKABLE QString getLayerParsNames(int index){return layerParsName[index];}
+    Q_INVOKABLE double getLayerParsValues(int index){return layerParsValue[index];}
+
 
     Q_INVOKABLE double getGWT();
 
@@ -75,6 +88,7 @@ signals:
     void insertBelowAct();
     void gwtChanged(double newGWT);
     void rowRemoved(int row);
+    void cellClicked(const QModelIndex &index);
 
 public slots:
     void insert(const QList<QVariant> &valueList);
@@ -100,15 +114,14 @@ public slots:
 
     void setGWT(double GWT);
 
-    void on_clicked(const QModelIndex &index)
+    void onCellSingleClicked(const QModelIndex &index);
+
+    void onCellDoubleClicked(const QModelIndex &index)
     {
-
-        qDebug() << "view says: I feel row " << index.row() << " column " << index.column() << " activated" ;
-
-        if(index.column()==MATERIAL)
-            qDebug() << "material clicked";
-
-        setActive(index.row(), index.column());
+        Q_UNUSED(index);
+        qDebug() << "Double click is not working. \n"
+                 << "Because the model is repopulated, and on OnManualSubmit mode the selection in the view is losted. \n"
+                 <<  "The double click simulator in cellSingleClicked is an alternative. ";
     }
 
 
@@ -138,11 +151,98 @@ private:
 };
 
 
-class BackgroundItemDelegate: public QItemDelegate
+
+/**
+ * A class used to customize the appearance of materal cells.
+ * @brief TableViewItemDelegate::TableViewItemDelegate
+ * @return
+ */
+class MatItemDelegate: public QItemDelegate
 {
     Q_OBJECT
 public:
-    explicit BackgroundItemDelegate(QWidget* parent):QItemDelegate(parent){}
+    explicit MatItemDelegate(QWidget* parent):QItemDelegate(parent){}
+
+    QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QComboBox *editor = new QComboBox(parent);
+        editor->addItem("Elastic");
+        editor->addItem("PM4Sand");
+        return editor;
+    }
+
+    void setEditorData(QWidget* editor, const QModelIndex& index) const
+    {
+        QComboBox* cb = qobject_cast<QComboBox*>(editor);
+        Q_ASSERT(cb);
+        // get the index of the text in the combobox that matches the current value of the itenm
+        QString currentText = index.data(Qt::EditRole).toString();
+        int cbIndex = cb->findText(currentText);
+        // if it is valid, adjust the combobox
+        if (cbIndex >= 0)
+           cb->setCurrentIndex(cbIndex);
+    }
+
+
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+    {
+        QComboBox* cb = qobject_cast<QComboBox*>(editor);
+        Q_ASSERT(cb);
+        model->setData(index, cb->currentText(), Qt::EditRole);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                           const QModelIndex &index ) const
+    {
+        // get the text for index
+        QString text = (index.data(Qt::DisplayRole)).toString();
+        QStyleOptionViewItem opt = setOptions(index, option);
+
+        qobject_cast<BonzaTableView*>(parent())->horizontalHeader()->resizeSection(CHECKED, 20);
+
+        painter->save();
+        QPen pen;
+
+        if( index.column() != CHECKED )
+        {
+            painter->setPen(Qt::NoPen);
+            painter->setRenderHint(QPainter::Antialiasing, true);
+            // set the color for active, it seems didn't work
+            if( opt.state & QStyle::State_Selected )
+            {
+                painter->setBrush(option.palette.highlightedText());
+                painter->fillRect(opt.rect, QBrush(QColor(0, 0, 0)));
+//                QItemDelegate::paint(painter, option, index);
+            }
+            // draw the background color and text color
+            painter->setPen(pen);
+            drawBackground(painter, opt, index);
+
+            //painter->drawText(opt.rect, opt.displayAlignment, text);
+            painter->drawText(opt.rect, Qt::AlignHCenter | Qt::AlignVCenter, text);
+            painter->restore();
+        }
+
+    }
+
+
+};
+
+
+/**
+ * A class used to customize the appearance of the
+ * table view.
+ * @brief TableViewItemDelegate::TableViewItemDelegate
+ * @return
+ */
+class TableViewItemDelegate: public QItemDelegate
+{
+    Q_OBJECT
+public:
+    explicit TableViewItemDelegate(QWidget* parent):QItemDelegate(parent){}
+
+
+
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                            const QModelIndex &index ) const
@@ -177,7 +277,10 @@ public:
         }
 
 
+
     }
+
+
     void paintMore(QPainter *painter, const QStyleOptionViewItem &option,
                            const QModelIndex &index ) const
     {
@@ -292,6 +395,7 @@ public:
                 return model->setData(index, checked == 1 ? 0 : 1, Qt::CheckStateRole);
             }
         }
+
 
         return false;
     }

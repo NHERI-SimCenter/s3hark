@@ -54,13 +54,44 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
 
     this->setColumnHidden(1,true);
 
-    this->setItemDelegate(new BackgroundItemDelegate(this));
-
+    //this->setItemDelegate(new TableViewItemDelegate(this));
+    this->setItemDelegateForColumn(MATERIAL,new MatItemDelegate(this));
+    this->setItemDelegateForColumn(LAYERNAME,new TableViewItemDelegate(this));
+    this->setItemDelegateForColumn(THICKNESS,new TableViewItemDelegate(this));
+    this->setItemDelegateForColumn(DENSITY,new TableViewItemDelegate(this));
+    this->setItemDelegateForColumn(VS,new TableViewItemDelegate(this));
+    this->setItemDelegateForColumn(COLOR,new TableViewItemDelegate(this));
 
 
     //setEditTriggers(QAbstractItemView::SelectedClicked);
-    connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(on_clicked(const QModelIndex &)));
+    connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCellSingleClicked(const QModelIndex &)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onCellDoubleClicked(const QModelIndex &)));
 
+
+
+    QMap<QString,double> m_layerData;
+    m_layerData["LayerName"] = 1.;
+    m_layerData["Thickness"] = 1.;
+    m_LayerVector.push_back(m_layerData);
+
+    QMap<QString,double> m_layerData2;
+    m_layerData2["LayerName"] = 1.;
+    m_layerData2["Thickness"] = 1.;
+    m_LayerVector.push_back(m_layerData2);
+
+    QMap<QString,double> m_layerData3;
+    m_layerData3["LayerName"] = 1.;
+    m_layerData3["Thickness"] = 1.;
+    m_LayerVector.push_back(m_layerData3);
+
+    layerParsName.push_back("Layer1");
+    layerParsValue.push_back(1.);
+
+    layerParsName.push_back("Layer2");
+    layerParsValue.push_back(2.);
+
+    layerParsName.push_back("Layer3");
+    layerParsValue.push_back(3.);
 
 }
 
@@ -74,6 +105,44 @@ BonzaTableView::~BonzaTableView()
     }
     m_sqlModel->clear();
     m_sqlModel->deleteLater();
+}
+
+/**
+ * when a cell is clicked
+ * 1. call setActive to set active row in the model
+ * 2. check if this is a double click
+ * @brief BonzaTableView::onCellSingleClicked
+ * @return
+ */
+void BonzaTableView::onCellSingleClicked(const QModelIndex &index)
+{
+
+    emit cellClicked(index);
+
+    int clickedRow = index.row();
+    int clickedCol = index.column();
+    // if this row is alrady selected, regard the current single click as a double click
+    bool cellDoubleClicked = m_sqlModel->isActive(clickedRow);
+
+    qDebug() << "view says: I feel row " << index.row() << " column " << index.column() << " activated" ;
+
+    if(index.column()==MATERIAL)
+        qDebug() << "material clicked";
+
+    setActive(index.row(), index.column());
+
+    // double click simulator
+    if (cellDoubleClicked)
+    {
+        QKeyEvent keyPress(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QString());
+        QCoreApplication::sendEvent(this, &keyPress);
+    }
+
+
+
+
+
+
 }
 
 /**
@@ -97,6 +166,36 @@ QList<QVariant> BonzaTableView::currentRowInfo() const
     }
 
     return list;
+}
+
+/**
+ * get the info of a given row
+ * @brief BonzaTableView::getRowInfo
+ * @return
+ */
+QList<QVariant> BonzaTableView::getRowInfo(int r) const
+{
+    QList<QVariant> list;
+
+    QSqlRecord record = m_sqlModel->record(r);  //get the data in the current row
+    for( int i = LAYERNAME; i < record.count(); ++i)//read data starting from LayerName
+    {
+        QSqlField field = record.field(i);
+        QString data = field.value().toString();
+        list.append(data);
+    }
+
+    return list;
+}
+
+/**
+ * update the FEM cell
+ * @brief BonzaTableView::updateFEMCell
+ * @return
+ */
+void BonzaTableView::updateFEMCell(const QList<QVariant> &valueList)
+{
+    qDebug() << "updateFEMCell called. ";
 }
 
 void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPosition)
@@ -578,7 +677,15 @@ void BonzaTableView::updateTableModel()
 void BonzaTableView::styleView(bool enabled)
 {
     if( enabled )
-        this->setItemDelegate(new BackgroundItemDelegate(this));
+    {
+        //this->setItemDelegate(new TableViewItemDelegate(this));
+        this->setItemDelegateForColumn(MATERIAL,new MatItemDelegate(this));
+        this->setItemDelegateForColumn(LAYERNAME,new TableViewItemDelegate(this));
+        this->setItemDelegateForColumn(THICKNESS,new TableViewItemDelegate(this));
+        this->setItemDelegateForColumn(DENSITY,new TableViewItemDelegate(this));
+        this->setItemDelegateForColumn(VS,new TableViewItemDelegate(this));
+        this->setItemDelegateForColumn(COLOR,new TableViewItemDelegate(this));
+    }
     else
         this->setItemDelegate(new QItemDelegate(this));
 }

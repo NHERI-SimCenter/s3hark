@@ -24,36 +24,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QGroupBox" name="groupBox_Mesh">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>530</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>220</width>
-        <height>530</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Mesh</string>
-      </property>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>141</width>
-         <height>311</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="meshView_verticalLayout"/>
-      </widget>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QGroupBox" name="groupBox_Graphic">
       <property name="minimumSize">
@@ -419,12 +389,62 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>300</y>
+         <y>290</y>
          <width>630</width>
-         <height>201</height>
+         <height>231</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="materialLayout"/>
+       <layout class="QVBoxLayout" name="materialLayout">
+        <item>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>610</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="currentIndex">
+           <number>-1</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupBox_Mesh">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>530</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>220</width>
+        <height>530</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Mesh</string>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>141</width>
+         <height>311</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="meshView_verticalLayout"/>
       </widget>
      </widget>
     </item>

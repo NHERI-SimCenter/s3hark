@@ -8,12 +8,12 @@ import QtQuick.Shapes 1.11;
 Rectangle {
     id: container
     width: 200//parent.width
-    height: 320
+    height: 500//320
     color: "#e2e2e2"
 
     property real soilWidth: width*0.6
     property real startXLoc: (1-0.6)*width/2
-    property real parentHeight: 320
+    property real parentHeight: 500//320
 
 
 
@@ -47,7 +47,7 @@ Rectangle {
                 id: item
                 //anchors.centerIn: parent
 
-                property real parentHeight: 320
+                property real parentHeight: 500//320
                 property real totalSoilHeight: soilModel.getTotalHeight()
                 property real heightFactor: parentHeight*0.8/soilModel.getTotalHeight()
 
@@ -72,6 +72,8 @@ Rectangle {
                 property bool isActive: soilModel.isActive(index)
 
 
+
+
                 ShapePath {
                     strokeWidth: isActive ? 2 : 1
                     strokeColor: isActive ? "red" : soilColor
@@ -86,13 +88,10 @@ Rectangle {
                     PathLine { x: startXLoc; y: startYLoc }
                 }
 
-
-
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        //soilModel.setActive(index);
-                        designTableModel.setActive(index);
+                        soilModel.setActive(index) ;
                     }
                     enabled: true
                 }

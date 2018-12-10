@@ -4,9 +4,11 @@
         <file>resources/images/right.png</file>
         <file>resources/styles/stylesheet.css</file>
         <file>resources/ui/plotView.qml</file>
-        <file>resources/ui/FEMView.qml</file>
-        <file>resources/ui/PM4Sand.qml</file>
-        <file>resources/ui/PM4Silt.qml</file>
+        <file>resources/ui/MeshView.qml</file>
         <file>resources/ui/DinoRun/index.html</file>
+        <file>UI/PM4Sand.ui</file>
+        <file>UI/ElasticIsotropic.ui</file>
+        <file>UI/DefaultMatTab.ui</file>
+
     </qresource>
 </RCC>

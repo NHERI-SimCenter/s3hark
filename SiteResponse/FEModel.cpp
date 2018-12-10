@@ -1587,6 +1587,8 @@ int SiteResponseModel::runEffectiveStressModel()
 		theSP = new SP_Constraint(numNodes + 1, 1, 0.0, true);
 		theDomain->addSP_Constraint(theSP);
 
+		
+
 		s << "fix " << numNodes + 1 << " 1 1" << endln;
 
 		theSP = new SP_Constraint(numNodes + 2, 1, 0.0, true);

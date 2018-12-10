@@ -62,7 +62,7 @@ bool DatabaseManager::createTable()
     if( !tableList.contains(g_dbTableName) )
     {
         QString createTable = QString("CREATE TABLE %1 (ID integer PRIMARY KEY AUTOINCREMENT,"
-                                      "Checked integer default 0, LayerName text, Thickness text, Density text, Vs text, Color text, Material)"
+                                      "Checked integer default 0, LayerName text, Thickness text, Density text, Vs text, Material text, Color text, FEM text)"
                                       ).arg(g_dbTableName);
         if(!query.exec(createTable))
         {
