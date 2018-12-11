@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>589</width>
-    <height>140</height>
+    <width>630</width>
+    <height>202</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,14 +16,14 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>60</y>
-     <width>341</width>
-     <height>21</height>
+     <x>230</x>
+     <y>80</y>
+     <width>181</width>
+     <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Please select a material type for this layer in the table.</string>
+    <string>This is the ground motion tab.</string>
    </property>
   </widget>
  </widget>

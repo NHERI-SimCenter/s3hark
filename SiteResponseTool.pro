@@ -63,7 +63,8 @@ FORMS    += UI/MainWindow.ui \
     UI/InsertWindow.ui \
     UI/PM4Sand.ui \
     UI/ElasticIsotropic.ui \
-    UI/DefaultMatTab.ui
+    UI/DefaultMatTab.ui \
+    UI/GroundMotion.ui
 
 RESOURCES += \
     resources.qrc

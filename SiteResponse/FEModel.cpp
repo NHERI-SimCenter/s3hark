@@ -1190,7 +1190,14 @@ int SiteResponseModel::runEffectiveStressModel()
 			double evoid = Gs / rho_d - 1;
 			double Dr = 0.466; //(emax - evoid) / (emax - emin);
 			double hpo = 0.45;
-			//theMat = new PM4Sand(numLayers - layerCount - 1, Dr, G0, hpo, rho_d);
+
+			/*
+			theMat = new PM4Sand(numLayers - layerCount - 1, Dr, G0, hpo, rho_d);
+			s << "nDMaterial PM4Sand " << numLayers - layerCount - 1 << " " << Dr << " "<<G0<<" "<<hpo<<" "<<rho_d<<endln;
+			*/
+
+			// use N10_T3
+			
 			if ((numLayers - layerCount - 1)==2)
 			{
 				theMat = new PM4Sand(numLayers - layerCount - 1,0.4662524041201569, 584.1, 0.450, 2.00594878429427, 101.3, -1.00,   0.8,  0.5, 0.5,  0.1,  -1.0,  -1.0,  250.0,  -1.00,  33.0,  0.3333333333333333);
@@ -1201,8 +1208,9 @@ int SiteResponseModel::runEffectiveStressModel()
 				theMat = new PM4Sand(numLayers - layerCount - 1, 0.4662524041201569, 468.3, 0.463, 1.6083133257878446, 101.3, -1.00, 0.8, 0.5, 0.5, 0.1, -1.0, -1.0, 250.0, -1.00,  33.0,  0.3333333333333333);
 				s << "nDMaterial PM4Sand " << numLayers - layerCount - 1 << " " << "0.4662524041201569 468.3 0.463 1.6083133257878446 101.3 -1.00   0.8  0.5 0.5  0.1  -1.0  -1.0  250.0  -1.00  33.0  0.3333333333333333" << endln;
 			}
+			
 				
-			//s << "nDMaterial PM4Sand " << numLayers - layerCount - 1 << " " << Dr << " "<<G0<<" "<<hpo<<" "<<rho_d<<endln;
+			
 		}
 
 		OPS_addNDMaterial(theMat);

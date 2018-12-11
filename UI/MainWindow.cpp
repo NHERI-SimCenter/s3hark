@@ -54,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->gotoPageBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(gotoPage(int)) );
 
+    connect(ui->totalLayerLineEdit, SIGNAL(editingFinished()), this, SLOT(onTotalLayerChanged()) );
+
 
     ui->prePageBtn->setFocusPolicy(Qt::NoFocus);
     ui->prePageBtn->setFixedSize(20, 20);
@@ -84,6 +86,9 @@ MainWindow::MainWindow(QWidget *parent) :
       this->setStyleSheet(styleSheet);
     }
 
+    // validator for total layers, must be int between 0 and 1000
+    ui->totalLayerLineEdit->setValidator(new QIntValidator(0, 1000, this));
+
     // when an element is selected, the whole row is selected
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -104,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tableView->insertAt(valueList,0);
         ui->tableView->setTotalHeight(3);
         ui->totalHeight->setText("3");
+        ui->totalLayerLineEdit->setText("1");
     }
 
     // add QQuickwidget for displaying soil layers
@@ -247,6 +253,25 @@ MainWindow::~MainWindow()
 }
 
 
+void MainWindow::onTotalLayerChanged()
+{
+    int previousNumLayers = ui->tableView->totalSize();
+    int newNumLayers = ui->totalLayerLineEdit->text().toInt();
+    qDebug() << "total layer changed from "<< previousNumLayers << " to " << newNumLayers;
+    if(previousNumLayers < newNumLayers)
+    {
+        QList<QVariant> emptyList;
+        for (int i=0; i<(newNumLayers-previousNumLayers); i++)
+            ui->tableView->insertAtEnd(emptyList);
+    }
+    if(previousNumLayers > newNumLayers & newNumLayers>=0)
+    {
+        for (int i=previousNumLayers; i>newNumLayers; i--)
+            ui->tableView->removeOneRow(i-1);
+    }
+}
+
+
 
 void MainWindow::on_meshBtn_clicked(bool checked)
 {
@@ -276,6 +301,7 @@ void MainWindow::updateCtrl()
 
     ui->totalHeight->setText(QString::number(ui->tableView->totalHeight()));
     ui->gwtEdit->setText(QString::number(ui->tableView->getGWT()));
+
     int total = ui->tableView->totalSize();
     if(total>1)
     {

@@ -45,6 +45,8 @@ private slots:
 
     void on_reBtn_clicked();
 
+    void onTotalLayerChanged();
+
     void refresh();
 
 signals:

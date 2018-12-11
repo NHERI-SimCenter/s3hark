@@ -35,7 +35,17 @@
 PileGroupTool/
 
 # SiteResponse
-SiteResponse/bin/
+bin/
+lib/
+test/
+VS/
+.vscode/
 *.ini
 *.out
-SiteResponse/lib/
+*.fig
+*.user
+resources/ui/DinoRun
+
+
+SiteResponse/bin/
+

@@ -100,6 +100,8 @@ public slots:
     void removeOneRow(int row);
     void removeOnPage();
 
+
+
     void divideByLayers();
 
 

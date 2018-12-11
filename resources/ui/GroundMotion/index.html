@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+    <title >chrome easter egg: t-rex runner</title>
+
+<!-- Load c3.css -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.css" rel="stylesheet">
+
+<!-- Load d3.js and c3.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.min.js"></script>
+
+
+</head>
+
+<body id="t" class="offline">
+   <div id="chart" style="width: 580px; height: 170px;"></div>
+
+<script>
+xd = ['x', 30, 50, 100, 230, 300, 310];
+yd = ['Rock motion', 100, 250, 150, 200, 100, 350];
+var chart = c3.generate({
+    data: {
+        x: 'x',
+        columns: [
+            xd,
+            yd
+        ]
+    },
+    axis: {
+        x: {
+            label: {text:'Time (s)',  position: 'outer-center' },
+
+        },
+        y: {
+            label: {text:'Acc (m/s^2)', position: 'outer-middle'},
+
+        }
+    }
+});
+
+
+setTimeout(function () {
+    chart.load({
+        columns: [
+            ['Surface motion', 70, 180, 190, 180, 80, 250]
+        ]
+    });
+}, 1000);
+
+
+
+</script>
+</body>
+
+</html>
