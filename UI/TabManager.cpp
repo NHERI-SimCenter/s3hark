@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QAbstractItemModel>
 #include <QLineEdit>
-#include <QWebEngineView>
+
 
 TabManager::TabManager(QWidget *parent) : QDialog(parent)
 {
@@ -34,7 +34,7 @@ void TabManager::init(QTabWidget* theTab){
     tab->addTab(defaultWidget,"FEM");
 
 
-    QWebEngineView *GMView = new QWebEngineView(this);
+    GMView = new QWebEngineView(this);
     GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
     GMView->setVisible(false);
     tab->insertTab(1,GMView,"Ground motion");
@@ -92,7 +92,7 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
 
 
 
-    tab->removeTab(0);
+
     if (thisMatType=="Elastic")
     {
         currentEdts = edtsElasticIsotropicFEM;
@@ -107,7 +107,10 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
         currentWidget = defaultWidget;
 
 
+    for (int j=tab->count();j>0;j--)
+        tab->removeTab(j-1);
     tab->insertTab(0,currentWidget,"FEM");
+    tab->insertTab(1,GMView,"Ground motion");
     tab->setCurrentIndex(0);
 
     QList<QVariant> infos = tableView->getRowInfo(currentRow);
@@ -117,6 +120,7 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
     }
 
     fillFEMTab(thisMatType, index);
+
 
 }
 
@@ -221,6 +225,7 @@ void TabManager::onDataEdited()
     {
         QLineEdit* DenEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("rhoEdt");
         tableModel->setData(tableModel->index(currentRow, DENSITY), DenEdt->text());
+
     }
     if (thisMatType=="PM4Sand")
     {

@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QModelIndex>
 #include "BonzaTableView.h"
+#include <QWebEngineView>
 
 class TabManager : public QDialog
 {
@@ -44,6 +45,8 @@ private:
     QWidget* ElasticIsotropicWidget;
     QWidget* defaultWidget;
     QWidget* GMWidget;
+
+    QWebEngineView *GMView;
 
     QWidget* currentWidget;
     QVector<QLineEdit*> currentEdts;
