@@ -50,7 +50,7 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     this->updateModel();    //update the table on each page
     this->setModel(m_sqlModel);
     this->hideColumn(0);
-    //this->hideColumn(FEM);
+    this->hideColumn(FEM);
     this->verticalHeader()->hide();
 
     this->setColumnHidden(1,true);

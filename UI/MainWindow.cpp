@@ -178,6 +178,8 @@ MainWindow::MainWindow(QWidget *parent) :
     dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
     dinoView->setVisible(false);
 
+    //ui->reBtn->setVisible(false);
+
     /*
 
     dinoView = new QWebEngineView(this);
@@ -483,16 +485,23 @@ void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
 
 void MainWindow::on_reBtn_clicked()
 {
+    /*
+    ui->tabWidget->addTab(dinoView, "Run");
+    ui->tabWidget->setCurrentIndex(1);
+    ui->tabWidget->setMovable(true);
+    */
+
+
+
+
+
+
     //ui->tableView->hide();
 
 
     //dinoView = new QWebEngineView(this);
     //dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
-    ui->tabWidget->addTab(dinoView, "Run");
 
-    ui->tabWidget->setCurrentIndex(1);
-
-    ui->tabWidget->setMovable(true);
     //dinoView->setVisible(true);
 
     //view->show();
