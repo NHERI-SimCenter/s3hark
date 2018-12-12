@@ -76,6 +76,7 @@
 #include "SingleDomParamIter.h"
 
 #include "Information.h"
+#include <vector> 
 
 #include <map>
 
@@ -1919,19 +1920,32 @@ int SiteResponseModel::runEffectiveStressModel()
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, 0.0, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-	s<< "eval \"recorder Node -file out/surface_tcl.disp -time -dT $dT -node "<<nodesToRecord[0]<<" -dof 1 2 3  disp\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out/surface_tcl.acc -time -dT $dT -node "<<nodesToRecord[0]<<" -dof 1 2 3  accel\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out/surface_tcl.vel -time -dT $dT -node "<<nodesToRecord[0]<<" -dof 1 2 3 vel\""<<endln;// 3
+
+
+
+
+
+	s<< "eval \"recorder Node -file out/surface_tcl.disp -time -dT $motionDT -node "<<nodesToRecord[0]<<" -dof 1 2 3  disp\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out/surface_tcl.acc -time -dT $motionDT -node "<<nodesToRecord[0]<<" -dof 1 2 3  accel\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out/surface_tcl.vel -time -dT $motionDT -node "<<nodesToRecord[0]<<" -dof 1 2 3 vel\""<<endln;// 3
+
+	s<< "eval \"recorder Node -file out/base_tcl.disp -time -dT $motionDT -node 1 -dof 1 2 3  disp\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out/base_tcl.acc -time -dT $motionDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out/base_tcl.vel -time -dT $motionDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
+	s<< "eval \"recorder Node -file out/pwpLiq_tcl.out -time -dT $motionDT -node 17 -dof 3 vel\""<<endln;
+
+	s<< "recorder Element -file out/stress_tcl.out -time -dT $motionDT  -eleRange 1 "<<numNodes<<"  stress 3"<<endln;
+	s<< "recorder Element -file out/strain_tcl.out -time -dT $motionDT  -eleRange 1 "<<numNodes<<"  strain"<<endln;
+
+
 	s<< endln << endln;
 	
 	// record the response of base node
 	nodesToRecord(0) = 1;
 	
 	dofToRecord.resize(1);
-	if (!theModelType.compare("2D")) // 2D
-		dofToRecord(0) = 2;
-	else // 3D
-		dofToRecord(0) = 3;
+	dofToRecord(0) = 0; // only record the x dof
+
 	outFile = theOutputDir + PATH_SEPARATOR + "base.acc";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, 0.0, true, NULL);
@@ -1947,23 +1961,46 @@ int SiteResponseModel::runEffectiveStressModel()
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, 0.0, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
+	dofToRecord.resize(1);
+	dofToRecord(0) = 2; // only record the pore pressure dof
+	ID pwpNodesToRecord(1);
+	pwpNodesToRecord(0) = 17;
+	outFile = theOutputDir + PATH_SEPARATOR + "pwpLiq.out";
+	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new NodeRecorder(dofToRecord, &pwpNodesToRecord, 0, "vel", *theDomain, *theOutputStream, 0.0, true, NULL);
+	theDomain->addRecorder(*theRecorder);
+
+
+
 
 	// record element results
-	// OPS_Stream* theOutputStream2;
-	// ID elemsToRecord(5);
-	// elemsToRecord(0) = 1;
-	// elemsToRecord(1) = 2;
-	// elemsToRecord(2) = 3;
-	// elemsToRecord(3) = 4;
-	// elemsToRecord(4) = 5;
-	// const char* eleArgs = "stress";
-	//
-	// theOutputStream2 = new DataFileStream("Output2.out", OVERWRITE, 2, 0, false, 6, false);
-	// theRecorder = new ElementRecorder(&elemsToRecord, &eleArgs, 1, true, *theDomain, *theOutputStream2, 0.0, NULL);
-	// theDomain->addRecorder(*theRecorder);
+	OPS_Stream* theOutputStream2;
+	ElementIter &theElementIterh = theDomain->getElements();
+	std::vector<int> quadElem;
+	while ((theEle = theElementIterh()) != 0)
+	{
+		int theEleTag = theEle->getTag();
+		if (theEle->getNumDOF() == 12) // quad ele
+			quadElem.push_back(theEleTag);
+	}
+	ID elemsToRecord(quadElem.size());
+	for (int i=0;i<quadElem.size();i+=1)
+		elemsToRecord(i) = quadElem[i];
+	const char* eleArgs = "stress";
+	outFile = theOutputDir + PATH_SEPARATOR + "stress.out";
+	theOutputStream2 = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new ElementRecorder(&elemsToRecord, &eleArgs, 1, true, *theDomain, *theOutputStream2, 0.0, NULL);
+	theDomain->addRecorder(*theRecorder);
+
+	const char* eleArgsStrain = "strain";
+	outFile = theOutputDir + PATH_SEPARATOR + "strain.out";
+	theOutputStream2 = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, 0.0, NULL);
+	theDomain->addRecorder(*theRecorder);
 
 
-	
+	s << endln;
+	s << "print -file out/Domain_tcl.out" << endln << endln;
 
 	//return 0;
 
@@ -2051,7 +2088,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	
 
 	OPS_Stream *theOutputStreamAll;
-	theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
+	theOutputStreamAll = new DataFileStream("out/Domain.out", OVERWRITE, 2, 0, false, 6, false);
 	theDomain->Print(*theOutputStreamAll);
 	opserr << theOutputStreamAll;
 
