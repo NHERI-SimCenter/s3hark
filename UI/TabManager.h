@@ -51,8 +51,8 @@ private:
     QWidget* currentWidget;
     QVector<QLineEdit*> currentEdts;
 
-    QList<QString> listElasticIsotropicFEM = { "EEdt", "vEdt", "rhoEdt" };
-    QList<QString> listPM4SandFEM = { "Dr", "G0", "hpo", "Den",
+    QList<QString> listElasticIsotropicFEM = {"eSize", "EEdt", "vEdt", "rhoEdt" };
+    QList<QString> listPM4SandFEM = {"eSize", "Dr", "G0", "hpo", "Den",
                                       "P_atm", "h0", "emax", "emin", "nb", "nd", "Ado",
                                       "z_max", "cz", "ce", "phic", "nu", "cgd", "cdr",
                                       "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo"};

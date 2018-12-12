@@ -251,9 +251,9 @@ void TabManager::checkDefaultFEM(QString thisMatType,const QModelIndex &index)
 
     int numPars;
     if (thisMatType == "Elastic")
-        numPars = 3;
+        numPars = 4;
     else if (thisMatType == "PM4Sand")
-        numPars = 24;
+        numPars = 25;
     else
         numPars =0;
 
@@ -281,14 +281,14 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
             tableModel->setData(tableModel->index(index.row(), VS), QString::number(vs));
         }
         double E = 2.0 * rho * vs * vs * (1. + .3);
-        tableModel->setData(tableModel->index(currentRow, FEM), QString::number(E)+" 0.3 "+QString::number(rho));
+        tableModel->setData(tableModel->index(currentRow, FEM), " 2.0 " + QString::number(E)+" 0.3 "+QString::number(rho));
     }
     else if (thisMatType == "PM4Sand")
     {
         QString density = tableModel->record(index.row()).value("DENSITY").toString();
         if (density=="")
             density = "2.0";
-        tableModel->setData(tableModel->index(currentRow, FEM), "0.47 500.0 0.45 "+ density +" 101.3 -1. 0.8 0.5 0.5 0.1 -1. -1. 250 -1. 33.0 0.3 2.0 -1. -1. 10. 1.5 0.01 -1. -1.");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 500.0 0.45 "+ density +" 101.3 -1. 0.8 0.5 0.5 0.1 -1. -1. 250 -1. 33.0 0.3 2.0 -1. -1. 10. 1.5 0.01 -1. -1.");
         //  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
     }
 
