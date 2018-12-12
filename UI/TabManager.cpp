@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QAbstractItemModel>
 #include <QLineEdit>
+#include <QFileInfo>
 
 
 TabManager::TabManager(QWidget *parent) : QDialog(parent)
@@ -35,7 +36,10 @@ void TabManager::init(QTabWidget* theTab){
 
 
     GMView = new QWebEngineView(this);
-    GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
+    //GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
+    GMView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/GroundMotion/index.html").absoluteFilePath()));
+
+
     GMView->setVisible(false);
     tab->insertTab(1,GMView,"Ground motion");
 

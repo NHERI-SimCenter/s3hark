@@ -2240,6 +2240,7 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, int success, int r
 		success = theTransientAnalysis->analyze(remStep, dT);// 0 means success
 		//success = subStepAnalyze(int(dT/2), subStep +1, success);
 	}
+	
 	return 0;
 
 }

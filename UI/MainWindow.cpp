@@ -22,6 +22,7 @@
 #include <QUiLoader>
 
 #include "TabManager.h"
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -174,7 +175,7 @@ MainWindow::MainWindow(QWidget *parent) :
     */
 
     dinoView = new QWebEngineView(this);
-    dinoView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/DinoRun/index.html"));
+    dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
     dinoView->setVisible(false);
 
     /*
