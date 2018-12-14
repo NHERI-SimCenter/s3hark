@@ -16,7 +16,7 @@
 
 BonzaTableView::BonzaTableView(QWidget *parent) :
     QTableView(parent),
-    m_nStartId(0), m_nPageSize(1000), m_nCurPageSize(0), m_nTotal(0),
+    m_nStartId(0), m_nPageSize(MAXLAYERS), m_nCurPageSize(0), m_nTotal(0),
     m_nCurPage(1), m_nTotalPage(0), m_ntotalHeight(10), m_nGWT(0)
 {
     DatabaseManager *dbMgr = new DatabaseManager;
@@ -50,7 +50,7 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     this->updateModel();    //update the table on each page
     this->setModel(m_sqlModel);
     this->hideColumn(0);
-    this->hideColumn(FEM);
+    //this->hideColumn(FEM);
     this->verticalHeader()->hide();
 
     this->setColumnHidden(1,true);
@@ -67,7 +67,6 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     //setEditTriggers(QAbstractItemView::SelectedClicked);
     connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCellSingleClicked(const QModelIndex &)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onCellDoubleClicked(const QModelIndex &)));
-
 
 
     QMap<QString,double> m_layerData;
@@ -205,8 +204,8 @@ void BonzaTableView::updateFEMCell(const QList<QVariant> &valueList)
 void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPosition)
 {
 
-
-
+    if(totalSize() < (MAXLAYERS))
+    {
     // select all
     m_sqlModel->submit();
     m_sqlModel->setFilter(QString(""));
@@ -282,6 +281,9 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
         QString checked = myrecord.value("CHECKED").toString();
         QString thickness = myrecord.value("THICKNESS").toString();
         qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
+    }
+
+
     }
 }
 
@@ -406,6 +408,14 @@ void BonzaTableView::insertAtEnd(const QList<QVariant> &valueList)
     m_nCurPage = m_nTotalPage;
 
     m_sqlModel->insertRow(rowNum);
+
+    if (m_sqlModel->record(rowNum).value("LAYERNAME")=="")
+    {
+        m_sqlModel->setData(m_sqlModel->index(rowNum, CHECKED), 0);
+        m_sqlModel->setData(m_sqlModel->index(rowNum, LAYERNAME), "Layer "+QString::number(rowNum+1));
+        m_sqlModel->setData(m_sqlModel->index(rowNum, THICKNESS), "3");
+    }
+
     int col = CHECKED;
     m_sqlModel->setData(m_sqlModel->index(rowNum, col), 0);
     for( int i = 0; i < valueList.count(); ++i)
@@ -414,6 +424,8 @@ void BonzaTableView::insertAtEnd(const QList<QVariant> &valueList)
         QString data = valueList.at(i).toString();
         m_sqlModel->setData(m_sqlModel->index(rowNum, col), data);
     }
+    m_sqlModel->setData(m_sqlModel->index(rowNum, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
+
     m_nTotal++;
 
     m_sqlModel->submitAll();
@@ -755,9 +767,12 @@ void BonzaTableView::contextMenuEvent(QContextMenuEvent *event)
  * @brief BonzaTableView::lastPageSize
  * @return
  */
-void BonzaTableView::divideByLayers()
+void BonzaTableView::divideByLayers(double previousHeight, int numLayers)
 {
-//totalHeight()
+    double layerthickness = previousHeight / numLayers;// totalHeight() / m_nTotal;
+    for (int i=0;i<m_nTotal;i++)
+        m_sqlModel->setData(m_sqlModel->index(i, THICKNESS), QString::number(layerthickness));
+
 }
 
 

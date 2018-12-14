@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     UI/InsertWindow.cpp \
     UI/BonzaTableModel.cpp \
     UI/SiteResponse.cpp \
-    UI/TabManager.cpp
+    UI/TabManager.cpp \
+    UI/Mesher.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/DatabaseManager.h \
@@ -56,7 +57,8 @@ HEADERS  += UI/MainWindow.h \
     UI/InsertWindow.h \
     UI/BonzaTableModel.h \
     UI/SiteResponse.h \
-    UI/TabManager.h
+    UI/TabManager.h \
+    UI/Mesher.h
 
 
 FORMS    += UI/MainWindow.ui \
@@ -64,7 +66,8 @@ FORMS    += UI/MainWindow.ui \
     UI/PM4Sand.ui \
     UI/ElasticIsotropic.ui \
     UI/DefaultMatTab.ui \
-    UI/GroundMotion.ui
+    UI/GroundMotion.ui \
+    UI/FEM.ui
 
 RESOURCES += \
     resources.qrc

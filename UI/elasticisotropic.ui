@@ -29,11 +29,14 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>70</y>
+     <x>310</x>
+     <y>60</y>
      <width>101</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="whatsThis">
+    <string/>
    </property>
    <property name="text">
     <string>Elastic modulus</string>
@@ -43,7 +46,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>120</y>
+     <y>110</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -55,8 +58,8 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>170</y>
+     <x>310</x>
+     <y>110</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -68,8 +71,8 @@
   <widget class="QLineEdit" name="EEdt">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>70</y>
+     <x>430</x>
+     <y>60</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -78,8 +81,8 @@
   <widget class="QLineEdit" name="vEdt">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>120</y>
+     <x>160</x>
+     <y>110</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -88,8 +91,8 @@
   <widget class="QLineEdit" name="rhoEdt">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>170</y>
+     <x>430</x>
+     <y>110</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -98,22 +101,22 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>10</y>
-     <width>111</width>
+     <x>20</x>
+     <y>60</y>
+     <width>141</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Element size</string>
+    <string>Element size (Vertical)</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="eSize">
    <property name="geometry">
     <rect>
-     <x>530</x>
-     <y>10</y>
-     <width>61</width>
+     <x>160</x>
+     <y>60</y>
+     <width>111</width>
      <height>21</height>
     </rect>
    </property>

@@ -72,5 +72,20 @@ bool DatabaseManager::createTable()
         }
     }
 
+    /*
+    if( !tableList.contains(g_dbFEMTableName) )
+    {
+        QString createTable = QString("CREATE TABLE %1 (ID integer PRIMARY KEY AUTOINCREMENT,"
+                                      "Checked integer default 0, eSizeH text, eSizeV text)"
+                                      ).arg(g_dbFEMTableName);
+        if(!query.exec(createTable))
+        {
+            QMessageBox::warning(0, QObject::tr("Create table error"), QObject::tr("Error: ")+ query.lastError().text(), QMessageBox::Ok);
+            qDebug()<< "Create table error: " << query.lastError();
+            return false;
+        }
+    }
+    */
+
     return true;
 }

@@ -3,6 +3,8 @@
 #include <QAbstractItemModel>
 #include <QLineEdit>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QPushButton>
 
 
 TabManager::TabManager(QWidget *parent) : QDialog(parent)
@@ -17,6 +19,7 @@ TabManager::TabManager(BonzaTableView *tableViewIn,QWidget *parent) : QDialog(pa
     tableModel = tableView->m_sqlModel;
 
 
+
 }
 
 void TabManager::init(QTabWidget* theTab){
@@ -24,24 +27,31 @@ void TabManager::init(QTabWidget* theTab){
     tab->setTabsClosable(true);
 
     QUiLoader uiLoader;
+
+
+    QString uiFEMName = ":/UI/FEM.ui";
+    QFile uiFEMFile(uiFEMName);
+    uiFEMFile.open(QIODevice::ReadOnly);
+    FEMWidget = uiLoader.load(&uiFEMFile,this);
+    tab->addTab(FEMWidget,"FEM");
+    initFEMTab();
+    connect(FEMWidget->findChild<QPushButton*>("GMBtn"), SIGNAL(clicked()), this, SLOT(onGMBtnClicked()));
+
+
     QString uiFileName = ":/UI/DefaultMatTab.ui";
     QFile uiFile(uiFileName);
     uiFile.open(QIODevice::ReadOnly);
-    // setWorkingDirectory: if uiFile depended on other resources,
-    // setWorkingDirectory needs to be set here
-    //const QDir &workdir(uifileWorkPath);
-    //uiLoader.setWorkingDirectory(workdir);
     defaultWidget = uiLoader.load(&uiFile,this);
-    tab->addTab(defaultWidget,"FEM");
+    tab->addTab(defaultWidget,"Material");
+
 
 
     GMView = new QWebEngineView(this);
     //GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
     GMView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/GroundMotion/index.html").absoluteFilePath()));
+    tab->addTab(GMView,"Ground motion");
 
 
-    GMView->setVisible(false);
-    tab->insertTab(1,GMView,"Ground motion");
 
 
     /*
@@ -86,6 +96,115 @@ void TabManager::init(QTabWidget* theTab){
 
 }
 
+void TabManager::onGMBtnClicked()
+{
+    qDebug() << "GM btn clicked. ";
+    QString file_name = QFileDialog::getOpenFileName(NULL,"Choose Ground Motion File",".","*");
+    FEMWidget->findChild<QLineEdit*>("GMPath")->setText(file_name);
+
+}
+
+void TabManager::onFEMTabEdited()
+{
+    QString filename = "FEM.dat";
+    QFile file(filename);
+    if(file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
+            QTextStream stream(&file);
+            for (int i = 0; i < edtsFEM.size(); i++) {
+                stream<< listFEMtab[i] << ","<<" "<<edtsFEM[i]->text() << endl;
+            }
+            stream<< "GWT" << ","<<" "<<tableView->getGWT() << endl;
+            file.close();
+    }
+}
+
+double TabManager::getGWTFromConfig()
+{
+    double GWT=0.0;
+    QString filename = "FEM.dat";
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly)) {
+        file.close();
+        return GWT;
+    }
+    file.open(QIODevice::ReadOnly);
+    QTextStream in(&file);
+
+    while(!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList thisLine = line.split(",");
+        if(!thisLine[0].trimmed().compare("GWT"))
+            GWT = thisLine[1].trimmed().toDouble();
+    }
+    file.close();
+    return GWT;
+
+}
+
+
+void TabManager::initFEMTab(){
+
+
+    for (int i = 0; i < listFEMtab.size(); ++i) {
+        QString edtName = listFEMtab[i] ;
+        edtsFEM.push_back(FEMWidget->findChild<QLineEdit*>(edtName));
+    }
+    // connect edit signal with onDataEdited
+    for (int i = 0; i < edtsFEM.size(); ++i) {
+        connect(edtsFEM[i], SIGNAL(editingFinished()), this, SLOT(onFEMTabEdited()));
+    }
+
+
+    fillFEMTab();
+}
+
+void TabManager::fillFEMTab(){
+
+    QString filename = "FEM.dat";
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly)) {
+        //QMessageBox::information(nullptr, "error", file.errorString());
+
+        QFile fileNew(filename);
+        if (fileNew.open(QIODevice::ReadWrite)) {
+            QTextStream stream(&fileNew);
+            double eleThickness = 1.0;
+            double eSizeH = 0.25;
+            double eSizeV = 0.25;
+            double RockVs = 180.0;
+            double RockDen = 2.0;
+            double DashpotCoeff = RockVs * RockDen;
+            double VisC = eSizeH * eleThickness * DashpotCoeff;
+            stream << "eSizeH,"<<" "<<eSizeH << endl;
+            stream << "eSizeV,"<<" "<<eSizeV << endl;
+            stream << "RockVs,"<<" "<<RockVs << endl;
+            stream << "RockDen,"<<" "<<RockDen << endl;
+            stream << "DashpotCoeff,"<<" "<<DashpotCoeff << endl;
+            stream << "VisC,"<<" "<<VisC << endl;
+            stream << "GMPath,"<<" "<<"Input the path of a ground motion file. " << endl;
+            stream << "GWT,"<<" "<<"0.0" << endl;
+            fileNew.close();
+            file.open(QIODevice::ReadOnly);
+        }
+    }
+
+    QTextStream in(&file);
+
+    QStringList savedPars;
+
+    while(!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList thisLine = line.split(",");
+        savedPars.append(thisLine[1].trimmed());
+    }
+
+    file.close();
+
+    for (int i = 0; i < edtsFEM.size(); i++) {
+        edtsFEM[i]->setText(savedPars.at(i));
+    }
+}
+
 void TabManager::onTableViewClicked(const QModelIndex &index){
     //qDebug() << index.row() << " " << index.column();
 
@@ -113,9 +232,10 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
 
     for (int j=tab->count();j>0;j--)
         tab->removeTab(j-1);
-    tab->insertTab(0,currentWidget,"FEM");
-    tab->insertTab(1,GMView,"Ground motion");
-    tab->setCurrentIndex(0);
+    tab->insertTab(0,FEMWidget,"FEM");
+    tab->insertTab(1,currentWidget,"Material");
+    tab->insertTab(2,GMView,"Ground motion");
+    tab->setCurrentIndex(1);
 
     QList<QVariant> infos = tableView->getRowInfo(currentRow);
     if (infos.size()>0)
@@ -123,8 +243,7 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
         qDebug() <<"Mat " << infos.at(MATERIAL-2).toString();
     }
 
-    fillFEMTab(thisMatType, index);
-
+    fillMatTab(thisMatType, index);
 
 }
 
@@ -132,7 +251,7 @@ void TabManager::onTableViewUpdated(const QModelIndex& index1,const QModelIndex&
     onTableViewClicked(index1);
 }
 
-void TabManager::fillFEMTab(QString thisMatType,const QModelIndex &index){
+void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
     checkDefaultFEM(thisMatType, index);
 
@@ -201,7 +320,6 @@ void TabManager::fillFEMTab(QString thisMatType,const QModelIndex &index){
     {
         qDebug() << "FEMStringList.size() not == edts.size() !";
     }
-
 
 
 

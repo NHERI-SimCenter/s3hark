@@ -27,7 +27,6 @@ OPS_Stream *opsoutPtr = &sserr;
 SiteResponse::SiteResponse()
 {
 
-
     //./siteresponse ../test/siteLayering.loc -bbp ../test/9130326.nwhp.vel.bbp out thisLog
     // read the layering file
     std::string layersFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/siteLayering.loc");

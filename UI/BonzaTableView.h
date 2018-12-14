@@ -102,7 +102,7 @@ public slots:
 
 
 
-    void divideByLayers();
+    void divideByLayers(double, int);
 
 
     void previousPage();

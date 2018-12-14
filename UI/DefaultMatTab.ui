@@ -16,14 +16,14 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>60</y>
-     <width>341</width>
+     <x>110</x>
+     <y>80</y>
+     <width>401</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Please select a material type for this layer in the table.</string>
+    <string>Please pick a material type for the selected layer in the table.</string>
    </property>
   </widget>
  </widget>

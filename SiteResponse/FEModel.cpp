@@ -1344,10 +1344,14 @@ int SiteResponseModel::runEffectiveStressModel()
 	if (theModelType.compare("2D")) // 3D
 		dofToRecord(3) = 3;
 
+
 	std::string outFile = theOutputDir + PATH_SEPARATOR + "surface_grav.disp";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, 0.0, true, NULL);
 	theDomain->addRecorder(*theRecorder);
+
+
+
 
 	// 5.1 elastic gravity analysis (transient)
 	s << "# 5.1 elastic gravity analysis (transient) \n\n";
@@ -1763,7 +1767,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	// LoadPattern* theLP = new UniformExcitation(*theMotion, 1, 1, 0.0, 1.0);
 	//theDomain->addLoadPattern(theLP);
 
-	double dT = 0.0001; // This is the time step in solution
+	double dT = 0.001; // This is the time step in solution
 	double motionDT =  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
 	int nSteps = 1998; // number of motions in the record. TODO: use a funciton to get it
 	int remStep = nSteps * motionDT / dT;
@@ -1899,10 +1903,23 @@ int SiteResponseModel::runEffectiveStressModel()
 	//s << "analysis Transient" << endln << endln;
 	s << "analysis Transient" << endln << endln;
 	
+	// count quad elements
+	ElementIter &theElementIterh = theDomain->getElements();
+	std::vector<int> quadElem;
+	while ((theEle = theElementIterh()) != 0)
+	{
+		int theEleTag = theEle->getTag();
+		if (theEle->getNumDOF() == 12) // quad ele
+			quadElem.push_back(theEleTag);
+	}
+	int numQuadEles = quadElem.size();
 
 	// ------------------------------------------------------------
 	// 7.3 define outputs and recorders
 	// ------------------------------------------------------------
+
+
+	
 
 	// record the response at the surface
 	outFile = theOutputDir + PATH_SEPARATOR + "surface.acc";
@@ -1921,26 +1938,71 @@ int SiteResponseModel::runEffectiveStressModel()
 	theDomain->addRecorder(*theRecorder);
 
 
+	
+	nodesToRecord.resize(numNodes);
+	for (int i=0;i<numNodes;i++)
+		nodesToRecord(i) = i;
+	dofToRecord.resize(2);
+	dofToRecord(0) = 0;
+	dofToRecord(1) = 1;
+
+
+	outFile = theOutputDir + PATH_SEPARATOR + "displacement.out";
+	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, 0.0, true, NULL);
+	theDomain->addRecorder(*theRecorder);
+
+	outFile = theOutputDir + PATH_SEPARATOR + "velocity.out";
+	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, 0.0, true, NULL);
+	theDomain->addRecorder(*theRecorder);
+
+	outFile = theOutputDir + PATH_SEPARATOR + "acceleration.out";
+	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "acc", *theDomain, *theOutputStream, 0.0, true, NULL);
+	theDomain->addRecorder(*theRecorder);
+
+	dofToRecord.resize(1);
+	dofToRecord(0) = 2;
+	outFile = theOutputDir + PATH_SEPARATOR + "porePressure.out";
+	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
+	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, 0.0, true, NULL);
+	theDomain->addRecorder(*theRecorder);
+
+	
 
 
 
 
-	s<< "eval \"recorder Node -file out/surface_tcl.disp -time -dT $motionDT -node "<<nodesToRecord[0]<<" -dof 1 2 3  disp\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out/surface_tcl.acc -time -dT $motionDT -node "<<nodesToRecord[0]<<" -dof 1 2 3  accel\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out/surface_tcl.vel -time -dT $motionDT -node "<<nodesToRecord[0]<<" -dof 1 2 3 vel\""<<endln;// 3
 
-	s<< "eval \"recorder Node -file out/base_tcl.disp -time -dT $motionDT -node 1 -dof 1 2 3  disp\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out/base_tcl.acc -time -dT $motionDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out/base_tcl.vel -time -dT $motionDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
-	s<< "eval \"recorder Node -file out/pwpLiq_tcl.out -time -dT $motionDT -node 17 -dof 3 vel\""<<endln;
+	
 
-	s<< "recorder Element -file out/stress_tcl.out -time -dT $motionDT  -eleRange 1 "<<numNodes<<"  stress 3"<<endln;
-	s<< "recorder Element -file out/strain_tcl.out -time -dT $motionDT  -eleRange 1 "<<numNodes<<"  strain"<<endln;
+	s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $motionDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out_tcl/surface.acc -time -dT $motionDT -node "<<numNodes<<" -dof 1 2 3  accel\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out_tcl/surface.vel -time -dT $motionDT -node "<<numNodes<<" -dof 1 2 3 vel\""<<endln;// 3
+
+	s<< "eval \"recorder Node -file out_tcl/base.disp -time -dT $motionDT -node 1 -dof 1 2 3  disp\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out_tcl/base.acc -time -dT $motionDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
+	s<< "eval \"recorder Node -file out_tcl/base.vel -time -dT $motionDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
+	s<< "eval \"recorder Node -file out_tcl/pwpLiq.out -time -dT $motionDT -node 17 -dof 3 vel\""<<endln;
+
+
+	s<< "eval \"recorder Node -file out_tcl/displacement.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 1 2  disp\""<<endln;
+	s<< "eval \"recorder Node -file out_tcl/velocity.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 1 2  vel\""<<endln;
+	s<< "eval \"recorder Node -file out_tcl/acceleration.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 1 2  accel\""<<endln;
+	s<< "eval \"recorder Node -file out_tcl/porePressure.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 3 vel\""<<endln;
+
+
+	s<< "recorder Element -file out_tcl/stress.out -time -dT $motionDT  -eleRange 1 "<<numQuadEles<<"  stress 3"<<endln;
+	s<< "recorder Element -file out_tcl/strain.out -time -dT $motionDT  -eleRange 1 "<<numQuadEles<<"  strain"<<endln;
 
 
 	s<< endln << endln;
 	
+
+	
 	// record the response of base node
+	nodesToRecord.resize(1);
 	nodesToRecord(0) = 1;
 	
 	dofToRecord.resize(1);
@@ -1961,6 +2023,8 @@ int SiteResponseModel::runEffectiveStressModel()
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, 0.0, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
+
+	// record pwp at node 17
 	dofToRecord.resize(1);
 	dofToRecord(0) = 2; // only record the pore pressure dof
 	ID pwpNodesToRecord(1);
@@ -1975,14 +2039,6 @@ int SiteResponseModel::runEffectiveStressModel()
 
 	// record element results
 	OPS_Stream* theOutputStream2;
-	ElementIter &theElementIterh = theDomain->getElements();
-	std::vector<int> quadElem;
-	while ((theEle = theElementIterh()) != 0)
-	{
-		int theEleTag = theEle->getTag();
-		if (theEle->getNumDOF() == 12) // quad ele
-			quadElem.push_back(theEleTag);
-	}
 	ID elemsToRecord(quadElem.size());
 	for (int i=0;i<quadElem.size();i+=1)
 		elemsToRecord(i) = quadElem[i];
@@ -1998,9 +2054,11 @@ int SiteResponseModel::runEffectiveStressModel()
 	theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, 0.0, NULL);
 	theDomain->addRecorder(*theRecorder);
 
+	
+
 
 	s << endln;
-	s << "print -file out/Domain_tcl.out" << endln << endln;
+	s << "print -file out_tcl/Domain.out" << endln << endln;
 
 	//return 0;
 
@@ -2098,7 +2156,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	
 
 
-	
+	/*
 	opserr << "Analysis started:" << endln;
 	std::stringstream progressBar;
 	while (success != -10) {
@@ -2140,11 +2198,11 @@ int SiteResponseModel::runEffectiveStressModel()
 	opsout << progressBar.str().c_str();
 	opsout.flush();
 	opsout << endln;
-	
+	*/
 
 
 	
-	/*
+	
 	opserr << "Analysis started:" << endln;
 	std::stringstream progressBar;
 	for (int analysisCount = 0; analysisCount < remStep; ++analysisCount)
@@ -2187,7 +2245,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	opsout << progressBar.str().c_str();
 	opsout.flush();
 	opsout << endln;
-	*/
+	
 
 	
 

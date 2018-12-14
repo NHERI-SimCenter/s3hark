@@ -5,6 +5,7 @@
 #include <QMap>
 static const QString g_dbFileName = "data.dat";
 static const QString g_dbTableName = "soil";
+static const QString g_dbFEMTableName = "FEM";
 
 static const QString g_layerNameLabel = "LayerName";
 static const QString g_thicknessLabel = "Thickness";
@@ -22,7 +23,7 @@ static const QString g_colorLabel = "Color";
 #define COLOR       7
 #define FEM 8
 
-
+#define MAXLAYERS 20
 
 #endif // GLOBALCONSTANCES_H
 

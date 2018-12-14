@@ -10,6 +10,7 @@
 #include <QModelIndex>
 #include "BonzaTableView.h"
 #include <QWebEngineView>
+#include <QFileDialog>
 
 class TabManager : public QDialog
 {
@@ -18,10 +19,12 @@ public:
     explicit TabManager(QWidget *parent = nullptr);
     TabManager(BonzaTableView *tableView,QWidget *parent = nullptr);
     void init(QTabWidget* theTab);
-    void fillFEMTab(QString ,const QModelIndex &index);
+    void fillMatTab(QString ,const QModelIndex &index);
     void cleanForm(QVector<QLineEdit*> currentEdts);
     void checkDefaultFEM(QString thisMatType,const QModelIndex &index);
     void setDefaultFEM(QString thisMatType,const QModelIndex &index);
+    void fillFEMTab();
+    void initFEMTab();
 
 signals:
 
@@ -29,6 +32,9 @@ public slots:
     void onTableViewClicked(const QModelIndex &index);
     void onTableViewUpdated(const QModelIndex&,const QModelIndex&);
     void onDataEdited();
+    void onGMBtnClicked();
+    void onFEMTabEdited();
+    double getGWTFromConfig();
 
 private:
     QTabWidget* tab;
@@ -45,11 +51,15 @@ private:
     QWidget* ElasticIsotropicWidget;
     QWidget* defaultWidget;
     QWidget* GMWidget;
+    QWidget* FEMWidget;
 
     QWebEngineView *GMView;
 
     QWidget* currentWidget;
     QVector<QLineEdit*> currentEdts;
+
+    QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath"  };
+
 
     QList<QString> listElasticIsotropicFEM = {"eSize", "EEdt", "vEdt", "rhoEdt" };
     QList<QString> listPM4SandFEM = {"eSize", "Dr", "G0", "hpo", "Den",
@@ -57,10 +67,12 @@ private:
                                       "z_max", "cz", "ce", "phic", "nu", "cgd", "cdr",
                                       "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo"};
 
+    QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;
     QVector<QLineEdit*> edtsPM4SandFEM;
 
     QString thisMatType;
+
 
 
 };

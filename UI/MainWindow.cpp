@@ -23,6 +23,7 @@
 
 #include "TabManager.h"
 #include <QFileInfo>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -239,8 +240,11 @@ MainWindow::MainWindow(QWidget *parent) :
     theTabManager->init(ui->tabWidget);
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
-
+    connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
     ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
+
+    // init GWT
+    ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
 
 
 
@@ -258,9 +262,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::onTotalLayerChanged()
 {
+    double previousHeight = ui->totalHeight->text().toDouble();
     int previousNumLayers = ui->tableView->totalSize();
     int newNumLayers = ui->totalLayerLineEdit->text().toInt();
-    qDebug() << "total layer changed from "<< previousNumLayers << " to " << newNumLayers;
+
+    if(newNumLayers>MAXLAYERS)
+    {
+        ui->totalLayerLineEdit->setText(QString::number(previousNumLayers));
+        QMessageBox::information(nullptr, "error", "Maximum number of layers is "+QString::number(MAXLAYERS));
+    }
+    else{
+
     if(previousNumLayers < newNumLayers)
     {
         QList<QVariant> emptyList;
@@ -272,6 +284,14 @@ void MainWindow::onTotalLayerChanged()
         for (int i=previousNumLayers; i>newNumLayers; i--)
             ui->tableView->removeOneRow(i-1);
     }
+    if(previousNumLayers != newNumLayers)
+    {
+        qDebug() << "total layer changed from "<< previousNumLayers << " to " << newNumLayers;
+        ui->tableView->divideByLayers(previousHeight,newNumLayers);
+    }
+
+    }
+
 }
 
 
@@ -443,13 +463,14 @@ void MainWindow::on_addRowBtn_clicked()
  */
 void MainWindow::totalHeightChanged()
 {
-    ui->tableView->setTotalHeight(ui->totalHeight->text().toDouble());
-    ui->tableView->divideByLayers();
-    //emit gwtChanged(QString::number(ui->tableView->getGWT()));
+    if(abs(ui->totalHeight->text().toDouble() - ui->tableView->totalHeight())>1e-5)
+    {
+        ui->tableView->setTotalHeight(ui->totalHeight->text().toDouble());
+        ui->tableView->divideByLayers(ui->totalHeight->text().toDouble(), ui->tableView->totalSize());
+        //emit gwtChanged(QString::number(ui->tableView->getGWT()));
+        qDebug()<<"height changed. => " << ui->totalHeight->text();
+    }
 
-
-
-    qDebug()<<"height changed. => " << ui->totalHeight->text();
 }
 
 void MainWindow::on_thickness_edited()
@@ -490,10 +511,6 @@ void MainWindow::on_reBtn_clicked()
     ui->tabWidget->setCurrentIndex(1);
     ui->tabWidget->setMovable(true);
     */
-
-
-
-
 
 
     //ui->tableView->hide();
