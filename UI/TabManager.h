@@ -25,6 +25,8 @@ public:
     void setDefaultFEM(QString thisMatType,const QModelIndex &index);
     void fillFEMTab();
     void initFEMTab();
+    void reFreshGMTab();
+    QString loadGMtoString();
 
 signals:
 
@@ -54,6 +56,7 @@ private:
     QWidget* FEMWidget;
 
     QWebEngineView *GMView;
+    QString GMPathStr;
 
     QWidget* currentWidget;
     QVector<QLineEdit*> currentEdts;
@@ -72,6 +75,8 @@ private:
     QVector<QLineEdit*> edtsPM4SandFEM;
 
     QString thisMatType;
+    QString GMTabHtmlName = "resources/ui/GroundMotion/index.html";
+
 
 
 

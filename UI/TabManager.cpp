@@ -5,6 +5,9 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QFileInfo>
+#include <QFile>
+
 
 
 TabManager::TabManager(QWidget *parent) : QDialog(parent)
@@ -48,7 +51,7 @@ void TabManager::init(QTabWidget* theTab){
 
     GMView = new QWebEngineView(this);
     //GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
-    GMView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/GroundMotion/index.html").absoluteFilePath()));
+    GMView->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName).absoluteFilePath()));
     tab->addTab(GMView,"Ground motion");
 
 
@@ -93,6 +96,8 @@ void TabManager::init(QTabWidget* theTab){
     }
 
 
+    reFreshGMTab();
+
 
 }
 
@@ -101,6 +106,7 @@ void TabManager::onGMBtnClicked()
     qDebug() << "GM btn clicked. ";
     QString file_name = QFileDialog::getOpenFileName(NULL,"Choose Ground Motion File",".","*");
     FEMWidget->findChild<QLineEdit*>("GMPath")->setText(file_name);
+    onFEMTabEdited();
 
 }
 
@@ -116,6 +122,97 @@ void TabManager::onFEMTabEdited()
             stream<< "GWT" << ","<<" "<<tableView->getGWT() << endl;
             file.close();
     }
+
+    QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    if(newGmPathStr != GMPathStr){
+        GMPathStr = newGmPathStr;
+        reFreshGMTab();
+    }
+}
+
+void TabManager::reFreshGMTab()
+{
+    // get file paths
+    QFileInfo indexHtmlInfo(GMTabHtmlName);
+    QString dir = indexHtmlInfo.path();
+    QString tmpPath = QDir(dir).filePath("index-template.html");
+    QString newPath = QDir(dir).filePath("index.html");
+    QFile::remove(newPath);
+    //QFile::copy(tmpPath, newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    QString insertedString = loadGMtoString();
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+
+    GMView->reload();
+}
+
+QString TabManager::loadGMtoString()
+{
+
+    QString text;
+    QTextStream stream(&text);
+
+
+
+    QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    QFile file(newGmPathStr);
+    QStringList xd, yd;
+    if(file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            xd.append(thisLine[0].trimmed());
+            yd.append(thisLine[1].trimmed());
+        }
+        file.close();
+    }
+
+    stream << "xnew = ['x'";
+    for (int i=0; i<xd.size(); i++)
+        stream << ", "<<xd.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ynew = ['Rock motion'";
+    for (int i=0; i<yd.size(); i++)
+        stream << ", "<<yd.at(i);
+    stream <<"];" <<endl;
+
+
+    //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
+    //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    stream << "       setTimeout(function () {"<<endl;
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xnew,"<<endl;
+    stream <<"           ynew"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 1'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 2'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       }, 1500);"<<endl;
+    return text;
+
 }
 
 double TabManager::getGWTFromConfig()
@@ -156,6 +253,8 @@ void TabManager::initFEMTab(){
 
 
     fillFEMTab();
+
+
 }
 
 void TabManager::fillFEMTab(){
@@ -203,6 +302,7 @@ void TabManager::fillFEMTab(){
     for (int i = 0; i < edtsFEM.size(); i++) {
         edtsFEM[i]->setText(savedPars.at(i));
     }
+    GMPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
 }
 
 void TabManager::onTableViewClicked(const QModelIndex &index){
@@ -237,11 +337,13 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
     tab->insertTab(2,GMView,"Ground motion");
     tab->setCurrentIndex(1);
 
+    /*
     QList<QVariant> infos = tableView->getRowInfo(currentRow);
     if (infos.size()>0)
-    {   qDebug() << infos;
+    {
         qDebug() <<"Mat " << infos.at(MATERIAL-2).toString();
     }
+    */
 
     fillMatTab(thisMatType, index);
 

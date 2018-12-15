@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->gotoPageBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(gotoPage(int)) );
 
-    connect(ui->totalLayerLineEdit, SIGNAL(editingFinished()), this, SLOT(onTotalLayerChanged()) );
+    connect(ui->totalLayerLineEdit, SIGNAL(editingFinished()), this, SLOT(onTotalLayerEdited()) );
 
 
     ui->prePageBtn->setFocusPolicy(Qt::NoFocus);
@@ -88,8 +88,8 @@ MainWindow::MainWindow(QWidget *parent) :
       this->setStyleSheet(styleSheet);
     }
 
-    // validator for total layers, must be int between 0 and 1000
-    ui->totalLayerLineEdit->setValidator(new QIntValidator(0, 1000, this));
+    // validator for total layers, must be int between 0 and MAXLAYERS
+    ui->totalLayerLineEdit->setValidator(new QIntValidator(0, MAXLAYERS, this));
 
     // when an element is selected, the whole row is selected
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -260,16 +260,16 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::onTotalLayerChanged()
+void MainWindow::onTotalLayerEdited()
 {
     double previousHeight = ui->totalHeight->text().toDouble();
     int previousNumLayers = ui->tableView->totalSize();
     int newNumLayers = ui->totalLayerLineEdit->text().toInt();
 
-    if(newNumLayers>MAXLAYERS)
+    if(newNumLayers>MAXLAYERS | abs(newNumLayers)<1e-5)
     {
         ui->totalLayerLineEdit->setText(QString::number(previousNumLayers));
-        QMessageBox::information(nullptr, "error", "Maximum number of layers is "+QString::number(MAXLAYERS));
+        QMessageBox::information(nullptr, "error", "Num of layers could not be zero or greater than "+QString::number(MAXLAYERS)+".");
     }
     else{
 
@@ -478,7 +478,7 @@ void MainWindow::on_thickness_edited()
 
     ui->totalHeight->setText(QString::number(ui->tableView->totalHeight()));
 
-    // move GWT to new position
+    // move GWT to new position in UI
     double originalGWT = ui->tableView->getGWT();
     ui->gwtEdit->textChanged(QString::number(0));
     ui->gwtEdit->textChanged(QString::number(originalGWT));
@@ -499,7 +499,6 @@ void MainWindow::on_rowRemoved(int row)
 void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
 {
     ui->tableView->setGWT(newGWT.toDouble());
-    qDebug()<<"gwt changed." << newGWT;
 }
 
 
