@@ -24,7 +24,8 @@ contains( UNAME, [dD]arwin ):message( System type: $$UNAME )
 
 INCLUDEPATH += FEM \
             SiteResponse \
-            /usr/local/opt/lapack/include
+            /usr/local/opt/lapack/include \
+            /usr/local/include
 
 
 
@@ -48,7 +49,8 @@ SOURCES += main.cpp\
     UI/BonzaTableModel.cpp \
     UI/SiteResponse.cpp \
     UI/TabManager.cpp \
-    UI/Mesher.cpp
+    UI/Mesher.cpp \
+    UI/JsonManager.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/DatabaseManager.h \
@@ -58,7 +60,8 @@ HEADERS  += UI/MainWindow.h \
     UI/BonzaTableModel.h \
     UI/SiteResponse.h \
     UI/TabManager.h \
-    UI/Mesher.h
+    UI/Mesher.h \
+    UI/JsonManager.h
 
 
 FORMS    += UI/MainWindow.ui \

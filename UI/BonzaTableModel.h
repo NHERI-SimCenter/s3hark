@@ -179,6 +179,8 @@ public slots:
 
     }
 
+    QList<QVariant> getRowInfo(int row) const;
+
 
 };
 

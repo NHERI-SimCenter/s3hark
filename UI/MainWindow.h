@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QWebEngineView>
+#include "Mesher.h"
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 namespace Ui {
 class MainWindow;
@@ -45,6 +49,8 @@ private slots:
 
     void on_reBtn_clicked();
 
+    json createMaterial(int tag, std::string matType, std::string parameters);
+
     void onTotalLayerEdited();
 
     void refresh();
@@ -64,6 +70,7 @@ public:
     QWidget *plotContainer;
     QWidget *matContainer;
     QWebEngineView *dinoView;
+    Mesher* mesher;
 };
 
 #endif // MAINWINDOW_H

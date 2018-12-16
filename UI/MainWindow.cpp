@@ -25,6 +25,14 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -247,6 +255,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
 
 
+    // init mesher
+    mesher = new Mesher(ui->tableView->m_sqlModel);
 
     //SiteResponse srt ;
 
@@ -505,6 +515,76 @@ void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
 
 void MainWindow::on_reBtn_clicked()
 {
+
+    //mesher->mesh2DColumn();
+    BonzaTableModel* tableModel = ui->tableView->m_sqlModel;
+
+    QWidget* FEMtab = ui->tabWidget->widget(0);
+
+    double GWT = ui->tableView->getGWT();
+
+    json root = {
+        {"name","Configureation of Site Response Analysis of A Demo Site"},
+        {"author","SimCenter Site Response Tool"}
+    };
+    QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath"  };
+    for (int i = 0; i < listFEMtab.size(); ++i) {
+        QString edtName = listFEMtab[i] ;
+        FEMtab->findChild<QLineEdit*>(edtName)->text();
+    }
+    json basicSettings;
+    basicSettings["eSizeH"] = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
+    basicSettings["eSizeV"] = FEMtab->findChild<QLineEdit*>("eSizeV")->text().toDouble();
+    basicSettings["rockVs"] = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
+    basicSettings["rockDen"] = FEMtab->findChild<QLineEdit*>("RockDen")->text().toDouble();
+    basicSettings["dashpotCoeff"] = FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
+    basicSettings["dampingCoeff"] = FEMtab->findChild<QLineEdit*>("VisC")->text().toDouble();
+    basicSettings["groundMotion"] = FEMtab->findChild<QLineEdit*>("GMPath")->text().toStdString();
+    basicSettings["groundWaterTable"] = GWT;
+    root["basicSettings"] = basicSettings;
+
+    json soilProfile = {
+
+    };
+
+    json layer, soilLayers, material, materials;
+
+
+    int numLayers = tableModel->rowCount();
+    for (int i=0; i<numLayers; i++)
+    {
+        QList<QVariant> list = tableModel->getRowInfo(i);
+        int id = i;
+        layer = {
+            {"id",id+1},
+            {"name",list.at(LAYERNAME-2).toString().toStdString()},
+            {"thickness",list.at(THICKNESS-2).toDouble()},
+            {"density",list.at(DENSITY-2).toDouble()},
+            {"vs",list.at(VS-2).toDouble()},
+            {"material", id+1},
+            {"color",list.at(COLOR-2).toDouble()}
+        };
+        material =  createMaterial(i+1, list.at(MATERIAL-2).toString().toStdString(),list.at(FEM-2).toString().toStdString());
+        materials.push_back(material);
+        soilLayers.push_back(layer);
+
+    }
+
+
+
+
+
+    soilProfile["soilLayers"] = soilLayers;
+
+    root["soilProfile"]=soilProfile;
+    root["materials"]=materials;
+
+    // write prettified JSON to another file
+    std::ofstream o("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RCWall_DazioWSH6_BIM-new.json");
+    o << std::setw(4) << root << std::endl;
+
+
+
     /*
     ui->tabWidget->addTab(dinoView, "Run");
     ui->tabWidget->setCurrentIndex(1);
@@ -512,41 +592,56 @@ void MainWindow::on_reBtn_clicked()
     */
 
 
-    //ui->tableView->hide();
+}
 
+json MainWindow::createMaterial(int tag, std::string matType, std::string parameters)
+{
+    json mat = {
+        {"id", tag},
+        {"type", matType}
+    };
+    std::istringstream iss(parameters);
+    std::vector<std::string> pars((std::istream_iterator<std::string>(iss)),
+                                     std::istream_iterator<std::string>());
+    if (!matType.compare("Elastic"))
+    {
+        double eSize = atof(pars[0].c_str());
+        double E = atof(pars[1].c_str());
+        double poisson = atof(pars[2].c_str());
+        double density = atof(pars[3].c_str());
 
-    //dinoView = new QWebEngineView(this);
-    //dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
+        mat["E"] = E;
+        mat["poisson"] = poisson;
+        mat["density"] = density;
+    } else if (!matType.compare("PM4Sand"))
+    {
+        mat["Dr"] = atof(pars[1].c_str());
+        mat["G0"] = atof(pars[2].c_str());
+        mat["hpo"] = atof(pars[3].c_str());
+        mat["Den"] = atof(pars[4].c_str());
+        mat["P_atm"] = atof(pars[5].c_str());
+        mat["h0"] = atof(pars[6].c_str());
+        mat["emax"] = atof(pars[7].c_str());
+        mat["emin"] = atof(pars[8].c_str());
+        mat["nb"] = atof(pars[9].c_str());
+        mat["nd"] = atof(pars[10].c_str());
+        mat["Ado"] = atof(pars[11].c_str());
+        mat["z_max"] = atof(pars[12].c_str());
+        mat["cz"] = atof(pars[13].c_str());
+        mat["ce"] = atof(pars[14].c_str());
+        mat["phic"] = atof(pars[15].c_str());
+        mat["nu"] = atof(pars[16].c_str());
+        mat["cgd"] = atof(pars[17].c_str());
+        mat["cdr"] = atof(pars[18].c_str());
 
-    //dinoView->setVisible(true);
-
-    //view->show();
-    //dinoView->setMinimumHeight(400);
-    //dinoView->setMaximumHeight(400);
-    //ui->materialLayout->addWidget(dinoView);
-
-
-    /*
-    QWidget *w1 = this->ui->tableView;
-    QLabel *label = new QLabel(w1);
-    label->resize(w1->size());
-    label->setPixmap(w1->grab());
-    label->show();
-
-    QPropertyAnimation *animation= new QPropertyAnimation(w1,"geometry");
-    animation->setDuration(500);
-    animation->setStartValue(w1->geometry());
-    animation->setEndValue(QRect(0, 50, w1->width(), w1->height()));
-    animation->start();
-
-
-    emit tableMoved();
-
-    plotContainer->setWindowOpacity(0.1);
-    qDebug() << this->ui->tableView->geometry();
-    qDebug() << QRect(this->ui->tableView->width(), 0, this->ui->tableView->width(), this->ui->tableView->height());
-    */
-
+        mat["ckaf"] = atof(pars[19].c_str());
+        mat["Q"] = atof(pars[20].c_str());
+        mat["R"] = atof(pars[21].c_str());
+        mat["m"] = atof(pars[22].c_str());
+        mat["Fsed_min"] = atof(pars[23].c_str());
+        mat["p_sedo"] = atof(pars[24].c_str());
+    }
+    return mat;
 }
 
 void MainWindow::refresh()
