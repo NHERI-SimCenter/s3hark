@@ -59,7 +59,6 @@ int main(int argc, char** argv)
 	std::string bbpOName(".");
 	SiteLayering siteLayers(layersFN.c_str());
 
-
 	// read the motion
 	OutcropMotion motionX;
 	OutcropMotion motionZ;

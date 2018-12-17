@@ -4,7 +4,8 @@ OBJS =  \
        FEModel.o \
        soillayer.o \
        siteLayering.o \
-       outcropMotion.o
+       outcropMotion.o \
+       Mesher.o
 
 archive: $(OBJS)
 	ar rv $(SRTlib) $(OBJS)

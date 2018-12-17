@@ -71,11 +71,14 @@ public:
     double minESizeH = 0.001;
     double minESizeV = 0.001;
     double eleThick = 1.0;// thickness of 2D ele
-    double m_eSizeH = 0.0;
+
 
     int size(){return elements.size();}
     double eSizeH(){return m_eSizeH;}
-
+    double totalHeight(){return m_totalHeight;}
+private:
+    double m_eSizeH = 0.0;
+    double m_totalHeight = 0.0;
 
 
 };

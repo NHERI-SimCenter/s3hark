@@ -1938,7 +1938,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	theDomain->addRecorder(*theRecorder);
 
 
-	
+	/*
 	nodesToRecord.resize(numNodes);
 	for (int i=0;i<numNodes;i++)
 		nodesToRecord(i) = i;
@@ -1968,7 +1968,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, 0.0, true, NULL);
 	theDomain->addRecorder(*theRecorder);
-
+*/
 	
 
 

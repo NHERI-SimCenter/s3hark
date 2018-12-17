@@ -260,26 +260,27 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
 
 
-    // init mesher
+
+
+    //--------------------------------------------------------------------------------//
+    // Init Mesher and Mesh View
+    //--------------------------------------------------------------------------------//
+
     mesher = new Mesher();
     mesher->mesh2DColumn();
-
 
     // add QQuickwidget for displaying mesh
     meshView = new QQuickView();
     meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
     meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
 
-
     elementModel = new ElementModel;
-
     //std::sort(mesher->elements.begin(),mesher->elements.end(),
     //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
     elementModel->clear();
     elementModel->setWidth(mesher->eSizeH());
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
     {
-        //Quad *ele = it;
         int tag = mesher->elements[n-1]->tag();
         int i = mesher->elements[n-1]->i();
         int j = mesher->elements[n-1]->j();
@@ -290,15 +291,12 @@ MainWindow::MainWindow(QWidget *parent) :
         elementModel->addElement("quad",tag,i,j,k,l,t,color);
     }
     elementModel->refresh();
-    //Q_PROPERTY(ElementModel* elementModel READ getElementModel CONSTANT)
+
     meshView->rootContext()->setContextProperty("elements", elementModel);
-    meshView->rootContext()->setContextProperty("GWT", 3.0);
-    meshView->rootContext()->setContextProperty("totalHeight", 6.0);
+    meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
+    meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
 
-
-    //meshView->rootContext()->setContextProperty("elements", eleList);
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
-
     meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
     meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
     meshContainer->setFocusPolicy(Qt::TabFocus);
@@ -306,13 +304,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->meshView_verticalLayout->addWidget(meshContainer);
 
     connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
-
     ui->meshBtn->setVisible(true);
-
     ui->groupBox_Mesh->setVisible(false);
 
 
-    //SiteResponse srt ;
+    //SiteResponse srt;
 
 
 
@@ -609,7 +605,7 @@ void MainWindow::on_reBtn_clicked()
 
     json layer, soilLayers, material, materials;
 
-
+//QString FEMString = tableModel->record(index.row()).value("FEM").toString();
     int numLayers = tableModel->rowCount();
     for (int i=0; i<numLayers; i++)
     {
@@ -619,6 +615,16 @@ void MainWindow::on_reBtn_clicked()
                                          std::istream_iterator<std::string>());
         double eSize = atof(pars[0].c_str());
         int id = i;
+        QStringList thisFEMList = list.at(FEM-2).toString().split(" ");
+        int DrInd=0, hPermInd=0, vPermInd=0, uBulkInd=0;
+        if(list.at(MATERIAL-2).toString()=="Elastic")
+        {
+            DrInd = 4; hPermInd = 6; vPermInd = 7; uBulkInd = 10;
+        }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
+        {
+            DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+        }
+
         layer = {
             {"id",id+1},
             {"name",list.at(LAYERNAME-2).toString().toStdString()},
@@ -627,7 +633,11 @@ void MainWindow::on_reBtn_clicked()
             {"vs",list.at(VS-2).toDouble()},
             {"material", id+1},
             {"color",list.at(COLOR-2).toString().toStdString()},
-            {"eSize",eSize}
+            {"eSize",eSize},
+            {"Dr",thisFEMList.at(DrInd).toDouble()},
+            {"hPerm",thisFEMList.at(hPermInd).toDouble()},
+            {"vPerm",thisFEMList.at(vPermInd).toDouble()},
+            {"uBulk",thisFEMList.at(uBulkInd).toDouble()},
         };
         material =  createMaterial(i+1, list.at(MATERIAL-2).toString().toStdString(),list.at(FEM-2).toString().toStdString());
         materials.push_back(material);

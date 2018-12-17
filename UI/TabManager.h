@@ -64,11 +64,12 @@ private:
     QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath"  };
 
 
-    QList<QString> listElasticIsotropicFEM = {"eSize", "EEdt", "vEdt", "rhoEdt" };
+    QList<QString> listElasticIsotropicFEM = {"eSize", "EEdt", "vEdt", "rhoEdt", "DrEdt","voidEdt","hPermEdt","vPermEdt","rho_dEdt","rho_sEdt","uBulkEdt"};
     QList<QString> listPM4SandFEM = {"eSize", "Dr", "G0", "hpo", "Den",
                                       "P_atm", "h0", "emax", "emin", "nb", "nd", "Ado",
                                       "z_max", "cz", "ce", "phic", "nu", "cgd", "cdr",
-                                      "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo"};
+                                      "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo",
+                                        "hPerm","vPerm","uBulk"};
 
     QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;

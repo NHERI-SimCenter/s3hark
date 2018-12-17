@@ -39,8 +39,11 @@ SiteResponse::SiteResponse()
     OutcropMotion motionX;
     OutcropMotion motionZ;
 
+    int inputStyle = 2; // bbp=1 opensees=2
 
-    if (strcmp("-bbp", "-bbp") == 0)
+
+
+    if (inputStyle == 1)
     {
         std::string bbpFName("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/9130326.nwhp.vel.bbp");
         bbpOName = std::string("out");
@@ -51,16 +54,18 @@ SiteResponse::SiteResponse()
         //motionZ.setBBPMotion(bbpFName.c_str(), 2);
     }
     else {
+        std::string bbpLName = "Log";
+        std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
+        motionX.setMotion(motionXFN.c_str());
+        bbpOName = "out";
 
     }
-
 
     //SiteResponseModel model(siteLayers, "3D", &motionX, &motionZ);
     SiteResponseModel model(siteLayers, "2D", &motionX);
     model.setOutputDir(bbpOName);
     //model.runTotalStressModel();
     model.runEffectiveStressModel();
-
 
 }
 

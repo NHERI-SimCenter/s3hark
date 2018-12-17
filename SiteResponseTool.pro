@@ -49,7 +49,7 @@ SOURCES += main.cpp\
     UI/BonzaTableModel.cpp \
     UI/SiteResponse.cpp \
     UI/TabManager.cpp \
-    UI/Mesher.cpp \
+    SiteResponse/Mesher.cpp \
     UI/JsonManager.cpp \
     UI/ElementModel.cpp
 
@@ -61,7 +61,7 @@ HEADERS  += UI/MainWindow.h \
     UI/BonzaTableModel.h \
     UI/SiteResponse.h \
     UI/TabManager.h \
-    UI/Mesher.h \
+    SiteResponse/Mesher.h \
     UI/JsonManager.h \
     UI/ElementModel.h
 

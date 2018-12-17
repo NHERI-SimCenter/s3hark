@@ -8,7 +8,6 @@ Mesher::Mesher()
 }
 
 
-
 bool Mesher::mesh2DColumn(){
     nodes.clear();
     elements.clear();
@@ -55,18 +54,6 @@ bool Mesher::mesh2DColumn(){
 
     json soilProfile,soilLayers,layer;
     int numLayers;
-/*
-                        {
-                            "color": "#1bff86",
-                            "density": 1.61,
-                            "eSize": 2.0,
-                            "id": 1,
-                            "material": 1,
-                            "name": "Layer 1",
-                            "thickness": 2.0,
-                            "vs": 98.78
-                        },
-                        */
     Node* node;
     Quad* elem;
     node = new Node(1, 0.0, 0.0, 0.0);
@@ -103,7 +90,7 @@ bool Mesher::mesh2DColumn(){
             double t = thickness / numEleThisLayer;
             for (int i=1; i<=numEleThisLayer;i++)
             {
-                ycrd += t * i;
+                ycrd += t ;
                 node = new Node(numNodes + 1, 0.0, ycrd, 0.0);
                 nodes.push_back(node);
                 node = new Node(numNodes + 2, eSizeH, ycrd, 0.0);
@@ -114,12 +101,12 @@ bool Mesher::mesh2DColumn(){
 
                 numNodes += 2;
                 numEles += 1;
-
             }
 
             std::cout << "eleTag: " << eTag << std::endl;
             numLayers += 1;
         }
+        m_totalHeight = ycrd;
 
     }
     catch (std::exception& e)
@@ -132,7 +119,6 @@ bool Mesher::mesh2DColumn(){
         std::cerr << str << std::endl;
         return false;
     }
-
 
 
 }
