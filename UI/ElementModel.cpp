@@ -61,6 +61,7 @@ QVariant ElementModel::data(const QModelIndex &index, int role) const
 
 void ElementModel::addElement(QString type, int tag, int i, int j, int k, int l, double h, QString color)
 {
+
     QHash<int,QVariant> row;
     row[typeRole] = type;
     row[tagRole] = QString::number(tag);
@@ -71,7 +72,25 @@ void ElementModel::addElement(QString type, int tag, int i, int j, int k, int l,
     row[hRole] = QString::number(h);
     row[mcolorRole] = color;
     mRecords.append(row);
+
+
 }
+
+void ElementModel::clear()
+{
+
+    beginResetModel();
+    mRecords.clear();
+
+}
+
+void ElementModel::refresh()
+{
+
+    endResetModel();
+
+}
+
 
 
 QHash<int, QByteArray> ElementModel::roleNames() const

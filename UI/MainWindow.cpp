@@ -32,7 +32,7 @@
 #include <string>
 #include <iomanip>
 
-#include "ElementModel.h"
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -271,10 +271,12 @@ MainWindow::MainWindow(QWidget *parent) :
     meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
 
 
-    ElementModel* elementModel = new ElementModel;
+    elementModel = new ElementModel;
 
     //std::sort(mesher->elements.begin(),mesher->elements.end(),
     //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
+    elementModel->clear();
+    elementModel->setWidth(mesher->eSizeH());
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
     {
         //Quad *ele = it;
@@ -287,9 +289,8 @@ MainWindow::MainWindow(QWidget *parent) :
         QString color = QString::fromStdString(mesher->elements[n-1]->color());
         elementModel->addElement("quad",tag,i,j,k,l,t,color);
     }
-
-
-    //qmlRegisterType<ElementModel>("SimCenter",1,0,"ElementModel");
+    elementModel->refresh();
+    //Q_PROPERTY(ElementModel* elementModel READ getElementModel CONSTANT)
     meshView->rootContext()->setContextProperty("elements", elementModel);
     meshView->rootContext()->setContextProperty("GWT", 3.0);
     meshView->rootContext()->setContextProperty("totalHeight", 6.0);
@@ -322,7 +323,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
+ElementModel* MainWindow::getElementModel() const
+{
+    return elementModel;
+}
 
 void MainWindow::onTotalLayerEdited()
 {
@@ -570,7 +574,9 @@ void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
 void MainWindow::on_reBtn_clicked()
 {
 
-    //mesher->mesh2DColumn();
+
+
+
     BonzaTableModel* tableModel = ui->tableView->m_sqlModel;
 
     QWidget* FEMtab = ui->tabWidget->widget(0);
@@ -640,8 +646,8 @@ void MainWindow::on_reBtn_clicked()
     root["materials"]=materials;
 
     // write prettified JSON to another file
-    //QString file_name = QFileDialog::getOpenFileName(NULL,"Choose Path for saving the analysis",".","*");
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Choose Path for saving the analysis"), "", tr("Config Files (*.json)"));
+    QString file_name = "SRT.json";
+    //QString file_name = QFileDialog::getSaveFileName(this, tr("Choose Path for saving the analysis"), "", tr("Config Files (*.json)"));
 
     if (!file_name.isNull())
     {
@@ -650,6 +656,30 @@ void MainWindow::on_reBtn_clicked()
     } else {
         QMessageBox::information(this, "error", "Failed to get file name.");
     }
+
+
+
+    mesher->mesh2DColumn();
+    elementModel->clear();
+
+    //ElementModel* newElementModel = new ElementModel;
+    for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
+    {
+        //Quad *ele = it;
+        int tag = mesher->elements[n-1]->tag();
+        int i = mesher->elements[n-1]->i();
+        int j = mesher->elements[n-1]->j();
+        int k = mesher->elements[n-1]->k();
+        int l = mesher->elements[n-1]->l();
+        double t = mesher->elements[n-1]->thickness();
+        QString color = QString::fromStdString(mesher->elements[n-1]->color());
+        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+    }
+    elementModel->refresh();
+    //elementModel = newElementModel;
+
+    //meshView->rootContext()->setContextProperty("elements", elementModel);
+
 
 
 

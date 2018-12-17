@@ -10,6 +10,8 @@ Mesher::Mesher()
 
 
 bool Mesher::mesh2DColumn(){
+    nodes.clear();
+    elements.clear();
 
     std::string configFile = "SRT.json";
     std::ifstream i(configFile);
@@ -74,6 +76,7 @@ bool Mesher::mesh2DColumn(){
     int numNodes = 2;
     double ycrd = 0.0;
     int numEles = 0;
+    m_eSizeH = eSizeH;
 
     try
     {

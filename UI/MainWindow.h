@@ -5,6 +5,7 @@
 #include <QWebEngineView>
 #include <QQuickView>
 #include "Mesher.h"
+#include "ElementModel.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -56,6 +57,8 @@ private slots:
 
     void refresh();
 
+    ElementModel* getElementModel()const;
+
 signals:
     void gwtChanged(const QString &newGWT);
     void tableMoved();
@@ -73,6 +76,7 @@ public:
     QWebEngineView *dinoView;
     Mesher* mesher;
     QQuickView *meshView;
+    ElementModel* elementModel;
 };
 
 #endif // MAINWINDOW_H
