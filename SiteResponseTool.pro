@@ -50,7 +50,8 @@ SOURCES += main.cpp\
     UI/SiteResponse.cpp \
     UI/TabManager.cpp \
     UI/Mesher.cpp \
-    UI/JsonManager.cpp
+    UI/JsonManager.cpp \
+    UI/ElementModel.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/DatabaseManager.h \
@@ -61,7 +62,8 @@ HEADERS  += UI/MainWindow.h \
     UI/SiteResponse.h \
     UI/TabManager.h \
     UI/Mesher.h \
-    UI/JsonManager.h
+    UI/JsonManager.h \
+    UI/ElementModel.h
 
 
 FORMS    += UI/MainWindow.ui \

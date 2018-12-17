@@ -32,6 +32,8 @@
 #include <string>
 #include <iomanip>
 
+#include "ElementModel.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,7 +91,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->hide();
 
 
-
     QFile file(":/resources/styles/stylesheet.css");
     if(file.open(QFile::ReadOnly)) {
       QString styleSheet = QLatin1String(file.readAll());
@@ -136,10 +137,11 @@ MainWindow::MainWindow(QWidget *parent) :
     plotView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/plotView.qml")));
     ui->plotView_verticalLayout->addWidget(plotContainer);
 
+    /*
     // add QQuickwidget for displaying mesh
     QQuickView *meshView = new QQuickView();
-    meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
+    //meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
+    //meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
 
     meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
@@ -153,6 +155,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->meshBtn->setVisible(true);
 
     ui->groupBox_Mesh->setVisible(false);
+    */
+
+
 
     connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
 
@@ -256,7 +261,55 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // init mesher
-    mesher = new Mesher(ui->tableView->m_sqlModel);
+    mesher = new Mesher();
+    mesher->mesh2DColumn();
+
+
+    // add QQuickwidget for displaying mesh
+    meshView = new QQuickView();
+    meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
+    meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
+
+
+    ElementModel* elementModel = new ElementModel;
+
+    //std::sort(mesher->elements.begin(),mesher->elements.end(),
+    //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
+    for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
+    {
+        //Quad *ele = it;
+        int tag = mesher->elements[n-1]->tag();
+        int i = mesher->elements[n-1]->i();
+        int j = mesher->elements[n-1]->j();
+        int k = mesher->elements[n-1]->k();
+        int l = mesher->elements[n-1]->l();
+        double t = mesher->elements[n-1]->thickness();
+        QString color = QString::fromStdString(mesher->elements[n-1]->color());
+        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+    }
+
+
+    //qmlRegisterType<ElementModel>("SimCenter",1,0,"ElementModel");
+    meshView->rootContext()->setContextProperty("elements", elementModel);
+    meshView->rootContext()->setContextProperty("GWT", 3.0);
+    meshView->rootContext()->setContextProperty("totalHeight", 6.0);
+
+
+    //meshView->rootContext()->setContextProperty("elements", eleList);
+    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
+
+    meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
+    meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
+    meshContainer->setFocusPolicy(Qt::TabFocus);
+    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
+    ui->meshView_verticalLayout->addWidget(meshContainer);
+
+    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
+
+    ui->meshBtn->setVisible(true);
+
+    ui->groupBox_Mesh->setVisible(false);
+
 
     //SiteResponse srt ;
 
@@ -268,6 +321,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 
 
 void MainWindow::onTotalLayerEdited()
@@ -554,6 +608,10 @@ void MainWindow::on_reBtn_clicked()
     for (int i=0; i<numLayers; i++)
     {
         QList<QVariant> list = tableModel->getRowInfo(i);
+        std::istringstream iss(list.at(FEM-2).toString().toStdString());
+        std::vector<std::string> pars((std::istream_iterator<std::string>(iss)),
+                                         std::istream_iterator<std::string>());
+        double eSize = atof(pars[0].c_str());
         int id = i;
         layer = {
             {"id",id+1},
@@ -562,7 +620,8 @@ void MainWindow::on_reBtn_clicked()
             {"density",list.at(DENSITY-2).toDouble()},
             {"vs",list.at(VS-2).toDouble()},
             {"material", id+1},
-            {"color",list.at(COLOR-2).toDouble()}
+            {"color",list.at(COLOR-2).toString().toStdString()},
+            {"eSize",eSize}
         };
         material =  createMaterial(i+1, list.at(MATERIAL-2).toString().toStdString(),list.at(FEM-2).toString().toStdString());
         materials.push_back(material);
@@ -574,14 +633,23 @@ void MainWindow::on_reBtn_clicked()
 
 
 
+
     soilProfile["soilLayers"] = soilLayers;
 
     root["soilProfile"]=soilProfile;
     root["materials"]=materials;
 
     // write prettified JSON to another file
-    std::ofstream o("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RCWall_DazioWSH6_BIM-new.json");
-    o << std::setw(4) << root << std::endl;
+    //QString file_name = QFileDialog::getOpenFileName(NULL,"Choose Path for saving the analysis",".","*");
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Choose Path for saving the analysis"), "", tr("Config Files (*.json)"));
+
+    if (!file_name.isNull())
+    {
+        std::ofstream o(file_name.toStdString());
+        o << std::setw(4) << root << std::endl;
+    } else {
+        QMessageBox::information(this, "error", "Failed to get file name.");
+    }
 
 
 

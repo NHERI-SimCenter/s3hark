@@ -104,7 +104,7 @@ void TabManager::init(QTabWidget* theTab){
 void TabManager::onGMBtnClicked()
 {
     qDebug() << "GM btn clicked. ";
-    QString file_name = QFileDialog::getOpenFileName(NULL,"Choose Ground Motion File",".","*");
+    QString file_name = QFileDialog::getOpenFileName(this,"Choose Ground Motion File",".","*");
     FEMWidget->findChild<QLineEdit*>("GMPath")->setText(file_name);
     onFEMTabEdited();
 

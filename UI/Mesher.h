@@ -1,10 +1,16 @@
 #ifndef MESHER_H
 #define MESHER_H
 
-#include <QObject>
-#include <QWidget>
-#include "BonzaTableModel.h"
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
+
 
 class Node
 {
@@ -25,42 +31,50 @@ private:
     double m_z;
 };
 
-class quad
+class Quad
 {
-    quad(int tag, int i, int j, int k, int l) :
-    m_tag(tag),m_i(i),m_j(j),m_k(k),m_l(l)
-    {}
+
 public:
+    Quad(int tag, int i, int j, int k, int l,double thickness,std::string color) :
+    m_tag(tag),m_i(i),m_j(j),m_k(k),m_l(l),m_thickness(thickness),m_color(color)
+    {}
     int i(){return m_i;}
     int j(){return m_j;}
     int k(){return m_k;}
     int l(){return m_l;}
-    int tag(){return m_tag;}
+    int tag()const {return m_tag;}
+    double thickness(){return m_thickness;}
+    std::string color(){return m_color;}
 private:
     int m_tag;
     int m_i;
     int m_j;
     int m_k;
     int m_l;
+    double m_thickness;
+    std::string m_color;
 };
 
 
-class Mesher: public QObject
+
+
+
+class Mesher
 {
-    Q_OBJECT
+
 public:
     Mesher();
-    Mesher(BonzaTableModel* tableModel);
     bool mesh2DColumn();
 
     std::vector<Node*> nodes;
-    std::vector<quad*> elements;
+    std::vector<Quad*> elements;
+    double minESizeH = 0.001;
+    double minESizeV = 0.001;
+    double eleThick = 1.0;// thickness of 2D ele
 
-public slots:
+    int size(){return elements.size();}
 
 
-private:
-    BonzaTableModel* m_tableModel;
 
 };
 

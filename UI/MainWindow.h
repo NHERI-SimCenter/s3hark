@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QWebEngineView>
+#include <QQuickView>
 #include "Mesher.h"
 
 #include <nlohmann/json.hpp>
@@ -71,6 +72,7 @@ public:
     QWidget *matContainer;
     QWebEngineView *dinoView;
     Mesher* mesher;
+    QQuickView *meshView;
 };
 
 #endif // MAINWINDOW_H
