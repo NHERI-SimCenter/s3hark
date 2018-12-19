@@ -21,7 +21,6 @@
 
 #include <QUiLoader>
 
-#include "TabManager.h"
 #include <QFileInfo>
 #include <QMessageBox>
 
@@ -31,7 +30,6 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
-
 
 
 
@@ -192,6 +190,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
     dinoView->setVisible(false);
 
+
     //ui->reBtn->setVisible(false);
 
     /*
@@ -249,12 +248,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->meshView_verticalLayout->addWidget(getWidget);
     */
 
-    TabManager* theTabManager = new TabManager(ui->tableView, this);
+    theTabManager = new TabManager(ui->tableView, this);
     theTabManager->init(ui->tabWidget);
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
     connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
     ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
+    connect(this, SIGNAL(runBtnClicked(QWebEngineView*)), theTabManager, SLOT(onRunBtnClicked(QWebEngineView*)));
 
     // init GWT
     ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
@@ -308,7 +308,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->groupBox_Mesh->setVisible(false);
 
 
+    // opensees
 
+
+    openseesProcess = new QProcess(this);
+    //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
+    connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
 
 
 
@@ -605,7 +610,7 @@ void MainWindow::on_reBtn_clicked()
 
     json layer, soilLayers, material, materials;
 
-//QString FEMString = tableModel->record(index.row()).value("FEM").toString();
+    //QString FEMString = tableModel->record(index.row()).value("FEM").toString();
     int numLayers = tableModel->rowCount();
     for (int i=0; i<numLayers; i++)
     {
@@ -686,19 +691,42 @@ void MainWindow::on_reBtn_clicked()
         elementModel->addElement("quad",tag,i,j,k,l,t,color);
     }
     elementModel->refresh();
-    //elementModel = newElementModel;
-
-    //meshView->rootContext()->setContextProperty("elements", elementModel);
 
 
+
+}
+
+void MainWindow::on_runBtn_clicked()
+{
     SiteResponse srt;
+    //openseesProcess->start("ls");
+    openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
+    openseesErrCount = 1;
+    //openseesProcess->write ("exit\n\r");
+
+    emit runBtnClicked(dinoView);
 
     /*
     ui->tabWidget->addTab(dinoView, "Run");
     ui->tabWidget->setCurrentIndex(1);
-    ui->tabWidget->setMovable(true);
     */
+}
 
+void MainWindow::onOpenSeesFinished()
+{
+
+    QString str_err = openseesProcess->readAllStandardError();
+
+    if(openseesErrCount==1)
+    {
+        if(str_err.contains("Site response analysis is finished."))
+        {
+            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("OK."));
+            qDebug() << "opensees says:" << str_err;
+            openseesErrCount = 2;
+            theTabManager->getTab()->setCurrentIndex(2);
+        }
+    }
 
 }
 

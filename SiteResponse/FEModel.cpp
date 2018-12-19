@@ -2139,7 +2139,7 @@ int SiteResponseModel::runEffectiveStressModel()
 	//s << "print -file out/Domain_tcl.out "<< endln<<endln;
 	
 	s << "wipe" << endln;
-	s << "\n" << endln;
+        s << "exit" << endln;
 
 
 	s.close();
@@ -2478,7 +2478,6 @@ int SiteResponseModel::runTestModel()
 		int converged = theAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
 		if (!converged)
 		{
-
 			opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
 
 			opserr << "Disp = " << theDomain->getNode(5)->getDisp()(0);

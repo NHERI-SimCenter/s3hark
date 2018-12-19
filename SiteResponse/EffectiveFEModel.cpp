@@ -1079,7 +1079,25 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 
 
 
+	// solution 1: direct steps 
+	
+	s << "set thisStep 0"<<endln;
+	s << "set success 0"<<endln;
+	s << "while {$thisStep < 1998} {"<<endln;
+	s << "    set thisStep [expr $thisStep+1]"<<endln;
+	s << "    set success [analyze 1 $dT]"<<endln;
+	s << "    if {$success == 0} {;# success"<<endln;
+	s << "        puts \"Analysis Finished at step: $thisStep\""<<endln;
+	s << "    } else {"<<endln;
+	s << "        puts \"Analysis Failed at step: $thisStep ----------------------------------------------!!!\""<<endln;
+	s << "    }"<<endln;
+	s << "}"<<endln<<endln; 
+	s << "wipe"<<endln;
+	s << "puts \"Site response analysis is finished.\n\""<< endln;
+	s << "exit"<<endln<< endln <<endln;
+	
 
+/*
 	s << "puts \"Start analysis\"" << endln;
 	s << "set startT [clock seconds]" << endln;
 	s << "while {$success != -10} {" << endln;
@@ -1105,8 +1123,9 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "print -file out_tcl/Domain.out" << endln << endln;
 	
 	s << "wipe" << endln;
-	s << "\n" << endln;
-
+	s << "puts \"Site response analysis is finished.\n\""<< endln;
+	s << "exit" << endln << endln;
+*/
 	s.close();
 
 	return 0;

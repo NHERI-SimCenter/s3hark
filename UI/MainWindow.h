@@ -6,6 +6,8 @@
 #include <QQuickView>
 #include "Mesher.h"
 #include "ElementModel.h"
+#include <QProcess>
+#include "TabManager.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -50,6 +52,7 @@ private slots:
 
 
     void on_reBtn_clicked();
+    void on_runBtn_clicked();
 
     json createMaterial(int tag, std::string matType, std::string parameters);
 
@@ -58,10 +61,12 @@ private slots:
     void refresh();
 
     ElementModel* getElementModel()const;
+    void onOpenSeesFinished();
 
 signals:
     void gwtChanged(const QString &newGWT);
     void tableMoved();
+    void runBtnClicked(QWebEngineView*);
 
 private:
     Ui::MainWindow *ui;
@@ -70,6 +75,7 @@ private:
     int meshViewWidth = 200;
     int layerTableWidth = 630;
     int layerTableHeight = 500;//320;
+    int openseesErrCount = 0;
 public:
     QWidget *plotContainer;
     QWidget *matContainer;
@@ -77,6 +83,9 @@ public:
     Mesher* mesher;
     QQuickView *meshView;
     ElementModel* elementModel;
+    QProcess* openseesProcess;
+    TabManager* theTabManager;
+
 };
 
 #endif // MAINWINDOW_H

@@ -27,6 +27,7 @@ public:
     void initFEMTab();
     void reFreshGMTab();
     QString loadGMtoString();
+    QTabWidget* getTab(){return tab;}
 
 signals:
 
@@ -37,6 +38,8 @@ public slots:
     void onGMBtnClicked();
     void onFEMTabEdited();
     double getGWTFromConfig();
+    void onRunBtnClicked(QWebEngineView*);
+
 
 private:
     QTabWidget* tab;

@@ -540,3 +540,14 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
 
 }
 
+void TabManager::onRunBtnClicked(QWebEngineView* view)
+{
+    if (tab->count()<4)
+    {
+        tab->addTab(view,"Run");
+        tab->setCurrentIndex(3);
+    }
+    else
+        tab->setCurrentIndex(3);
+}
+
