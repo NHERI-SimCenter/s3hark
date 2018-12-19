@@ -14,7 +14,7 @@
 
 #include <fstream>
 #include <iostream>
-#include "FEModel.h"
+#include "EffectiveFEModel.h"
 #include "siteLayering.h"
 #include "soillayer.h"
 #include "outcropMotion.h"
@@ -104,7 +104,8 @@ int main(int argc, char** argv)
 	SiteResponseModel model(siteLayers, "2D", &motionX);
 	model.setOutputDir(bbpOName);
 	//model.runTotalStressModel();
-	model.runEffectiveStressModel();
+	model.buildEffectiveStressModel2D();
+	model.runEffectiveStressModel2D();
 
 
 	

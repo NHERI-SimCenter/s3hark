@@ -7,12 +7,18 @@ Mesher::Mesher()
 
 }
 
+Mesher::Mesher(std::string jsonFile):
+m_outPutFile(jsonFile)
+{
+
+}
+
 
 bool Mesher::mesh2DColumn(){
     nodes.clear();
     elements.clear();
 
-    std::string configFile = "SRT.json";
+    std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
     std::ifstream i(configFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log
@@ -53,17 +59,17 @@ bool Mesher::mesh2DColumn(){
     }
 
     json soilProfile,soilLayers,layer;
-    int numLayers;
-    Node* node;
-    Quad* elem;
-    node = new Node(1, 0.0, 0.0, 0.0);
+    Nodex* node;
+    Quadx* elem;
+    node = new Nodex(1, 0.0, 0.0, 0.0);
     nodes.push_back(node);
-    node = new Node(2, 0.0, eSizeH, 0.0);
+    node = new Nodex(2, 0.0, eSizeH, 0.0);
     nodes.push_back(node);
     int numNodes = 2;
     double ycrd = 0.0;
     int numEles = 0;
     m_eSizeH = eSizeH;
+
 
     try
     {
@@ -91,12 +97,12 @@ bool Mesher::mesh2DColumn(){
             for (int i=1; i<=numEleThisLayer;i++)
             {
                 ycrd += t ;
-                node = new Node(numNodes + 1, 0.0, ycrd, 0.0);
+                node = new Nodex(numNodes + 1, 0.0, ycrd, 0.0);
                 nodes.push_back(node);
-                node = new Node(numNodes + 2, eSizeH, ycrd, 0.0);
+                node = new Nodex(numNodes + 2, eSizeH, ycrd, 0.0);
                 nodes.push_back(node);
 
-                elem = new Quad(numEles, numNodes-2, numNodes-1, numNodes+2, numNodes+1, t, color);
+                elem = new Quadx(numEles, numNodes-2, numNodes-1, numNodes+2, numNodes+1, t, color);
                 elements.push_back(elem);
 
                 numNodes += 2;
@@ -104,10 +110,11 @@ bool Mesher::mesh2DColumn(){
             }
 
             std::cout << "eleTag: " << eTag << std::endl;
-            numLayers += 1;
+            m_numLayers += 1;
         }
         m_totalHeight = ycrd;
-
+        m_numElements = numEles;
+        m_numNodes = numNodes;
     }
     catch (std::exception& e)
     {
@@ -119,6 +126,6 @@ bool Mesher::mesh2DColumn(){
         std::cerr << str << std::endl;
         return false;
     }
-
+    return true;
 
 }

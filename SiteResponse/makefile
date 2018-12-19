@@ -1,11 +1,11 @@
 include ../Makefile.in
 
 OBJS =  \
-       FEModel.o \
        soillayer.o \
        siteLayering.o \
        outcropMotion.o \
-       Mesher.o
+       Mesher.o \
+       EffectiveFEModel.o 
 
 archive: $(OBJS)
 	ar rv $(SRTlib) $(OBJS)

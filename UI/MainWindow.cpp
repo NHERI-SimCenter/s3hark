@@ -308,7 +308,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->groupBox_Mesh->setVisible(false);
 
 
-    //SiteResponse srt;
+
 
 
 
@@ -691,7 +691,7 @@ void MainWindow::on_reBtn_clicked()
     //meshView->rootContext()->setContextProperty("elements", elementModel);
 
 
-
+    SiteResponse srt;
 
     /*
     ui->tabWidget->addTab(dinoView, "Run");

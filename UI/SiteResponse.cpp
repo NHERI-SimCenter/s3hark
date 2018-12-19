@@ -6,7 +6,7 @@
 #include <string>
 
 
-#include "FEModel.h"
+#include "EffectiveFEModel.h"
 #include "siteLayering.h"
 #include "soillayer.h"
 #include "outcropMotion.h"
@@ -65,8 +65,8 @@ SiteResponse::SiteResponse()
     SiteResponseModel model(siteLayers, "2D", &motionX);
     model.setOutputDir(bbpOName);
     //model.runTotalStressModel();
-    model.runEffectiveStressModel();
-
+    model.buildEffectiveStressModel2D();
+    //model.runEffectiveStressModel2D();
 }
 
 
