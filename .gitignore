@@ -44,7 +44,7 @@ VS/
 *.out
 *.fig
 *.user
-resources/ui/DinoRun
+
 
 
 SiteResponse/bin/

@@ -6,7 +6,7 @@
 **                 University of California, Berkeley                    **
 **      		   Alborz Ghofrani (alborzgh@uw.edu)                     **
 **                 University of Washington                              **
-**                                                                       **
+**                     [TODO: add more]                                  **
 **   Date:   October  2018   Alborz Ghofrani                             **
 **   Update: December 2018   Charles Wang                                **
 ** ********************************************************************* */

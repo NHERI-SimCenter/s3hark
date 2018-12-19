@@ -104,8 +104,10 @@ int main(int argc, char** argv)
 	SiteResponseModel model(siteLayers, "2D", &motionX);
 	model.setOutputDir(bbpOName);
 	//model.runTotalStressModel();
+	//model.runEffectiveStressModel();
+
 	model.buildEffectiveStressModel2D();
-	model.runEffectiveStressModel2D();
+	//model.runEffectiveStressModel2D();
 
 
 	

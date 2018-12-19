@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
     unsigned uintTime = static_cast<unsigned>(QTime::currentTime().msec());
     qsrand(uintTime);
 
-
     ui->setupUi(this);
     updateCtrl();
 
@@ -692,24 +691,14 @@ void MainWindow::on_reBtn_clicked()
     }
     elementModel->refresh();
 
-
-
 }
 
 void MainWindow::on_runBtn_clicked()
 {
-    SiteResponse srt;
-    //openseesProcess->start("ls");
+    //SiteResponse srt;
     openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
     openseesErrCount = 1;
-    //openseesProcess->write ("exit\n\r");
-
     emit runBtnClicked(dinoView);
-
-    /*
-    ui->tabWidget->addTab(dinoView, "Run");
-    ui->tabWidget->setCurrentIndex(1);
-    */
 }
 
 void MainWindow::onOpenSeesFinished()
@@ -790,7 +779,7 @@ void MainWindow::refresh()
 
 
 
-/*
+    /*
     QPropertyAnimation *animation1= new QPropertyAnimation(ui->tableView,"geometry");
     animation1->setDuration(500);
     animation1->setStartValue(ui->tableView->geometry());
