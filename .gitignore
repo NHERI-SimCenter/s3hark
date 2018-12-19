@@ -30,3 +30,22 @@
 *.exe
 *.out
 *.app
+
+# docs
+PileGroupTool/
+
+# SiteResponse
+bin/
+lib/
+test/
+VS/
+.vscode/
+*.ini
+*.out
+*.fig
+*.user
+resources/ui/DinoRun
+
+
+SiteResponse/bin/
+

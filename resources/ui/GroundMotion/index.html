@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+    <title>chrome easter egg: t-rex runner</title>
+
+    <!-- Load c3.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.css" rel="stylesheet">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+
+
+</head>
+
+<body id="t" class="offline">
+
+    <div id="chart" style="width: 570px; height: 180px;"></div>
+    <!--<input type='file' accept='text/plain' onchange='openFile(event)'><br>-->
+    <!--<div id="output"></div>-->
+
+    <script type="text/javascript">
+
+
+
+
+        xd = ['x', 1, 2, 3, 4, 5, 6];
+        yd = ['Demo motion 1', 70, 180, 190, 180, 80, 250];
+        var chart = c3.generate({
+            data: {
+                x: 'x',
+                columns: [
+                    xd,
+                    yd
+                ]
+            },
+            axis: {
+                x: {
+                    label: { text: 'Time (s)', position: 'outer-center' },
+                    tick: {
+                        count: 10,
+                        format: function (x) { return x.toFixed(2); }
+                    }
+
+                },
+                y: {
+                    label: { text: 'Vel (m/s)', position: 'outer-middle' },
+                    tick: {
+                        count: 10,
+                        format: function (x) { return x.toFixed(2); }
+                    }
+
+                }
+            },
+            point: {
+                show: false
+            }
+        });
+
+
+        setTimeout(function () {
+            chart.load({
+                columns: [
+                    ['x', 1, 2, 3, 4, 5, 6],
+                    ['Demo motion 2', 1, 100, 290, 70, 10, 260]
+                ]
+            });
+        }, 1000);
+
+        // StartPoint
+        xnew = ['x', 1, 2, 3, 4, 5, 6];
+        ynew = ['Rock motion', 70, 180, 190, 180, 80, 250];
+        setTimeout(function () {
+            chart.load({
+                columns: [
+                xnew,
+                ynew
+                ]
+            });
+            chart.unload({
+                ids: 'Demo motion 1'
+            });
+            chart.unload({
+                ids: 'Demo motion 2'
+            });
+        }, 1500);
+        // EndPoint
+
+        function updateChart(reader) {
+            if (reader.result) {
+                //$("#output").html(reader.result);
+                fileContent = reader.result.split("\n");
+                var x = ['x'];
+                var yrock = ['Rock motion'];
+                fileContent.forEach(function (element) {
+                    lineStr = element.split(" ");
+                    if (lineStr[0] != "") {
+                        x.push(lineStr[0]);
+                        yrock.push(lineStr[1]);
+                    } else {
+
+                    }
+
+                });
+                setTimeout(function () {
+                    chart.load({
+                        columns: [
+                            x,
+                            yrock
+                        ]
+                    });
+                    chart.unload({
+                        ids: 'Demo motion 1'
+                    });
+                    chart.unload({
+                        ids: 'Demo motion 2'
+                    });
+                }, 500);
+
+            }
+        }
+
+        function getObjectURL(file) {
+            var url = null;
+            if (window.createObjcectURL != undefined) {
+                url = window.createOjcectURL(file);
+            } else if (window.URL != undefined) {
+                url = window.URL.createObjectURL(file);
+            } else if (window.webkitURL != undefined) {
+                url = window.webkitURL.createObjectURL(file);
+            }
+            return url;
+        }
+
+
+        var openFile = function (event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function () {
+                if (reader.result) {
+                    updateChart(reader);
+                    //console.log(reader.result);
+                    //$("#output").html(reader.result);
+                }
+            };
+            reader.readAsText(input.files[0]);
+
+
+        };
+
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/images/left.png</file>
+        <file>resources/images/right.png</file>
+        <file>resources/styles/stylesheet.css</file>
+        <file>resources/ui/plotView.qml</file>
+        <file>resources/ui/MeshView.qml</file>
+        <file>resources/ui/DinoRun/index.html</file>
+        <file>resources/ui/GroundMotion/index.html</file>
+        <file>UI/PM4Sand.ui</file>
+        <file>UI/ElasticIsotropic.ui</file>
+        <file>UI/DefaultMatTab.ui</file>
+        <file>UI/GroundMotion.ui</file>
+        <file>UI/FEM.ui</file>
+    </qresource>
+</RCC>

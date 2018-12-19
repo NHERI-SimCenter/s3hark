@@ -1,0 +1,6 @@
+cd bin
+rm Log
+rm Domain.out
+#./siteresponse ../test/siteLayering.loc -bbp ../test/9130326.nwhp.vel.bbp out Log
+./siteresponse ../test/siteLayering.loc ../test/RSN766_G02_000_VEL out Log
+#opensees model.tcl
