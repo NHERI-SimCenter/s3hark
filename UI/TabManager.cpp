@@ -224,7 +224,8 @@ double TabManager::getGWTFromConfig()
         file.close();
         return GWT;
     }
-    file.open(QIODevice::ReadOnly);
+    if(!file.isOpen())
+        file.open(QIODevice::ReadOnly);
     QTextStream in(&file);
 
     while(!in.atEnd()) {
