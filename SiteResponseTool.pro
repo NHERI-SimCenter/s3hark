@@ -1,8 +1,8 @@
-#-------------------------------------------------#
-#                                                 #
-#               Site Response Tool                #
-#                                                 #
-#-------------------------------------------------#
+#---------------------------------------------------------#
+#                                                         #
+#               Site Response Tool                        #
+#                                                         #
+#---------------------------------------------------------#
 
 QT       += core gui sql quick qml webenginewidgets uitools
 
@@ -22,22 +22,30 @@ contains( UNAME, [dD]arwin ):message( System type: $$UNAME )
 
 
 
+unix: {
+# You need to modify this section if your blas and lapack is in a different place
 INCLUDEPATH += FEM \
             SiteResponse \
             /usr/local/opt/lapack/include \
             /usr/local/include
+}
+win32: {
+# You must append your lapack include path if it is not in a standard place.
+INCLUDEPATH += FEM \
+            SiteResponse
+}
 
-
-
-
-
+unix: {
+# You need to modify this section if your blas and lapack is in a different place
 LIBS += -L"$$_PRO_FILE_PWD_/lib" -lSRT -lFEM \
                 /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
                 /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
                 /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
-#        -L/usr/local/opt/lapack/lib -lblas -llapack -llapacke
-
-
+}
+win32: {
+# You must append your lapack libs if it is not in a standard place.
+LIBS += -L"$$_PRO_FILE_PWD_/lib" -lSRT -lFEM
+}
 
 
 
