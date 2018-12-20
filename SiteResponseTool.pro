@@ -14,14 +14,6 @@ TARGET = SiteResponseTool
 TEMPLATE = app
 
 
-
-# get system type
-UNAME = $$system(uname -s)
-contains( UNAME, [lL]inux  ):message( System type: $$UNAME )
-contains( UNAME, [dD]arwin ):message( System type: $$UNAME )
-
-
-
 unix: {
 # You need to modify this section if your blas and lapack is in a different place
 INCLUDEPATH += FEM \
