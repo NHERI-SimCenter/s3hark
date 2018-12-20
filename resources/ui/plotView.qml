@@ -23,54 +23,25 @@ Rectangle {
             groups: [
                 DelegateModelGroup { name: "selected" }
             ]
-/*
-            delegate: Rectangle {
-                id: item
-                height: 25
-                width: 200
-                Text {
-                    text: {
-                        var text = "Name: " + soilModel.getLayerName(index)
-                        if (item.DelegateModel.inSelected)
-                            text += " (" + item.DelegateModel.selectedIndex + ")"
-                        return text;
-                    }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: item.DelegateModel.inSelected = !item.DelegateModel.inSelected
-                }
-            }
-            */
 
             delegate: Shape {
                 id: item
-                //anchors.centerIn: parent
 
                 property real parentHeight: 500
                 property real totalSoilHeight: soilModel.getTotalHeight()
                 property real heightFactor: parentHeight*0.8/soilModel.getTotalHeight()
-
                 property real thickness: soilModel.getThickness(index)
                 property real toppos: soilModel.getToppos(index)
                 property real botompos: soilModel.getBotompos(index)
                 property real parentWidth: parent.width
-
                 property string soilColor: soilModel.getSoilColor(index)
                 property string soilName: index.toString()
-
                 property real marginTop: 0.15*totalSoilHeight*heightFactor
-
-                property real startYLoc: index<1 ? marginTop : 0 //toppos*heightFactor + 0.15*totalSoilHeight*heightFactor
-
-
+                property real startYLoc: index<1 ? marginTop : 0
                 width: soilWidth/0.6
                 height: index<1 ? thickness*heightFactor + marginTop : thickness*heightFactor
-
-
                 property string mouseAreaID: index
                 property bool isActive: soilModel.isActive(index)
-
 
                 ShapePath {
                     strokeWidth: isActive ? 2 : 1
