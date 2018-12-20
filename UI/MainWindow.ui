@@ -185,7 +185,7 @@
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>40</width>
+                <width>20</width>
                 <height>20</height>
                </size>
               </property>
@@ -202,12 +202,12 @@
              <widget class="QPushButton" name="reBtn">
               <property name="maximumSize">
                <size>
-                <width>60</width>
+                <width>80</width>
                 <height>16777215</height>
                </size>
               </property>
               <property name="text">
-               <string>Re</string>
+               <string>Remesh</string>
               </property>
              </widget>
             </item>

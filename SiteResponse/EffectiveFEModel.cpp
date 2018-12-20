@@ -6,7 +6,7 @@
 **                 University of California, Berkeley                    **
 **      		   Alborz Ghofrani (alborzgh@uw.edu)                     **
 **                 University of Washington                              **
-**                                                                       **
+**                     [TODO: add more]                                  **
 **   Date:   October  2018   Alborz Ghofrani                             **
 **   Update: December 2018   Charles Wang                                **
 ** ********************************************************************* */
@@ -790,6 +790,23 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "remove recorders" << endln << endln << endln;
 
 
+
+	//setTime 0.0
+	//wipeAnalysis
+	//remove recorders
+	theDomain->setCommittedTime(0.0);
+	delete theAnalysis;
+	theDomain->removeRecorders();
+
+
+
+
+
+
+
+
+
+
 	s << "# ------------------------------------------------------------\n";
 	s << "# 5. Dynamic analysis                                         \n";
 	s << "# ------------------------------------------------------------\n\n";
@@ -851,7 +868,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	// I have to change to a transient analysis
 	// remove the static analysis and create new transient objects
 	delete theIntegrator;
-	delete theAnalysis;
+	//delete theAnalysis;
 
 	//theTest->setTolerance(1.0e-5);
 
@@ -861,9 +878,40 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "numberer    RCM" << endln;
 	s << "system BandGeneral" << endln;
 
+
+
+
+
+	// create analysis objects - I use static analysis for gravity
+	theModel = new AnalysisModel();
+	theTest = new CTestNormDispIncr(1.0e-4, 35, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
+	theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton) 
+	//StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
+	//ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
+	//TransientIntegrator* theIntegrator = new Newmark(5./6., 4./9.);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+	theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
+	theRCM = new RCM();
+	theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
+	theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
+	theSOE = new BandGenLinSOE(*theSolver);
+
+
+	//VariableTimeStepDirectIntegrationAnalysis* theAnalysis;
+	//theAnalysis = new VariableTimeStepDirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator, theTest);
+
+	//StaticAnalysis *theAnalysis; // *
+	//theAnalysis = new StaticAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator); // *
+	
+
+
+
+
+
+
 	double gamma_dynm = 0.5;
 	double beta_dynm = 0.25;
 	TransientIntegrator* theTransientIntegrator = new Newmark(gamma_dynm, beta_dynm);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+	//theTransientIntegrator->setConvergenceTest(*theTest);
 
 	// setup Rayleigh damping   TODO: calcualtion of these paras
 	// apply 2% at the natural frequency and 5*natural frequency
@@ -1006,8 +1054,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 
 	outFile = theOutputDir + PATH_SEPARATOR + "acceleration.out";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "acc", *theDomain, *theOutputStream, motionDT, true, NULL);
-	//theDomain->addRecorder(*theRecorder);
+	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, motionDT, true, NULL);
+	theDomain->addRecorder(*theRecorder);
 
 	dofToRecord.resize(1);
 	dofToRecord(0) = 2;
@@ -1044,6 +1092,9 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s<< endln << endln;
 
 
+	
+
+
 
 	s << "# ------------------------------------------------------------\n";
 	s << "# 5.4 Perform dynamic analysis                                \n";
@@ -1078,9 +1129,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "}" << endln << endln << endln;
 
 
-
+	/*
 	// solution 1: direct steps 
-	
 	s << "set thisStep 0"<<endln;
 	s << "set success 0"<<endln;
 	s << "while {$thisStep < 1998} {"<<endln;
@@ -1095,9 +1145,10 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "wipe"<<endln;
 	s << "puts \"Site response analysis is finished.\n\""<< endln;
 	s << "exit"<<endln<< endln <<endln;
+	*/
 	
 
-/*
+	
 	s << "puts \"Start analysis\"" << endln;
 	s << "set startT [clock seconds]" << endln;
 	s << "while {$success != -10} {" << endln;
@@ -1125,11 +1176,20 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "wipe" << endln;
 	s << "puts \"Site response analysis is finished.\n\""<< endln;
 	s << "exit" << endln << endln;
-*/
-	s.close();
 
-	return 0;
+	s.close();
 	
+	
+
+
+	/*
+	OPS_Stream* theOutputStreamAll;
+	theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
+	theDomain->Print(*theOutputStreamAll);
+	opserr << theOutputStreamAll;
+	delete theOutputStreamAll;
+	*/
+
 
 
 	double totalTime = dT * nSteps;
@@ -1177,31 +1237,6 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	opsout << progressBar.str().c_str();
 	opsout.flush();
 	opsout << endln;
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-	OPS_Stream* theOutputStreamAll;
-	theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
-	theDomain->Print(*theOutputStreamAll);
-	opserr << theOutputStreamAll;
-
-
 
 
 	return 0;

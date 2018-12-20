@@ -15,7 +15,7 @@
 #include "FileStream.h"
 #include "OPS_Stream.h"
 
-
+#include <QDebug>
 
 // these must be defined here!!
 StandardStream sserr;
@@ -55,6 +55,7 @@ SiteResponse::SiteResponse()
     }
     else {
         std::string bbpLName = "Log";
+
         std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
         motionX.setMotion(motionXFN.c_str());
         bbpOName = "out";
