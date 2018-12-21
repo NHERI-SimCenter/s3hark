@@ -16,12 +16,12 @@ TEMPLATE = app
 
 unix: {
 # You need to modify this section if your blas and lapack is in a different place
-INCLUDEPATH += FEM \
+INCLUDEPATH += Include \
+            FEM \
             SiteResponse \
             UI \
             /usr/local/opt/lapack/include \
-            /usr/local/include \
-
+            /usr/local/include
 }
 win32: {
 # You must append your lapack include path if it is not in a standard place.
@@ -31,11 +31,10 @@ INCLUDEPATH += FEM \
 
 unix: {
 # You need to modify this section if your blas and lapack is in a different place
-LIBS += -L"$$_PRO_FILE_PWD_/lib" \
-                /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
-                /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
-                /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
-                -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
+LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
+        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
+        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
+        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
 }
 win32: {
 # You must append your lapack libs if it is not in a standard place.
@@ -403,7 +402,6 @@ HEADERS  += UI/MainWindow.h \
     SiteResponse/soillayer.h \
     SiteResponse/outcropMotion.h \
     SiteResponse/siteLayering.h \
-    #FEM/bool.h
 
 
 FORMS    += UI/MainWindow.ui \
