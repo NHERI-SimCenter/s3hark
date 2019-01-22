@@ -146,8 +146,8 @@ SiteResponseModel::~SiteResponseModel()
 
 int SiteResponseModel::buildEffectiveStressModel2D()
 {
-	//Vector zeroVec(3);
-	//zeroVec.Zero();
+	Vector zeroVec(3);
+	zeroVec.Zero();
 
 	// ------------------------------------------
 	// 0. Define some limits
@@ -162,8 +162,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	// ------------------------------------------
 	// 0. Load configurations form json file
 	// ------------------------------------------
-	//std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
-	std::string configFile = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/SRT.json";
+	std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
+	//std::string configFile = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/SRT.json";
     std::ifstream i(configFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log
@@ -171,7 +171,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
     i >> SRT;
 
 	// set outputs for tcl 
-	ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
+	ofstream s ("/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl", std::ofstream::out);
+	//ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
 	s << "# #########################################################" << "\n\n";
 	s << "wipe \n\n";
 

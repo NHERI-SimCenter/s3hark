@@ -79,7 +79,7 @@
        </size>
       </property>
       <property name="title">
-       <string>Design</string>
+       <string>Analysis</string>
       </property>
       <widget class="QWidget" name="gridLayoutWidget">
        <property name="geometry">
@@ -192,13 +192,6 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="meshBtn">
-              <property name="text">
-               <string>Mesh</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="reBtn">
               <property name="maximumSize">
                <size>
@@ -207,7 +200,14 @@
                </size>
               </property>
               <property name="text">
-               <string>Remesh</string>
+               <string>Re</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="meshBtn">
+              <property name="text">
+               <string>Mesh</string>
               </property>
              </widget>
             </item>

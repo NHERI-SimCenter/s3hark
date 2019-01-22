@@ -36,7 +36,7 @@ void TabManager::init(QTabWidget* theTab){
     QFile uiFEMFile(uiFEMName);
     uiFEMFile.open(QIODevice::ReadOnly);
     FEMWidget = uiLoader.load(&uiFEMFile,this);
-    tab->addTab(FEMWidget,"FEM");
+    tab->addTab(FEMWidget,"Configure");
     initFEMTab();
     connect(FEMWidget->findChild<QPushButton*>("GMBtn"), SIGNAL(clicked()), this, SLOT(onGMBtnClicked()));
 
@@ -45,7 +45,7 @@ void TabManager::init(QTabWidget* theTab){
     QFile uiFile(uiFileName);
     uiFile.open(QIODevice::ReadOnly);
     defaultWidget = uiLoader.load(&uiFile,this);
-    tab->addTab(defaultWidget,"Material");
+    tab->addTab(defaultWidget,"Layer properties");
 
 
 
@@ -333,8 +333,8 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
 
     for (int j=tab->count();j>0;j--)
         tab->removeTab(j-1);
-    tab->insertTab(0,FEMWidget,"FEM");
-    tab->insertTab(1,currentWidget,"Material");
+    tab->insertTab(0,FEMWidget,"Configure");
+    tab->insertTab(1,currentWidget,"Layer properties");
     tab->insertTab(2,GMView,"Ground motion");
     tab->setCurrentIndex(1);
 

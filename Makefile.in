@@ -9,6 +9,7 @@ FFNOPTFLAG = -Wall -O
 CCOPTFLAG  = -Wall -Wno-reorder -O2
 
 LINCLUDE = -I$(source) \
+		-I$(source)/Include \
 	   -I$(source)/FEM \
 	   -I$(source)/SiteResponse \
 	   -I$(source)/UI
