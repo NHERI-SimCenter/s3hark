@@ -7,13 +7,16 @@ import QtQuick.Shapes 1.11;
 
 Rectangle {
     id: container
-    width: 200//parent.width
-    height: 500
+    width: parent.width//plotViewCanvas.size().width()// designTableModel.getGraphicWidth()//200//parent.width
+    height: parent.height//plotViewCanvas.size().height() //designTableModel.getGraphicHeight()//500
     color: "#e2e2e2"
+
+
 
     property real soilWidth: width*0.6
     property real startXLoc: (1-0.6)*width/2
-    property real parentHeight: 500
+    property real parentHeight: height
+
 
 
 
@@ -27,7 +30,7 @@ Rectangle {
             delegate: Shape {
                 id: item
 
-                property real parentHeight: 500
+                //property real parentHeight: 500
                 property real totalSoilHeight: soilModel.getTotalHeight()
                 property real heightFactor: parentHeight*0.8/soilModel.getTotalHeight()
                 property real thickness: soilModel.getThickness(index)

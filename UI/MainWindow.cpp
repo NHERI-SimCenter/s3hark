@@ -23,6 +23,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QSizePolicy>
 
 
 #include <iostream>
@@ -125,14 +126,20 @@ MainWindow::MainWindow(QWidget *parent) :
     plotView->rootContext()->setContextProperty("designTableModel", ui->tableView);
     plotView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
 
-    //QWidget *
     plotContainer = QWidget::createWindowContainer(plotView, this);
     //plotContainer->setFixedSize(QSize(200, 800));
-    plotContainer->setMinimumSize(layerViewWidth,layerTableHeight);
-    plotContainer->setMaximumSize(layerViewWidth,layerTableHeight);
-    plotContainer->setFocusPolicy(Qt::TabFocus);
+    //plotContainer->setMinimumSize(layerViewWidth,layerTableHeight);
+    plotContainer->setMinimumSize(200,layerTableHeight);
+    plotContainer->setMaximumSize(200,1e5);
+    plotContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    //plotContainer->setFocusPolicy(Qt::TabFocus);
     plotView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/plotView.qml")));
-    ui->plotView_verticalLayout->addWidget(plotContainer);
+    ui->soilColumnLayout->addWidget(plotContainer);
+
+    //ui->rightLayout->setMaximumSize(1000,1e5);
+    ui->nextPageBtn->hide();
+    ui->prePageBtn->hide();
+
 
     /*
     // add QQuickwidget for displaying mesh
@@ -188,6 +195,9 @@ MainWindow::MainWindow(QWidget *parent) :
     dinoView = new QWebEngineView(this);
     dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
     dinoView->setVisible(false);
+    //dinoView->setMinimumSize(layerTableWidth,300);
+    //dinoView->setMaximumSize(1e5,1e5);
+    //dinoView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
     //ui->reBtn->setVisible(false);
@@ -252,7 +262,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
     connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
-    ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
+    //ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
     connect(this, SIGNAL(runBtnClicked(QWebEngineView*)), theTabManager, SLOT(onRunBtnClicked(QWebEngineView*)));
 
     // init GWT
@@ -296,15 +306,33 @@ MainWindow::MainWindow(QWidget *parent) :
     meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
 
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
+    /*
     meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
     meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
     meshContainer->setFocusPolicy(Qt::TabFocus);
+    */
+    meshContainer->setMinimumSize(200,layerTableHeight);
+    meshContainer->setMaximumSize(200,1e5);
+    meshContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
-    ui->meshView_verticalLayout->addWidget(meshContainer);
+    ui->meshLayout->addWidget(meshContainer);
 
     connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
     ui->meshBtn->setVisible(true);
-    ui->groupBox_Mesh->setVisible(false);
+    meshView->setVisible(false);
+
+
+    // size control on the right
+    //ui->groupBox_SoilLayersTable->setMaximumSize(1e5,1e5);
+
+    ui->tableView->setMinimumSize(layerTableWidth,200);
+    ui->tableView->setMaximumSize(1e5,1e5);
+    ui->tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    ui->tabWidget->setMinimumSize(layerTableWidth,300);
+    ui->tabWidget->setMaximumSize(1e5,1e5);
+    ui->tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
 
 
     // opensees
@@ -368,22 +396,32 @@ void MainWindow::on_meshBtn_clicked(bool checked)
 {
 
     Q_UNUSED(checked);
+    if (meshView->isVisible())
+        meshView->setVisible(false);
+    else
+        meshView->setVisible(true);
+    /*
     if (ui->groupBox_Mesh->isVisible())
     {
         ui->groupBox_Mesh->setVisible(false);
+
         int w = layerViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
         this->resize(w+80,h+20);
+
 
 
     }else{
         ui->groupBox_Mesh->setVisible(true);
         //ui->groupBox_Graphic->setVisible(false);
         //int w =  meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
+
         int w = layerViewWidth + meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
         this->resize(w+80,h+20);
+
     }
+    */
 
 }
 

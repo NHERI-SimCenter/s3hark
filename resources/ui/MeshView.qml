@@ -9,14 +9,14 @@ import QtQuick.Shapes 1.11;
 
 Rectangle {
     id: container
-    width: 200//parent.width
-    height: 500//320
+    width: parent.width//200//parent.width
+    height: parent.height//500//320
     color: "#e2e2e2"
 
     property real eleWidth: elements.getWidth()
 
 
-    property real parentHeight: 500//320
+    property real parentHeight: height//500//320
     property real hFactor:  0.8* parentHeight / totalHeight
     property real startYLoc: 0.15*totalHeight*hFactor
 

@@ -121,6 +121,8 @@ public:
         return totalHeight;
     }
 
+
+
     Q_INVOKABLE bool isActive(int row)
     {
         return this->record(row).value(CHECKED).toBool();
