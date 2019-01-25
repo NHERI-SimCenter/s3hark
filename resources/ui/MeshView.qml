@@ -8,10 +8,14 @@ import QtQuick.Shapes 1.11;
 
 
 Rectangle {
+    anchors.centerIn: parent
     id: container
     width: parent.width//200//parent.width
     height: parent.height//500//320
-    color: "#e2e2e2"
+    color: "#ffffff"//"#e2e2e2"
+    //border.color: "black"
+    //border.width: 1
+    //radius: 1
 
     property real eleWidth: elements.getWidth()
 

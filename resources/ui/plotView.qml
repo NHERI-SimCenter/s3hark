@@ -9,7 +9,10 @@ Rectangle {
     id: container
     width: parent.width//plotViewCanvas.size().width()// designTableModel.getGraphicWidth()//200//parent.width
     height: parent.height//plotViewCanvas.size().height() //designTableModel.getGraphicHeight()//500
-    color: "#e2e2e2"
+    color: "#ffffff"//"#e2e2e2"
+    border.color: "black"
+    border.width: 1
+    radius: 1
 
 
 

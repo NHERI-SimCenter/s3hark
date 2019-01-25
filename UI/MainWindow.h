@@ -85,6 +85,7 @@ public:
     ElementModel* elementModel;
     QProcess* openseesProcess;
     TabManager* theTabManager;
+    QTabWidget* resultsTab;
 
 };
 

@@ -3,6 +3,7 @@
         <file>resources/images/left.png</file>
         <file>resources/images/right.png</file>
         <file>resources/styles/stylesheet.css</file>
+        <file>resources/styles/profile.css</file>
         <file>resources/ui/plotView.qml</file>
         <file>resources/ui/MeshView.qml</file>
         <file>resources/ui/DinoRun/index.html</file>

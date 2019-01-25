@@ -24,6 +24,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSizePolicy>
+#include <QTabBar>
 
 
 #include <iostream>
@@ -166,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
 
     //resize(830 + 80, 350 + 40);
-    resize(830 + 80, 530 + 20);
+    resize(830 + 80 + 280, 530 + 20);
 
     ui->tableView->m_sqlModel->deActivateAll();
 
@@ -259,6 +260,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     theTabManager = new TabManager(ui->tableView, this);
     theTabManager->init(ui->tabWidget);
+
+
+
+
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
     connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
@@ -274,6 +279,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //--------------------------------------------------------------------------------//
     // Init Mesher and Mesh View
     //--------------------------------------------------------------------------------//
+
 
     mesher = new Mesher();
     mesher->mesh2DColumn();
@@ -306,16 +312,34 @@ MainWindow::MainWindow(QWidget *parent) :
     meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
 
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
-    /*
-    meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setFocusPolicy(Qt::TabFocus);
-    */
-    meshContainer->setMinimumSize(200,layerTableHeight);
-    meshContainer->setMaximumSize(200,1e5);
-    meshContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
-    ui->meshLayout->addWidget(meshContainer);
+    //ui->meshLayout->addWidget(meshContainer);
+    resultsTab = new QTabWidget;
+    resultsTab->setMinimumSize(200,layerTableHeight);
+    resultsTab->setMaximumSize(300,1e5);
+    resultsTab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    resultsTab->addTab(meshContainer,"Mesh");
+    resultsTab->addTab(new QWidget(),"PGA(g)");
+    resultsTab->addTab(new QWidget(),"\u03B3max(%)");
+    resultsTab->addTab(new QWidget(),"maxDisp(m)");
+    resultsTab->addTab(new QWidget(),"maxRu");
+    resultsTab->setTabPosition(QTabWidget::East);
+
+
+
+
+
+    ui->meshLayout->addWidget(resultsTab);
+
+    QFile profileCSSfile(":/resources/styles/profile.css");
+    if(profileCSSfile.open(QFile::ReadOnly)) {
+      QString styleSheet = QLatin1String(profileCSSfile.readAll());
+      //QTabBar *configTabBar = resultsTab->findChild<QTabBar *>("qt_tabwidget_tabbar");
+      resultsTab->setStyleSheet(styleSheet);
+
+      profileCSSfile.close();
+    }
+
 
     connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
     ui->meshBtn->setVisible(true);
@@ -396,10 +420,10 @@ void MainWindow::on_meshBtn_clicked(bool checked)
 {
 
     Q_UNUSED(checked);
-    if (meshView->isVisible())
-        meshView->setVisible(false);
+    if (resultsTab->isVisible())
+        resultsTab->setVisible(false);
     else
-        meshView->setVisible(true);
+        resultsTab->setVisible(true);
     /*
     if (ui->groupBox_Mesh->isVisible())
     {

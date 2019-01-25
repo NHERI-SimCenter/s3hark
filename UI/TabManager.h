@@ -12,6 +12,8 @@
 #include <QWebEngineView>
 #include <QFileDialog>
 
+
+
 class TabManager : public QDialog
 {
     Q_OBJECT

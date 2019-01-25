@@ -29,6 +29,7 @@ void TabManager::init(QTabWidget* theTab){
     this->tab = theTab;
     tab->setTabsClosable(true);
 
+
     QUiLoader uiLoader;
 
 
