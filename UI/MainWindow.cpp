@@ -273,7 +273,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // init GWT
     ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
 
-
+    ui->reBtn->setVisible(false);
 
 
     //--------------------------------------------------------------------------------//
@@ -420,10 +420,16 @@ void MainWindow::on_meshBtn_clicked(bool checked)
 {
 
     Q_UNUSED(checked);
-    if (resultsTab->isVisible())
+    if (resultsTab->isVisible()){
+        ui->meshBtn->setText(">");
         resultsTab->setVisible(false);
-    else
+        ui->coolSpacer->changeSize(0,0,QSizePolicy::Maximum,QSizePolicy::Maximum);
+    }
+    else{
+        ui->meshBtn->setText("<");
         resultsTab->setVisible(true);
+        ui->coolSpacer->changeSize(5,5,QSizePolicy::Maximum,QSizePolicy::Maximum);
+    }
     /*
     if (ui->groupBox_Mesh->isVisible())
     {

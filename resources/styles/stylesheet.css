@@ -1,7 +1,9 @@
 /* ---   Styles for SRT    --- */
 /* --- Written: charles.wang --- */
 
-
+QPushButton#meshBtn {
+    border: none;
+}
 
 BonzaTableView
 {
@@ -59,11 +61,11 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:!selected {
-    background: #86c372;
+    background: #b3e6ff;
 }
 
 QTabBar::tab:!selected:hover {
-    background: #999;
+    background: #e6f7ff;/*#999*/
 }
 
 QTabBar::tab:top:!selected {

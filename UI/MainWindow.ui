@@ -50,20 +50,17 @@
        </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QPushButton" name="meshBtn">
+        <property name="maximumSize">
          <size>
-          <width>5</width>
-          <height>20</height>
+          <width>10</width>
+          <height>16777215</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string>&gt;</string>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="meshLayout">
@@ -73,7 +70,7 @@
        </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer_4">
+       <spacer name="coolSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -199,26 +196,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="meshBtn">
-            <property name="text">
-             <string>Mesh</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="runBtn">
-            <property name="maximumSize">
-             <size>
-              <width>60</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Run</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <layout class="QGridLayout" name="gridLayout_2">
             <property name="topMargin">
              <number>1</number>
@@ -321,6 +298,19 @@
                 </property>
                 <property name="autoRepeatInterval">
                  <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="runBtn">
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Run</string>
                 </property>
                </widget>
               </item>
