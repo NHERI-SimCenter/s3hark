@@ -17,6 +17,10 @@ class MainWindow;
 }
 
 
+
+
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -48,6 +52,8 @@ private slots:
     void on_gwtEdit_textChanged(const QString &arg1);
 
     void on_rowRemoved(int row);
+
+
 
 
 
@@ -90,5 +96,7 @@ public:
     QTabWidget* resultsTab;
 
 };
+
+
 
 #endif // MAINWINDOW_H

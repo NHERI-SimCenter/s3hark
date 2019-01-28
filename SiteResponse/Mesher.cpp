@@ -18,7 +18,8 @@ bool Mesher::mesh2DColumn(){
     nodes.clear();
     elements.clear();
 
-    std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
+    //std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
+    std::string configFile = "SRT.json";
     std::ifstream i(configFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log

@@ -36,12 +36,15 @@ public:
     void clear();
     void refresh();
     void setWidth(double w){m_w = w;}
+    void setTotalHeight(double h){m_h = h;}
 public slots:
     double getWidth(){return m_w;}
+    double getTotalHeight(){return m_h;}
 private:
     QHash<int,QByteArray> mRoleNames;
     QList<QHash<int,QVariant>> mRecords;
     double m_w ;
+    double m_h = 0;
 };
 
 

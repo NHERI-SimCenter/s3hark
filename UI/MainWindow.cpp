@@ -145,6 +145,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
     elementModel->clear();
     elementModel->setWidth(mesher->eSizeH());
+    elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
     {
         int tag = mesher->elements[n-1]->tag();
@@ -159,8 +160,9 @@ MainWindow::MainWindow(QWidget *parent) :
     elementModel->refresh();
 
     meshView->rootContext()->setContextProperty("elements", elementModel);
-    meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
-    meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
+    //meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
+    //meshView->rootContext()->setContextProperty("totalHeightEdt", ui->totalHeight);
+    meshView->rootContext()->setContextProperty("sqlModel", ui->tableView->m_sqlModel);
 
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
     meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
@@ -351,7 +353,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // init GWT
     ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
 
-    ui->reBtn->setVisible(false);
+    //ui->reBtn->setVisible(false);
 
 
 
@@ -371,8 +373,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // opensees
-
-
     openseesProcess = new QProcess(this);
     //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
     connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
@@ -693,9 +693,6 @@ void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
 void MainWindow::on_reBtn_clicked()
 {
 
-
-
-
     BonzaTableModel* tableModel = ui->tableView->m_sqlModel;
 
     QWidget* FEMtab = ui->tabWidget->widget(0);
@@ -722,9 +719,7 @@ void MainWindow::on_reBtn_clicked()
     basicSettings["groundWaterTable"] = GWT;
     root["basicSettings"] = basicSettings;
 
-    json soilProfile = {
-
-    };
+    json soilProfile = { };
 
     json layer, soilLayers, material, materials;
 
@@ -794,6 +789,7 @@ void MainWindow::on_reBtn_clicked()
 
     mesher->mesh2DColumn();
     elementModel->clear();
+    elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
 
     //ElementModel* newElementModel = new ElementModel;
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
@@ -814,10 +810,16 @@ void MainWindow::on_reBtn_clicked()
 
 void MainWindow::on_runBtn_clicked()
 {
-    //SiteResponse srt;
+    SiteResponse srt;
+
+    /*
+     * Calling Opensee to do the work
+     */
+    /*
     openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
     openseesErrCount = 1;
     emit runBtnClicked(dinoView);
+    */
 }
 
 void MainWindow::onOpenSeesFinished()
