@@ -63,6 +63,8 @@ private slots:
     ElementModel* getElementModel()const;
     void onOpenSeesFinished();
 
+    void hideShowTab();
+
 signals:
     void gwtChanged(const QString &newGWT);
     void tableMoved();

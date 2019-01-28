@@ -5,6 +5,7 @@
 #include <QQmlContext>
 
 #include <QTime>
+#include <QTimer>
 
 #include <QtQuick/qquickitem.h>
 #include <QtQuick/qquickview.h>
@@ -122,11 +123,85 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->totalLayerLineEdit->setText("1");
     }
 
+
+
+
+
+    //--------------------------------------------------------------------------------//
+    // Init Mesher and Mesh View
+    //--------------------------------------------------------------------------------//
+
+
+    mesher = new Mesher();
+    mesher->mesh2DColumn();
+
+    // add QQuickwidget for displaying mesh
+    meshView = new QQuickView();
+    meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
+    meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
+
+    elementModel = new ElementModel;
+    //std::sort(mesher->elements.begin(),mesher->elements.end(),
+    //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
+    elementModel->clear();
+    elementModel->setWidth(mesher->eSizeH());
+    for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
+    {
+        int tag = mesher->elements[n-1]->tag();
+        int i = mesher->elements[n-1]->i();
+        int j = mesher->elements[n-1]->j();
+        int k = mesher->elements[n-1]->k();
+        int l = mesher->elements[n-1]->l();
+        double t = mesher->elements[n-1]->thickness();
+        QString color = QString::fromStdString(mesher->elements[n-1]->color());
+        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+    }
+    elementModel->refresh();
+
+    meshView->rootContext()->setContextProperty("elements", elementModel);
+    meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
+    meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
+
+    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
+    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
+    //ui->meshLayout->addWidget(meshContainer);
+    resultsTab = new QTabWidget;
+    resultsTab->setMinimumSize(200,layerTableHeight);
+    resultsTab->setMaximumSize(200,1e5);
+    resultsTab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    resultsTab->addTab(meshContainer,"Mesh");
+    resultsTab->addTab(new QWidget(),"PGA(g)");
+    resultsTab->addTab(new QWidget(),"\u03B3max(%)");
+    resultsTab->addTab(new QWidget(),"maxDisp(m)");
+    resultsTab->addTab(new QWidget(),"maxRu");
+    resultsTab->setTabPosition(QTabWidget::East);
+
+    ui->meshLayout->addWidget(resultsTab);
+
+    QFile profileCSSfile(":/resources/styles/profile.css");
+    if(profileCSSfile.open(QFile::ReadOnly)) {
+      QString styleSheet = QLatin1String(profileCSSfile.readAll());
+      //QTabBar *configTabBar = resultsTab->findChild<QTabBar *>("qt_tabwidget_tabbar");
+      resultsTab->setStyleSheet(styleSheet);
+
+      profileCSSfile.close();
+    }
+
+
+    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
+    ui->meshBtn->setVisible(true);
+    meshView->setVisible(false);
+
+
+
+
+
+
+
     // add QQuickwidget for displaying soil layers
     QQuickView *plotView = new QQuickView();
     plotView->rootContext()->setContextProperty("designTableModel", ui->tableView);
     plotView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-
     plotContainer = QWidget::createWindowContainer(plotView, this);
     //plotContainer->setFixedSize(QSize(200, 800));
     //plotContainer->setMinimumSize(layerViewWidth,layerTableHeight);
@@ -136,6 +211,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //plotContainer->setFocusPolicy(Qt::TabFocus);
     plotView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/plotView.qml")));
     ui->soilColumnLayout->addWidget(plotContainer);
+    //plotContainer->setWindowFlags(Qt::Widget | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint);
+
+
 
     //ui->rightLayout->setMaximumSize(1000,1e5);
     ui->nextPageBtn->hide();
@@ -276,74 +354,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->reBtn->setVisible(false);
 
 
-    //--------------------------------------------------------------------------------//
-    // Init Mesher and Mesh View
-    //--------------------------------------------------------------------------------//
 
-
-    mesher = new Mesher();
-    mesher->mesh2DColumn();
-
-    // add QQuickwidget for displaying mesh
-    meshView = new QQuickView();
-    meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-
-    elementModel = new ElementModel;
-    //std::sort(mesher->elements.begin(),mesher->elements.end(),
-    //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
-    elementModel->clear();
-    elementModel->setWidth(mesher->eSizeH());
-    for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
-    {
-        int tag = mesher->elements[n-1]->tag();
-        int i = mesher->elements[n-1]->i();
-        int j = mesher->elements[n-1]->j();
-        int k = mesher->elements[n-1]->k();
-        int l = mesher->elements[n-1]->l();
-        double t = mesher->elements[n-1]->thickness();
-        QString color = QString::fromStdString(mesher->elements[n-1]->color());
-        elementModel->addElement("quad",tag,i,j,k,l,t,color);
-    }
-    elementModel->refresh();
-
-    meshView->rootContext()->setContextProperty("elements", elementModel);
-    meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
-    meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
-
-    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
-    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
-    //ui->meshLayout->addWidget(meshContainer);
-    resultsTab = new QTabWidget;
-    resultsTab->setMinimumSize(200,layerTableHeight);
-    resultsTab->setMaximumSize(300,1e5);
-    resultsTab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    resultsTab->addTab(meshContainer,"Mesh");
-    resultsTab->addTab(new QWidget(),"PGA(g)");
-    resultsTab->addTab(new QWidget(),"\u03B3max(%)");
-    resultsTab->addTab(new QWidget(),"maxDisp(m)");
-    resultsTab->addTab(new QWidget(),"maxRu");
-    resultsTab->setTabPosition(QTabWidget::East);
-
-
-
-
-
-    ui->meshLayout->addWidget(resultsTab);
-
-    QFile profileCSSfile(":/resources/styles/profile.css");
-    if(profileCSSfile.open(QFile::ReadOnly)) {
-      QString styleSheet = QLatin1String(profileCSSfile.readAll());
-      //QTabBar *configTabBar = resultsTab->findChild<QTabBar *>("qt_tabwidget_tabbar");
-      resultsTab->setStyleSheet(styleSheet);
-
-      profileCSSfile.close();
-    }
-
-
-    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
-    ui->meshBtn->setVisible(true);
-    meshView->setVisible(false);
 
 
     // size control on the right
@@ -422,13 +433,52 @@ void MainWindow::on_meshBtn_clicked(bool checked)
     Q_UNUSED(checked);
     if (resultsTab->isVisible()){
         ui->meshBtn->setText(">");
-        resultsTab->setVisible(false);
+
+        /*
+        QPropertyAnimation *animation= new QPropertyAnimation(this, "windowOpacity");
+        animation->setDuration(1000);
+        animation->setStartValue(1);
+        animation->setEndValue(0);
+        animation->start();
+        */
+
+        QPropertyAnimation *anim1=new QPropertyAnimation(resultsTab, "pos");
+
+        anim1->setDuration(300);
+
+        anim1->setStartValue(resultsTab->pos());
+
+        anim1->setEndValue(QPoint(resultsTab->pos().x()-220,resultsTab->pos().y()));
+
+        anim1->setEasingCurve(QEasingCurve::OutBounce);
+
+        anim1->start();
+
+
+        QTimer::singleShot(300, this, SLOT(hideShowTab()));
+
+
         ui->coolSpacer->changeSize(0,0,QSizePolicy::Maximum,QSizePolicy::Maximum);
     }
     else{
+
+        QPropertyAnimation *anim1=new QPropertyAnimation(resultsTab, "pos");
+
+        anim1->setDuration(100);
+
+        anim1->setStartValue(resultsTab->pos());
+
+        anim1->setEndValue(QPoint(resultsTab->pos().x()+220,resultsTab->pos().y()));
+
+        anim1->setEasingCurve(QEasingCurve::OutBounce);
+
+        anim1->start();
+
         ui->meshBtn->setText("<");
         resultsTab->setVisible(true);
         ui->coolSpacer->changeSize(5,5,QSizePolicy::Maximum,QSizePolicy::Maximum);
+        plotContainer->setVisible(false);
+        plotContainer->setVisible(true);
     }
     /*
     if (ui->groupBox_Mesh->isVisible())
@@ -438,9 +488,6 @@ void MainWindow::on_meshBtn_clicked(bool checked)
         int w = layerViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
         this->resize(w+80,h+20);
-
-
-
     }else{
         ui->groupBox_Mesh->setVisible(true);
         //ui->groupBox_Graphic->setVisible(false);
@@ -449,10 +496,14 @@ void MainWindow::on_meshBtn_clicked(bool checked)
         int w = layerViewWidth + meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
         this->resize(w+80,h+20);
-
     }
     */
 
+}
+
+void MainWindow::hideShowTab()
+{
+    resultsTab->setVisible(false);
 }
 
 void MainWindow::updateCtrl()

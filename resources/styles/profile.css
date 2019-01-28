@@ -30,7 +30,7 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:!selected {
-    background: #b0df24;
+    background: #d9f293;/*b0df24*/
 }
 
 QTabBar::tab:!selected:hover {
@@ -64,8 +64,10 @@ QTabBar::tab:top:only-one, QTabBar::tab:bottom:only-one {
 
 QTabBar::tab:left, QTabBar::tab:right {
     min-height: 8ex;
+    max-width: 1.5ex;
+
     margin-bottom: -1px;
-    padding: 10px 5px 10px 5px;
+    padding: 4px 4px 5px 5px;
 }
 
 

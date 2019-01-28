@@ -1,6 +1,8 @@
 /* ---   Styles for SRT    --- */
 /* --- Written: charles.wang --- */
 
+
+
 QPushButton#meshBtn {
     border: none;
 }
@@ -61,7 +63,7 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:!selected {
-    background: #b3e6ff;
+    background: #d9f293;/*b3e6ff*/ /*e2bcda*/
 }
 
 QTabBar::tab:!selected:hover {
