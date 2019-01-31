@@ -13,15 +13,23 @@ static const QString g_densityLabel = "Density";
 static const QString g_vsLabel = "Vs";
 static const QString g_colorLabel = "Color";
 
-
+#define LayerID 0
 #define CHECKED         1
 #define LAYERNAME       2
 #define THICKNESS       3
 #define DENSITY        4
 #define VS          5
 #define MATERIAL 6
-#define COLOR       7
-#define FEM 8
+#define ESIZE 7
+#define COLOR 8
+#define FEM 9
+
+
+#define DefaultThickness 3
+#define DefaultDensity 2.0
+#define DefaultVs 180
+#define DefaultEType "Elastic"
+#define DefaultESize 0.25
 
 #define MAXLAYERS 20
 

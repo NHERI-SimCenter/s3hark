@@ -112,16 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->gwtEdit->setValidator(new QDoubleValidator(0.0,10000.0,2,ui->gwtEdit));
 
-    // add a default layer
-    if(ui->tableView->m_sqlModel->rowCount()<1)
-    {
-        QList<QVariant> valueList;
-        valueList << "Layer 1" << "3" << "" << "" << "" << "";
-        ui->tableView->insertAt(valueList,0);
-        ui->tableView->setTotalHeight(3);
-        ui->totalHeight->setText("3");
-        ui->totalLayerLineEdit->setText("1");
-    }
+
 
 
 
@@ -281,7 +272,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //dinoView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
-    //ui->reBtn->setVisible(false);
+    ui->reBtn->setVisible(false);
 
     /*
 
@@ -371,6 +362,25 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
+    // add a default layer
+    if(ui->tableView->m_sqlModel->rowCount()<1)
+    {
+
+        QList<QVariant> valueListRock;
+        valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+        ui->tableView->insertAt(valueListRock,0);
+        //ui->tableView->checkRock();
+
+        /*
+        QList<QVariant> valueList;
+        valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
+        ui->tableView->insertAt(valueList,1);
+        */
+
+        ui->tableView->setTotalHeight(3);
+        ui->totalHeight->setText("3");
+        ui->totalLayerLineEdit->setText("2");
+    }
 
     // opensees
     openseesProcess = new QProcess(this);
@@ -592,6 +602,7 @@ void MainWindow::insertAbove()
     QList<QVariant> emptyList;
     ui->tableView->insertAbove(emptyList);
     updateCtrl();
+    ui->reBtn->click();
 }
 
 void MainWindow::insertBelow()
@@ -599,6 +610,8 @@ void MainWindow::insertBelow()
     QList<QVariant> emptyList;
     ui->tableView->insertBelow(emptyList);
     updateCtrl();
+    ui->reBtn->click();
+
 }
 
 void MainWindow::remove()
@@ -612,6 +625,7 @@ void MainWindow::remove()
     {
         ui->gotoPageBox->removeItem(count-1);
     }
+    ui->reBtn->click();
 }
 
 void MainWindow::gotoPage(int index)
@@ -669,6 +683,9 @@ void MainWindow::on_thickness_edited()
     double originalGWT = ui->tableView->getGWT();
     ui->gwtEdit->textChanged(QString::number(0));
     ui->gwtEdit->textChanged(QString::number(originalGWT));
+
+    ui->reBtn->click();
+
 
 }
 

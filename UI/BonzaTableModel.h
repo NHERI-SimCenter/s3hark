@@ -53,11 +53,47 @@ public:
         if(!index.isValid())
             return false;
 
-        if( index.column() != CHECKED )
+        int ir = index.row();
+        int ic = index.column();
+        int numLayers = this->rowCount();
+
+        if (abs(ir - (numLayers-1)) < 1e-5 && numLayers==1) // First time to add Rock layer
         {
             QSqlTableModel::setData(index, value, Qt::EditRole);
-            if(index.column()==THICKNESS)
+            return submitAll();
+        }
+
+
+
+        if ( ic != CHECKED )
+        {
+            /*
+            if  (abs(ir - (numLayers-1)) < 1e-5)
+            {   // rock layer
+
+                if((ic==LAYERNAME || ic==THICKNESS || ic==MATERIAL || ic==ESIZE))
+                {
+                    //if(index.column()==THICKNESS  || index.column()==ESIZE)
+                    qDebug() << "Rock layer's thickness and esize can not be edited.";
+                    //QSqlTableModel::setData(index, value, Qt::EditRole);
+                }
+                else
+                { QSqlTableModel::setData(index, value, Qt::EditRole);}
+
+
+            } else {
+                QSqlTableModel::setData(index, value, Qt::EditRole);
+                if(ic==THICKNESS || ic==FEM || ic==ESIZE)
+                {
+                    emit thicknessEdited();
+                }
+            }
+            */
+            QSqlTableModel::setData(index, value, Qt::EditRole);
+            if(ic==THICKNESS || ic==FEM || ic==ESIZE)
+            {
                 emit thicknessEdited();
+            }
 
             return submitAll();
         }
@@ -66,6 +102,7 @@ public:
         return submitAll();
 
     }
+
 
     QVariant data( const QModelIndex &index, int role = Qt::DisplayRole ) const
     {

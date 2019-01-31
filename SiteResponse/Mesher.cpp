@@ -71,6 +71,9 @@ bool Mesher::mesh2DColumn(){
     int numEles = 0;
     m_eSizeH = eSizeH;
 
+    soilProfile = j["soilProfile"];
+
+
 
     try
     {
@@ -84,8 +87,9 @@ bool Mesher::mesh2DColumn(){
             double eSizeV = l["eSize"];
             if (eSizeV<minESizeV)
             {
-                std::string err = "eSize is tool small. change it in the json file.";
-                throw err;
+                eSizeV = minESizeV;
+                //std::string err = "eSize is tool small. change it in the json file.";
+                //throw err;
             }
             double thickness = l["thickness"];
             double vs = l["vs"];

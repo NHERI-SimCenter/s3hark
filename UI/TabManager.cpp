@@ -371,16 +371,16 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
     {
         for (int i = 0; i < FEMStringList.size(); ++i) {
             currentEdts[i]->setText(FEMStringList.at(i));
-            qDebug() << FEMStringList.at(i);
+            //qDebug() << FEMStringList.at(i);
         }
 
         // for Elastic, check the density are the same as shown in the soil layer table
         if (thisMatType == "Elastic")
         {
             QString densityFromTable = tableModel->record(index.row()).value("DENSITY").toString();
-
             QLineEdit* DenEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("rhoEdt");
             QString densityFromForm = DenEdt->text();
+
 
             if(densityFromTable != densityFromForm)
             {
@@ -393,6 +393,24 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 else
                 {
                     DenEdt->setText(densityFromTable);
+                }
+            }
+
+
+            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QLineEdit* esizeEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("eSize");
+            QString esizeFromForm = esizeEdt->text();
+            if(esizeFromTable != esizeFromForm)
+            {
+                qDebug() << "esize here is different from the above table. ";
+                if (esizeFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
+                }
+                else
+                {
+                    esizeEdt->setText(esizeFromTable);
+                    onDataEdited();
                 }
             }
         }
@@ -416,6 +434,23 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 else
                 {
                     DenEdt->setText(densityFromTable);
+                }
+            }
+
+            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QLineEdit* esizeEdt = PM4SandWidget->findChild<QLineEdit*>("eSize");
+            QString esizeFromForm = esizeEdt->text();
+            if(esizeFromTable != esizeFromForm)
+            {
+                qDebug() << "esize here is different from the above table. ";
+                if (esizeFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
+                }
+                else
+                {
+                    esizeEdt->setText(esizeFromTable);
+                    onDataEdited();
                 }
             }
         }

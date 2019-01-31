@@ -61,9 +61,15 @@ bool DatabaseManager::createTable()
     QSqlQuery query(m_db);
     if( !tableList.contains(g_dbTableName) )
     {
+        //QString createTable = QString("CREATE TABLE %1 (ID integer PRIMARY KEY AUTOINCREMENT,"
+        //                              "Checked integer default 0, LayerName text, Thickness text, Density text, Vs text, Material text,ElementSize text, Color text, FEM text)"
+        //                              ).arg(g_dbTableName);
         QString createTable = QString("CREATE TABLE %1 (ID integer PRIMARY KEY AUTOINCREMENT,"
-                                      "Checked integer default 0, LayerName text, Thickness text, Density text, Vs text, Material text, Color text, FEM text)"
+                                      "Checked integer default 0, LayerName text default Soil, Thickness text default 3.0, Density text default 2.0, Vs text default 180, Material text default Elastic, ElementSize text default 0.25, Color text, FEM text)"
                                       ).arg(g_dbTableName);
+        //QString createTable = QString("CREATE TABLE %1 (LayerID text,"
+        //                              "Checked integer default 0, LayerName text default DefaultSand, Thickness text default 3.0, Density text default 2.0, Vs text default 180, Material text default Elastic, ElementSize text default 0.25, Color text, FEM text)"
+        //                              ).arg(g_dbTableName);
         if(!query.exec(createTable))
         {
             QMessageBox::warning(0, QObject::tr("Create table error"), QObject::tr("Error: ")+ query.lastError().text(), QMessageBox::Ok);
