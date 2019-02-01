@@ -60,6 +60,7 @@ public:
         if (abs(ir - (numLayers-1)) < 1e-5 && numLayers==1) // First time to add Rock layer
         {
             QSqlTableModel::setData(index, value, Qt::EditRole);
+            //emit thicknessEdited();
             return submitAll();
         }
 
@@ -90,7 +91,7 @@ public:
             }
             */
             QSqlTableModel::setData(index, value, Qt::EditRole);
-            if(ic==THICKNESS || ic==FEM || ic==ESIZE)
+            if(ic==THICKNESS || ic==FEM || ic==ESIZE || ic==DENSITY || ic==VS)
             {
                 emit thicknessEdited();
             }

@@ -237,8 +237,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
 
-    //resize(830 + 80, 350 + 40);
-    resize(830 + 80 + 280, 530 + 20);
+    resize(830 + 80, 350 + 40);
+    //resize(830 + 80 + 280, 530 + 20);
 
     ui->tableView->m_sqlModel->deActivateAll();
 
@@ -369,17 +369,15 @@ MainWindow::MainWindow(QWidget *parent) :
         QList<QVariant> valueListRock;
         valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
         ui->tableView->insertAt(valueListRock,0);
-        //ui->tableView->checkRock();
-
         /*
         QList<QVariant> valueList;
         valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
-        ui->tableView->insertAt(valueList,1);
+        ui->tableView->insertAt(valueList,0);
         */
 
-        ui->tableView->setTotalHeight(3);
-        ui->totalHeight->setText("3");
-        ui->totalLayerLineEdit->setText("2");
+        ui->tableView->setTotalHeight(0);
+        ui->totalHeight->setText("0");
+        ui->totalLayerLineEdit->setText("1");
     }
 
     // opensees
@@ -742,12 +740,13 @@ void MainWindow::on_reBtn_clicked()
 
     //QString FEMString = tableModel->record(index.row()).value("FEM").toString();
     int numLayers = tableModel->rowCount();
+
     for (int i=0; i<numLayers; i++)
     {
         QList<QVariant> list = tableModel->getRowInfo(i);
         std::istringstream iss(list.at(FEM-2).toString().toStdString());
         std::vector<std::string> pars((std::istream_iterator<std::string>(iss)),
-                                         std::istream_iterator<std::string>());
+                                      std::istream_iterator<std::string>());
         double eSize = atof(pars[0].c_str());
         int id = i;
         QStringList thisFEMList = list.at(FEM-2).toString().split(" ");
@@ -758,6 +757,14 @@ void MainWindow::on_reBtn_clicked()
         }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
         {
             DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+        }
+
+        if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
+        {
+            double rockVsTmp = list.at(VS-2).toDouble();
+            double rockDenTmp = list.at(DENSITY-2).toDouble();
+            root["basicSettings"]["rockVs"] = rockVsTmp;
+            root["basicSettings"]["rockDen"] = rockDenTmp;
         }
 
         layer = {
@@ -779,6 +786,7 @@ void MainWindow::on_reBtn_clicked()
         soilLayers.push_back(layer);
 
     }
+
 
 
 
@@ -827,16 +835,20 @@ void MainWindow::on_reBtn_clicked()
 
 void MainWindow::on_runBtn_clicked()
 {
-    SiteResponse srt;
+    // build tcl file
+    SiteResponse *srt = new SiteResponse();
+    srt->run();
+
 
     /*
      * Calling Opensee to do the work
      */
-    /*
-    openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
+
+    //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
+    openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"model.tcl");
     openseesErrCount = 1;
     emit runBtnClicked(dinoView);
-    */
+
 }
 
 void MainWindow::onOpenSeesFinished()
@@ -852,6 +864,7 @@ void MainWindow::onOpenSeesFinished()
             qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
+            theTabManager->reFreshGMTab();
         }
     }
 

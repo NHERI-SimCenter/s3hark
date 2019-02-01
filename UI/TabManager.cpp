@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QFileInfo>
 #include <QFile>
+#include <QLabel>
 
 
 
@@ -78,6 +79,10 @@ void TabManager::init(QTabWidget* theTab){
     for (int i = 0; i < edtsPM4SandFEM.size(); ++i) {
         connect(edtsPM4SandFEM[i], SIGNAL(editingFinished()), this, SLOT(onDataEdited()));
     }
+    QLineEdit *eSizeEdtTmp= PM4SandWidget->findChild<QLineEdit*>("eSize");
+    eSizeEdtTmp->hide();
+    QLabel *eSizeLabelTmp= PM4SandWidget->findChild<QLabel*>("eSizeLabel");
+    eSizeLabelTmp->hide();
 
 
 
@@ -95,6 +100,10 @@ void TabManager::init(QTabWidget* theTab){
     for (int i = 0; i < edtsElasticIsotropicFEM.size(); ++i) {
         connect(edtsElasticIsotropicFEM[i], SIGNAL(editingFinished()), this, SLOT(onDataEdited()));
     }
+    eSizeEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("eSize");
+    eSizeEdtTmp->hide();
+    eSizeLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("eSizeLabel");
+    eSizeLabelTmp->hide();
 
 
     reFreshGMTab();
@@ -169,6 +178,9 @@ QString TabManager::loadGMtoString()
 
 
 
+    /*
+     * Get rock motion from file
+     */
     QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
     QFile file(newGmPathStr);
     QStringList xd, yd;
@@ -195,6 +207,44 @@ QString TabManager::loadGMtoString()
         stream << ", "<<yd.at(i);
     stream <<"];" <<endl;
 
+    /*
+     * Get surface motion from file
+     */
+    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
+    QString surfaceVelFileName = "out_tcl/surface.vel";
+    QFile surfaceVelFile(surfaceVelFileName);
+    QStringList xdSurfaceVel, ydSurfaceVel;
+    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceVel.append(thisLine[0].trimmed());
+                ydSurfaceVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceVelFile.close();
+    }
+
+    stream << "xSurfaceVel = ['x'";
+    for (int i=0; i<xdSurfaceVel.size(); i++)
+        stream << ", "<<xdSurfaceVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ySurfaceVel = ['Surface motion'";
+    for (int i=0; i<ydSurfaceVel.size(); i++)
+        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    stream <<"];" <<endl;
+
+
+
 
     //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
     //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
@@ -205,6 +255,14 @@ QString TabManager::loadGMtoString()
     stream <<"           ynew"<<endl;
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
+
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xSurfaceVel,"<<endl;
+    stream <<"           ySurfaceVel"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
     stream <<"       chart.unload({"<<endl;
     stream <<"           ids: 'Demo motion 1'"<<endl;
     stream <<"       });"<<endl;

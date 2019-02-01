@@ -6,10 +6,7 @@
 #include <string>
 
 
-#include "EffectiveFEModel.h"
-#include "siteLayering.h"
-#include "soillayer.h"
-#include "outcropMotion.h"
+
 
 #include "StandardStream.h"
 #include "FileStream.h"
@@ -41,8 +38,6 @@ SiteResponse::SiteResponse()
 
     int inputStyle = 2; // bbp=1 opensees=2
 
-
-
     if (inputStyle == 1)
     {
         std::string bbpFName("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/9130326.nwhp.vel.bbp");
@@ -52,25 +47,29 @@ SiteResponse::SiteResponse()
         // read bbp style motion
         motionX.setBBPMotion(bbpFName.c_str(), 1);
         //motionZ.setBBPMotion(bbpFName.c_str(), 2);
+
+        model = new SiteResponseModel(siteLayers, "2D", &motionX);
+        model->setOutputDir(bbpOName);
     }
     else {
         std::string bbpLName = "Log";
-
         std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
         motionX.setMotion(motionXFN.c_str());
         bbpOName = "out";
 
+        model = new SiteResponseModel("2D", &motionX);
+        model->setOutputDir(bbpOName);
     }
 
-    //SiteResponseModel model(siteLayers, "3D", &motionX, &motionZ);
-    SiteResponseModel model(siteLayers, "2D", &motionX);
-    model.setOutputDir(bbpOName);
-    //model.runTotalStressModel();
-    model.buildEffectiveStressModel2D();
-    //model.runEffectiveStressModel2D();
+
+
 }
 
-
+void SiteResponse::run()
+{
+    bool runAnalysis = false;
+    model->buildEffectiveStressModel2D(runAnalysis);
+}
 
 
 SiteResponse::~SiteResponse()

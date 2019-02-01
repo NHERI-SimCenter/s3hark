@@ -107,7 +107,8 @@ int main(int argc, char** argv)
 	//model.runTotalStressModel();
 	//model.runEffectiveStressModel();
 
-	model.buildEffectiveStressModel2D();
+	bool runAnalysis = false;
+	model.buildEffectiveStressModel2D(runAnalysis);
 	//model.runEffectiveStressModel2D();
 
 
