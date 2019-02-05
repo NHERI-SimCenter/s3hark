@@ -33,8 +33,8 @@ SiteResponse::SiteResponse()
 
 
     // read the motion
-    OutcropMotion motionX;
-    OutcropMotion motionZ;
+    //OutcropMotion motionX;
+    //OutcropMotion motionZ;
 
     int inputStyle = 2; // bbp=1 opensees=2
 
@@ -53,12 +53,13 @@ SiteResponse::SiteResponse()
     }
     else {
         std::string bbpLName = "Log";
-        std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
+        //std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
+        std::string motionXFN("Rock");
         motionX.setMotion(motionXFN.c_str());
         bbpOName = "out";
-
         model = new SiteResponseModel("2D", &motionX);
         model->setOutputDir(bbpOName);
+
     }
 
 

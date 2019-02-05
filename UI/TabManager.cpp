@@ -116,7 +116,52 @@ void TabManager::onGMBtnClicked()
     qDebug() << "GM btn clicked. ";
     QString file_name = QFileDialog::getOpenFileName(this,"Choose Ground Motion File",".","*");
     FEMWidget->findChild<QLineEdit*>("GMPath")->setText(file_name);
+    writeGM();
+
     onFEMTabEdited();
+
+}
+
+void TabManager::writeGM()
+{
+
+    QFile outFile("Rock.vel");
+    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream(&outFile);
+
+    QFile outFileTime("Rock.time");
+    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream streamTime(&outFileTime);
+
+    /*
+     * Get rock motion from file
+     */
+    QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    QFile file(newGmPathStr);
+    QStringList xd, yd;
+    if(file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            xd.append(thisLine[0].trimmed());
+            yd.append(thisLine[1].trimmed());
+        }
+        file.close();
+    }
+
+
+    for (int i=0; i<(yd.size()); i++)
+    {
+        streamTime<<xd.at(i) << "\n";
+        stream<<yd.at(i) << "\n";
+    }
+
+    outFile.close();
+    outFileTime.close();
+
 
 }
 

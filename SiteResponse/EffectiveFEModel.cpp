@@ -186,6 +186,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	// set outputs for tcl 
 	//ofstream s ("/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl", std::ofstream::out);
 	ofstream s ("model.tcl", std::ofstream::out);
+	ofstream ns ("out_tcl/nodesInfo.dat", std::ofstream::out);
+	ofstream es ("out_tcl/elementInfo.dat", std::ofstream::out);
 	//ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
 	s << "# #########################################################" << "\n\n";
 	s << "wipe \n\n";
@@ -246,6 +248,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "model BasicBuilder -ndm 2 -ndf 3  \n\n";
 	s << "node " << numNodes + 1 << " 0.0 " << yCoord << endln;
 	s << "node " << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
+	ns << numNodes + 1 << " 0.0 " << yCoord << endln;
+	ns << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
 	numNodes += 2;			
 	json soilProfile,soilLayers,mats;
 	try
@@ -372,6 +376,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 				s << "node " << numNodes + 1 << " 0.0 " << yCoord << endln;
 				s << "node " << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
+				ns << numNodes + 1 << " 0.0 " << yCoord << endln;
+				ns << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
 
 				theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
 									   *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, 0.0, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
@@ -379,7 +385,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				s << "element SSPquadUP "<<numElems + 1<<" " 
 					<<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " 0.0 0.0 "<< g * 1.0 << endln;
-			
+				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
+					<< theMat->getTag() << endln;
 
 				theDomain->addElement(theEle);
 
@@ -739,6 +746,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "model BasicBuilder -ndm 2 -ndf 2" << endln << endln; 
 	s << "node " << numNodes + 1 << " 0.0 0.0" << endln;
 	s << "node " << numNodes + 2 << " 0.0 0.0" << endln;
+	
 
 	theSP = new SP_Constraint(numNodes + 1, 0, 0.0, true);
 	theDomain->addSP_Constraint(theSP);
@@ -853,13 +861,15 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
 	double dT = 0.001; // This is the time step in solution
-	double motionDT =  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
-	int nSteps = 1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
+    double motionDT = theMotionX->getDt();//  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
+    int nSteps = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
 	int remStep = nSteps * motionDT / dT;
 	s << "set dT " << dT << endln;
 	s << "set motionDT " << motionDT << endln;
-	s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
-	// using a stress input with the dashpot
+    //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
+    s << "set mSeries \"Path -dt $motionDT -filePath Rock.vel -factor $cFactor\""<<endln;
+
+    // using a stress input with the dashpot
 	if (theMotionX->isInitialized())
 	{
 		LoadPattern *theLP = new LoadPattern(1, vis_C);
@@ -1209,6 +1219,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "exit" << endln << endln;
 
 	s.close();
+	ns.close();
+	es.close();
 	
 	
 

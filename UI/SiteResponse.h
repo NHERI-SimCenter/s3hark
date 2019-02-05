@@ -21,6 +21,9 @@ public:
 	
 private:
     SiteResponseModel *model;
+    // read the motion
+    OutcropMotion motionX;
+    OutcropMotion motionZ;
 
 
 

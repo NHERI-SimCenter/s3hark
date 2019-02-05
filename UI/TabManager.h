@@ -28,6 +28,7 @@ public:
     void fillFEMTab();
     void initFEMTab();
     void reFreshGMTab();
+    void writeGM();
     QString loadGMtoString();
     QTabWidget* getTab(){return tab;}
 
