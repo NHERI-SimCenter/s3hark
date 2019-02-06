@@ -511,7 +511,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "# 3.1 elastic gravity analysis (transient) \n\n";
 
 	double gamma = 5./6.;
-	double beta = 5./9.;
+    double beta = 4./9.;
 
 	s << "constraints Transformation" << endln;
 	s << "test NormDispIncr 1.0e-4 35 1" << endln;
@@ -860,7 +860,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	std::vector<double> dt;
 
 
-	double dT = 0.001; // This is the time step in solution
+    double dT = 0.001; // This is the time step in solution
     double motionDT = theMotionX->getDt();//  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
     int nSteps = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
 	int remStep = nSteps * motionDT / dT;

@@ -71,6 +71,9 @@ private slots:
 
     void hideShowTab();
 
+    void writeSurfaceMotion();
+    void calcPGA();
+
 signals:
     void gwtChanged(const QString &newGWT);
     void tableMoved();
@@ -94,6 +97,9 @@ public:
     QProcess* openseesProcess;
     TabManager* theTabManager;
     QTabWidget* resultsTab;
+
+    double maxPGA;
+
 
 };
 

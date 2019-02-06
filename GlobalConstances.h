@@ -33,5 +33,6 @@ static const QString g_colorLabel = "Color";
 
 #define MAXLAYERS 20
 
+
 #endif // GLOBALCONSTANCES_H
 

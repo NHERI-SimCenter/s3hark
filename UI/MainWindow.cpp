@@ -731,6 +731,7 @@ void MainWindow::on_reBtn_clicked()
     basicSettings["dashpotCoeff"] = FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
     basicSettings["dampingCoeff"] = FEMtab->findChild<QLineEdit*>("VisC")->text().toDouble();
     basicSettings["groundMotion"] = FEMtab->findChild<QLineEdit*>("GMPath")->text().toStdString();
+    basicSettings["OpenSeesPath"] = FEMtab->findChild<QLineEdit*>("openseesPath")->text().toStdString();
     basicSettings["groundWaterTable"] = GWT;
     root["basicSettings"] = basicSettings;
 
@@ -843,9 +844,13 @@ void MainWindow::on_runBtn_clicked()
     /*
      * Calling Opensee to do the work
      */
+    QString openseespath =  theTabManager->openseespath();
+    //"/Users/simcenter/Codes/OpenSees/bin/opensees"
+
+
 
     //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
-    openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"model.tcl");
+    openseesProcess->start(openseespath,QStringList()<<"model.tcl");
     openseesErrCount = 1;
     emit runBtnClicked(dinoView);
 
@@ -854,6 +859,7 @@ void MainWindow::on_runBtn_clicked()
 void MainWindow::onOpenSeesFinished()
 {
 
+    //writeSurfaceMotion();
     QString str_err = openseesProcess->readAllStandardError();
 
     if(openseesErrCount==1)
@@ -865,8 +871,73 @@ void MainWindow::onOpenSeesFinished()
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
             theTabManager->reFreshGMTab();
+
+            calcPGA();
+
         }
     }
+
+}
+
+void MainWindow::calcPGA()
+{
+    QString accFileName = "out_tcl/acceleration.out";
+    QFile accFile(accFileName);
+    QVector<double> pga;
+    if(accFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&accFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                QVector<double> thispga;
+                for (int i=1; i<thisLine.size();i+=4)
+                {
+                    double tmp = abs(thisLine[i].trimmed().toDouble());
+                    thispga << tmp;
+                }
+                if(pga.size()!=thispga.size() && pga.size()<1)
+                {
+                    for (int j=0;j<thispga.size();j++)
+                        pga << thispga[j];
+                }
+                if (pga.size()==thispga.size())
+                {
+                    for (int j=0;j<thispga.size();j++)
+                    {
+                        if (thispga[j]>pga[j])
+                            pga[j] = thispga[j];
+                    }
+                }
+            }
+        }
+        accFile.close();
+    }
+
+
+    QFile saveFile(QStringLiteral("out_tcl/pga.dat"));
+    if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+        qWarning("Couldn't open save file.");
+    }
+    QTextStream out(&saveFile);
+
+
+    for (int i=0;i<pga.size();i++)
+        out << QString::number(pga[i]/9.81) << "\n";
+    saveFile.close();
+
+
+
+
+
+}
+
+void MainWindow::writeSurfaceMotion()
+{
 
 }
 

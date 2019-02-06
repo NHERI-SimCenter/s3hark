@@ -11,6 +11,9 @@
 #include "BonzaTableView.h"
 #include <QWebEngineView>
 #include <QFileDialog>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 
 
@@ -29,8 +32,11 @@ public:
     void initFEMTab();
     void reFreshGMTab();
     void writeGM();
+    bool writeSurfaceMotion();
     QString loadGMtoString();
     QTabWidget* getTab(){return tab;}
+    void hideConfigure();
+    QString openseespath(){return openseesPathStr;}
 
 signals:
 
@@ -39,9 +45,13 @@ public slots:
     void onTableViewUpdated(const QModelIndex&,const QModelIndex&);
     void onDataEdited();
     void onGMBtnClicked();
+    void onOpenseesBtnClicked();
     void onFEMTabEdited();
     double getGWTFromConfig();
     void onRunBtnClicked(QWebEngineView*);
+    void onOpenseesTextChanged(const QString&);
+    void onGMTextChanged(const QString&);
+    void onSecondaryBtnClicked(bool);
 
 
 private:
@@ -67,7 +77,7 @@ private:
     QWidget* currentWidget;
     QVector<QLineEdit*> currentEdts;
 
-    QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath"  };
+    QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath", "openseesPath"  };
 
 
     QList<QString> listElasticIsotropicFEM = {"eSize", "EEdt", "vEdt", "rhoEdt", "DrEdt","voidEdt","hPermEdt","vPermEdt","rho_dEdt","rho_sEdt","uBulkEdt"};
@@ -83,6 +93,7 @@ private:
 
     QString thisMatType;
     QString GMTabHtmlName = "resources/ui/GroundMotion/index.html";
+    QString openseesPathStr;
 
 
 
