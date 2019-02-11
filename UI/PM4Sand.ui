@@ -706,7 +706,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Secondary parameters of PM4Sand model (Keep defaults unless you now their meanings)</string>
+    <string>Secondary parameters of PM4Sand model (Keep defaults unless you know their meanings)</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_34">

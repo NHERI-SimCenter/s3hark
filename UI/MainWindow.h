@@ -93,6 +93,7 @@ public:
     QWebEngineView *dinoView;
     Mesher* mesher;
     QQuickView *meshView;
+    QQuickView *pgaView;
     ElementModel* elementModel;
     QProcess* openseesProcess;
     TabManager* theTabManager;
