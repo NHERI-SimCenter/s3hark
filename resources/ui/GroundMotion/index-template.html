@@ -16,12 +16,14 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
 
-
 </head>
 
 <body id="t" class="offline">
 
-    <div id="chart" style="width: 570px; height: 180px;"></div>
+    <div>
+        <p> <br /> </p>
+    </div>
+    <div id="chart" style="height: 180px;"></div>
     <!--<input type='file' accept='text/plain' onchange='openFile(event)'><br>-->
     <!--<div id="output"></div>-->
 
@@ -71,7 +73,7 @@
                     ['Demo motion 2', 1, 100, 290, 70, 10, 260]
                 ]
             });
-        }, 1000);
+        }, 500);
 
 //UPDATEPOINT
 
@@ -145,6 +147,14 @@
 
 
     </script>
+
+    <div>
+        
+            <input type="button" onclick="location.href='index.html';" value="Accel" />
+            <input type="button" onclick="location.href='index.html';" value="Vel" />
+            <input type="button" onclick="location.href='index.html';" value="Disp" />
+
+    </div>
 </body>
 
 </html>

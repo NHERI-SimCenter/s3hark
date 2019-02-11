@@ -34,9 +34,10 @@ public:
 	SiteResponseModel();
 	SiteResponseModel(SiteLayering, std::string, OutcropMotion*, OutcropMotion*);
 	SiteResponseModel(SiteLayering, std::string, OutcropMotion*);
+	SiteResponseModel(std::string, OutcropMotion*);
 	~SiteResponseModel();
 
-	int   buildEffectiveStressModel2D();
+	int   buildEffectiveStressModel2D(bool doAnalysis);
 	int   runEffectiveStressModel2D();
 	void  setOutputDir(std::string outDir) { theOutputDir = outDir; };
 	int subStepAnalyze(double dT, int subStep, int success, int remStep, DirectIntegrationAnalysis* theTransientAnalysis);

@@ -75,11 +75,12 @@ int main(int argc, char** argv)
 	}
 	else {
 		// read OpenSees style motion
-		std::string bbpLName = std::string(argv[4]);
-		std::string motionXFN(argv[2]);
-		motionX.setMotion(motionXFN.c_str());
+                std::string bbpLName = std::string(argv[4]);
+                std::string motionXFN(argv[2]);
+                motionX.setMotion(motionXFN.c_str());
+                opserr << ">>> motion file:. <<<" << motionXFN.c_str() << endln;
 
-		bbpOName = std::string(argv[3]);
+                bbpOName = std::string(argv[3]);
 		
 
 		/*
@@ -106,7 +107,8 @@ int main(int argc, char** argv)
 	//model.runTotalStressModel();
 	//model.runEffectiveStressModel();
 
-	model.buildEffectiveStressModel2D();
+	bool runAnalysis = false;
+	model.buildEffectiveStressModel2D(runAnalysis);
 	//model.runEffectiveStressModel2D();
 
 

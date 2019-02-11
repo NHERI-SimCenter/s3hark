@@ -17,6 +17,10 @@ class MainWindow;
 }
 
 
+
+
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -51,6 +55,8 @@ private slots:
 
 
 
+
+
     void on_reBtn_clicked();
     void on_runBtn_clicked();
 
@@ -62,6 +68,11 @@ private slots:
 
     ElementModel* getElementModel()const;
     void onOpenSeesFinished();
+
+    void hideShowTab();
+
+    void writeSurfaceMotion();
+    void calcPGA();
 
 signals:
     void gwtChanged(const QString &newGWT);
@@ -82,10 +93,17 @@ public:
     QWebEngineView *dinoView;
     Mesher* mesher;
     QQuickView *meshView;
+    QQuickView *pgaView;
     ElementModel* elementModel;
     QProcess* openseesProcess;
     TabManager* theTabManager;
+    QTabWidget* resultsTab;
+
+    double maxPGA;
+
 
 };
+
+
 
 #endif // MAINWINDOW_H

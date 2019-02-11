@@ -51,6 +51,7 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     this->setModel(m_sqlModel);
     this->hideColumn(0);
     this->hideColumn(FEM);
+    this->hideColumn(COLOR);
     this->verticalHeader()->hide();
 
     this->setColumnHidden(1,true);
@@ -62,6 +63,7 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     this->setItemDelegateForColumn(DENSITY,new TableViewItemDelegate(this));
     this->setItemDelegateForColumn(VS,new TableViewItemDelegate(this));
     this->setItemDelegateForColumn(COLOR,new TableViewItemDelegate(this));
+    this->setItemDelegateForColumn(ESIZE,new TableViewItemDelegate(this));
 
 
     //setEditTriggers(QAbstractItemView::SelectedClicked);
@@ -122,10 +124,11 @@ void BonzaTableView::onCellSingleClicked(const QModelIndex &index)
 
     emit cellClicked(index);
 
-    int clickedRow = index.row();
-    int clickedCol = index.column();
+    int ir = index.row();
+    int ic = index.column();
+    int numRows = m_sqlModel->rowCount();
     // if this row is alrady selected, regard the current single click as a double click
-    bool cellDoubleClicked = m_sqlModel->isActive(clickedRow);
+    bool cellDoubleClicked = m_sqlModel->isActive(ir);
 
     qDebug() << "view says: I feel row " << index.row() << " column " << index.column() << " activated" ;
 
@@ -135,10 +138,16 @@ void BonzaTableView::onCellSingleClicked(const QModelIndex &index)
     setActive(index.row(), index.column());
 
     // double click simulator
-    if (cellDoubleClicked)
+
+    if ( ir==(numRows-1) && (ic==LAYERNAME || ic==THICKNESS || ic==MATERIAL || ic==ESIZE))
+        qDebug() << "Rock layer clicked, do nothing.";
+    else
     {
-        QKeyEvent keyPress(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QString());
-        QCoreApplication::sendEvent(this, &keyPress);
+        if (cellDoubleClicked)
+        {
+            QKeyEvent keyPress(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QString());
+            QCoreApplication::sendEvent(this, &keyPress);
+        }
     }
 
 
@@ -206,86 +215,129 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
 
     if(totalSize() < (MAXLAYERS))
     {
-    // select all
-    m_sqlModel->submit();
-    m_sqlModel->setFilter(QString(""));
-    m_sqlModel->select();
+        // select all
+        m_sqlModel->submit();
+        m_sqlModel->setFilter(QString(""));
+        m_sqlModel->select();
+
+        if(insertPosition==m_nTotal & m_nTotal>0)
+            insertPosition -=1;
+
+        //int insertPosition = 1;
+        this->model()->insertRow(m_nTotal);// actually added to the end of the table, stupid qt.
+
+        // print table for debug
+        for( int i = m_nTotal+1; i > -1; --i)
+        {
+            QSqlRecord myrecord = m_sqlModel->record(i);
+            QString id = myrecord.value("id").toString();
+            QString name = myrecord.value("LAYERNAME").toString();
+            QString color = myrecord.value("COLOR").toString();
+            QString checked = myrecord.value("CHECKED").toString();
+            QString thickness = myrecord.value("THICKNESS").toString();
+            qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
+        }
+
+        // really put the data on the inserted row
+        m_sqlModel->setData(m_sqlModel->index(m_nTotal, CHECKED), 0);
+        m_sqlModel->setData(m_sqlModel->index(m_nTotal, LAYERNAME), "Layer "+QString::number(insertPosition+1));
+        m_sqlModel->setData(m_sqlModel->index(m_nTotal, THICKNESS), "3");
+
+        // print table for debug
+        for( int i = m_nTotal+1; i > -1; --i)
+        {
+            QSqlRecord myrecord = m_sqlModel->record(i);
+            QString id = myrecord.value("id").toString();
+            QString name = myrecord.value("LAYERNAME").toString();
+            QString color = myrecord.value("COLOR").toString();
+            QString checked = myrecord.value("CHECKED").toString();
+            QString thickness = myrecord.value("THICKNESS").toString();
+            qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
+        }
 
 
-    //int insertPosition = 1;
-    this->model()->insertRow(insertPosition);// actually added to the end of the table, stupid qt.
-    m_sqlModel->submitAll();
+        if(m_nTotal>=1)
+        {
+            int col = CHECKED;
+            for( int i = 0; i < valueList.count(); ++i)
+            {
+                col++;
+                QString data = valueList.at(i).toString();
+                m_sqlModel->setData(m_sqlModel->index(m_nTotal, col), data);
+            }
+            m_sqlModel->setData(m_sqlModel->index(m_nTotal, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
+        }else{//Rock
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+            int col = CHECKED;
+            for( int i = 0; i < valueListRock.count(); ++i)
+            {
+                col++;
+                QString data = valueListRock.at(i).toString();
+                m_sqlModel->setData(m_sqlModel->index(m_nTotal, col), data);
+            }
+            m_sqlModel->setData(m_sqlModel->index(m_nTotal, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
+        }
 
-    // really put the data on the inserted row
-    m_sqlModel->setData(m_sqlModel->index(insertPosition, CHECKED), 0);
-    m_sqlModel->setData(m_sqlModel->index(insertPosition, LAYERNAME), "Layer "+QString::number(insertPosition+1));
-    m_sqlModel->setData(m_sqlModel->index(insertPosition, THICKNESS), "3");
-
-
-    m_nTotal++;
-    updateTableModel();
-
-
-    for( int i = m_nTotal-1; i > -1+insertPosition; --i)
-    {
-        m_sqlModel->setData(m_sqlModel->index(i,0),QString::number(i+2),Qt::EditRole);
-    }
-    m_sqlModel->setData(m_sqlModel->index(m_nTotal-1,0),QString::number(insertPosition+1),Qt::EditRole);
-
-    // 
-
-    if (m_sqlModel->record(insertPosition).value("LAYERNAME")=="")
-    {
-        m_sqlModel->setData(m_sqlModel->index(insertPosition, CHECKED), 0);
-        m_sqlModel->setData(m_sqlModel->index(insertPosition, LAYERNAME), "Layer "+QString::number(insertPosition+1));
-        m_sqlModel->setData(m_sqlModel->index(insertPosition, THICKNESS), "3");
-    }
-
-
-    // really put the data on the inserted row
-    //m_sqlModel->setData(m_sqlModel->index(insertPosition, CHECKED), "0");
-    //m_sqlModel->setData(m_sqlModel->index(insertPosition, LAYERNAME), "Layer "+QString::number(insertPosition+1));
-    //m_sqlModel->setData(m_sqlModel->index(insertPosition, COLOR), "red");
-    int col = CHECKED;
-    for( int i = 0; i < valueList.count(); ++i)
-    {
-        col++;
-        QString data = valueList.at(i).toString();
-        m_sqlModel->setData(m_sqlModel->index(insertPosition, col), data);
-    }
-    m_sqlModel->setData(m_sqlModel->index(insertPosition, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
-
-    /*
-    if (valueList.length()>THICKNESS)
-        m_ntotalHeight += valueList.at(THICKNESS-1).toDouble();
-    */
-
-    m_sqlModel->submitAll();
-
-    m_sqlModel->select();
-
-    m_nCurPage = qCeil(double(insertPosition+1) / double(m_nPageSize));
-    gotoPage(m_nCurPage);
+        // print table for debug
+        for( int i = m_nTotal+1; i > -1; --i)
+        {
+            QSqlRecord myrecord = m_sqlModel->record(i);
+            QString id = myrecord.value("id").toString();
+            QString name = myrecord.value("LAYERNAME").toString();
+            QString color = myrecord.value("COLOR").toString();
+            QString checked = myrecord.value("CHECKED").toString();
+            QString thickness = myrecord.value("THICKNESS").toString();
+            qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
+        }
 
 
-    m_sqlModel->setActive(insertPosition);
-    setCurrentIndex(m_sqlModel->index(insertPosition, LAYERNAME));
+        bool b;
+        for (int j = m_nTotal; j>=insertPosition; j--)
+        {
+            m_sqlModel->setData(m_sqlModel->index(j,0),QString::number(j+2),Qt::EditRole);
+            b = m_sqlModel->submitAll();
+        }
+        m_sqlModel->setData(m_sqlModel->index(m_nTotal,0),QString::number(insertPosition+1),Qt::EditRole);
+        b = m_sqlModel->submitAll();
 
-    // print table for debug
-    for( int i = m_nTotal-1; i > -1; --i)
-    {
-        QSqlRecord myrecord = m_sqlModel->record(i);
-        QString id = myrecord.value("id").toString();
-        QString name = myrecord.value("LAYERNAME").toString();
-        QString color = myrecord.value("COLOR").toString();
-        QString checked = myrecord.value("CHECKED").toString();
-        QString thickness = myrecord.value("THICKNESS").toString();
-        qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
-    }
 
+
+        m_nTotal++;
+        //updateTableModel();
+
+
+
+
+
+
+        // print table for debug
+        for( int i = m_nTotal+1; i > -1; --i)
+        {
+            QSqlRecord myrecord = m_sqlModel->record(i);
+            QString id = myrecord.value("id").toString();
+            QString name = myrecord.value("LAYERNAME").toString();
+            QString color = myrecord.value("COLOR").toString();
+            QString checked = myrecord.value("CHECKED").toString();
+            QString thickness = myrecord.value("THICKNESS").toString();
+            qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
+        }
+
+
+        bool inse = m_sqlModel->submitAll();
+
+        m_sqlModel->select();
+
+        m_nCurPage = qCeil(double(insertPosition+1) / double(m_nPageSize));
+        gotoPage(m_nCurPage);
+
+
+        m_sqlModel->setActive(insertPosition);
+        setCurrentIndex(m_sqlModel->index(insertPosition, LAYERNAME));
 
     }
 }
+
 
 void BonzaTableView::insertAbove(const QList<QVariant> &valueList)
 {
@@ -543,11 +595,17 @@ void BonzaTableView::remove()
             int rowDelOnCurrentPage = rowMapIterator.key();
             rowDel = rowDelOnCurrentPage + m_nPageSize * ( m_nCurPage - 1);
             //this->model()->removeRow(rowDel);
-            removeOneRow(rowDel);
+            if((rowDel+1)==m_nTotal)
+                qDebug() <<"Rock layer can not be removed.";
+            else
+                removeOneRow(rowDel);
         }
     }else{
+        qDebug() <<"Rock layer can not be removed.";
+        /*
         if (m_nTotal>0)
             removeOneRow(m_nTotal-1);
+        */
     }
 
     /*

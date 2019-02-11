@@ -5,6 +5,7 @@
 #include <QQmlContext>
 
 #include <QTime>
+#include <QTimer>
 
 #include <QtQuick/qquickitem.h>
 #include <QtQuick/qquickview.h>
@@ -23,6 +24,8 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QSizePolicy>
+#include <QTabBar>
 
 
 #include <iostream>
@@ -45,27 +48,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     updateCtrl();
 
+    // page setting
     QStringList pages;
     int totalPage = ui->tableView->totalPage();
     for( int i = 1; i <= totalPage; ++i)
         pages.append( QString("%1").arg(i) );
     ui->gotoPageBox->addItems(pages);
 
+    // some connections
     connect(ui->tableView, SIGNAL(insertAct()), this, SLOT(insertAbove()) );
     connect(ui->tableView, SIGNAL(insertBelowAct()), this, SLOT(insertBelow()) );
     connect(ui->tableView, SIGNAL(removeAct()), this, SLOT(remove()) );
-    //connect(ui->styleBtn, SIGNAL(clicked(bool)), ui->tableView, SLOT(styleView(bool)) );
-    //ui->styleBtn->setVisible(false);
-
     connect(ui->prePageBtn, SIGNAL(clicked()), this, SLOT(prevPage()) );
     connect(ui->nextPageBtn, SIGNAL(clicked()), this, SLOT(nextPage()) );
-    //connect(ui->gotoPageBtn, SIGNAL(clicked()), this, SLOT(gotoPage()) );
-    connect(ui->gotoPageBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(gotoPage(int)) );
-
+    connect(ui->gotoPageBox, SIGNAL(currentIndexChanged(int)), this, SLOT(gotoPage(int)) );
     connect(ui->totalLayerLineEdit, SIGNAL(editingFinished()), this, SLOT(onTotalLayerEdited()) );
 
-
+    // styling some buttons
     ui->prePageBtn->setFocusPolicy(Qt::NoFocus);
     ui->prePageBtn->setFixedSize(20, 20);
     ui->prePageBtn->setIconSize(ui->prePageBtn->size());
@@ -87,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->hide();
     ui->mainToolBar->hide();
 
-
+    // set the global stylesheet
     QFile file(":/resources/styles/stylesheet.css");
     if(file.open(QFile::ReadOnly)) {
       QString styleSheet = QLatin1String(file.readAll());
@@ -102,161 +101,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // validator for height, must be double
     ui->totalHeight->setValidator(new QDoubleValidator(0.0,10000.0,2,ui->totalHeight));
+
     // change the total height if soil layer is edited
     connect(ui->totalHeight, SIGNAL(editingFinished()),this, SLOT(totalHeightChanged()) );
-
     //connect(this, SIGNAL(gwtChanged(const QString)), this, SLOT(on_gwtEdit_textChanged(const QString)));
 
+    // set limits for ground water table to be (0.0,1000)
     ui->gwtEdit->setValidator(new QDoubleValidator(0.0,10000.0,2,ui->gwtEdit));
 
-    // add a default layer
-    if(ui->tableView->m_sqlModel->rowCount()<1)
-    {
-        QList<QVariant> valueList;
-        valueList << "Layer 1" << "3" << "" << "" << "" << "";
-        ui->tableView->insertAt(valueList,0);
-        ui->tableView->setTotalHeight(3);
-        ui->totalHeight->setText("3");
-        ui->totalLayerLineEdit->setText("1");
-    }
-
-    // add QQuickwidget for displaying soil layers
-    QQuickView *plotView = new QQuickView();
-    plotView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    plotView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-
-    //QWidget *
-    plotContainer = QWidget::createWindowContainer(plotView, this);
-    //plotContainer->setFixedSize(QSize(200, 800));
-    plotContainer->setMinimumSize(layerViewWidth,layerTableHeight);
-    plotContainer->setMaximumSize(layerViewWidth,layerTableHeight);
-    plotContainer->setFocusPolicy(Qt::TabFocus);
-    plotView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/plotView.qml")));
-    ui->plotView_verticalLayout->addWidget(plotContainer);
-
-    /*
-    // add QQuickwidget for displaying mesh
-    QQuickView *meshView = new QQuickView();
-    //meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    //meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
-
-    meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setFocusPolicy(Qt::TabFocus);
-    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
-    ui->meshView_verticalLayout->addWidget(meshContainer);
-
-    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
-
-    ui->meshBtn->setVisible(true);
-
-    ui->groupBox_Mesh->setVisible(false);
-    */
 
 
-
-    connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
-
-    //resize(830 + 80, 350 + 40);
-    resize(830 + 80, 530 + 20);
-
-    ui->tableView->m_sqlModel->deActivateAll();
-
-    connect(ui->tableView, SIGNAL(rowRemoved(int)), this, SLOT(on_rowRemoved(int)));
-
-    //connect(ui->tableView, SIGNAL(pressed(const QModelIndex &)), ui->tableView, SLOT(on_activated(const QModelIndex &)));
-
-
-    connect(this, SIGNAL(tableMoved()), this, SLOT(refresh()));
-
-
-    // material dialog
-    /*
-    QQuickView *matView = new QQuickView();
-    //matView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    //matView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-    matContainer = QWidget::createWindowContainer(matView, this);
-    matContainer->setMinimumSize(layerTableWidth-10,100);
-    matContainer->setMaximumSize(layerTableWidth-10,100);
-    matContainer->setFocusPolicy(Qt::TabFocus);
-    matView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/PM4Sand.qml")));
-    ui->materialLayout->addWidget(matContainer);
-    matContainer->hide();
-    */
-
-    dinoView = new QWebEngineView(this);
-    dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
-    dinoView->setVisible(false);
-
-
-    //ui->reBtn->setVisible(false);
-
-    /*
-
-    dinoView = new QWebEngineView(this);
-    dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
-    //view->show();
-    //dinoView->setMinimumHeight(400);
-    //dinoView->setMaximumHeight(400);
-    //ui->materialLayout->addWidget(dinoView);
-    dinoView->setVisible(false);
-    //ui->reBtn->setVisible(false);
-    ui->tabWidget->addTab(dinoView, "Run");
-    */
-
-/*
-    // add QQuickwidget for displaying soil layers
-    QQuickView *FEMView = new QQuickView();
-    FEMView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    FEMView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-    QWidget *FEMContainer = QWidget::createWindowContainer(FEMView, this);
-    //plotContainer->setFixedSize(QSize(200, 800));
-    FEMContainer->setMinimumSize(layerViewWidth,180);
-    FEMContainer->setMaximumSize(layerViewWidth,180);
-    FEMContainer->setFocusPolicy(Qt::TabFocus);
-    FEMView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/FEMView.qml")));
-    ui->tabWidget->addTab(FEMContainer,"FEM");
-    */
-
-
-/*
-    InsertWindow* insertDlg = new InsertWindow(this);
-    QList<QVariant> infos = ui->tableView->currentRowInfo();
-    if( infos.count() >= 5)
-        insertDlg->initInfo(infos);
-
-    connect(insertDlg, SIGNAL(accepted(QList<QVariant>)),
-            ui->tableView, SLOT(insert(QList<QVariant>)) );
-    ui->tabWidget->addTab(insertDlg,"FEM");
-    */
-
-    /*
-    //set path of ui
-    QUiLoader uiLoader;
-    QString uiFileName = ":/UI/test.ui";
-    QFile uiFile(uiFileName);
-    uiFile.open(QIODevice::ReadOnly);
-    // setWorkingDirectory: if uiFile depended on other resources,
-    // setWorkingDirectory needs to be set here
-    //const QDir &workdir(uifileWorkPath);
-    //uiLoader.setWorkingDirectory(workdir);
-    //load ui
-    QWidget* getWidget = uiLoader.load(&uiFile,this);
-    ui->tabWidget->addTab(getWidget,"FEM");
-    //ui->meshView_verticalLayout->addWidget(getWidget);
-    */
-
-    theTabManager = new TabManager(ui->tableView, this);
-    theTabManager->init(ui->tabWidget);
-    //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
-    connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
-    connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
-    ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
-    connect(this, SIGNAL(runBtnClicked(QWebEngineView*)), theTabManager, SLOT(onRunBtnClicked(QWebEngineView*)));
-
-    // init GWT
-    ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
 
 
 
@@ -265,19 +119,18 @@ MainWindow::MainWindow(QWidget *parent) :
     // Init Mesher and Mesh View
     //--------------------------------------------------------------------------------//
 
+    // init a 2D mesher
     mesher = new Mesher();
     mesher->mesh2DColumn();
 
-    // add QQuickwidget for displaying mesh
-    meshView = new QQuickView();
-    meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
 
+    // init the elements model to be used in mesh plot
     elementModel = new ElementModel;
     //std::sort(mesher->elements.begin(),mesher->elements.end(),
     //          [](const Quad &a, const Quad &b) { return  a.tag() > b.tag(); });
     elementModel->clear();
     elementModel->setWidth(mesher->eSizeH());
+    elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
     {
         int tag = mesher->elements[n-1]->tag();
@@ -291,30 +144,159 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     elementModel->refresh();
 
-    meshView->rootContext()->setContextProperty("elements", elementModel);
-    meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
-    meshView->rootContext()->setContextProperty("totalHeight", mesher->totalHeight());
 
-    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
-    meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setFocusPolicy(Qt::TabFocus);
+    // add QQuickwidget for displaying mesh
+    meshView = new QQuickView();
     meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
-    ui->meshView_verticalLayout->addWidget(meshContainer);
+    meshView->rootContext()->setContextProperty("elements", elementModel);
+    //meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
+    //meshView->rootContext()->setContextProperty("totalHeightEdt", ui->totalHeight);
+    meshView->rootContext()->setContextProperty("sqlModel", ui->tableView->m_sqlModel);
+    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
 
-    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
+    // pga view
+    /*
+    pgaView = new QQuickView();
+    pgaView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/PGAView.qml")));
+    pgaView->rootContext()->setContextProperty("elements", elementModel);
+    pgaView->rootContext()->setContextProperty("sqlModel", ui->tableView->m_sqlModel);
+    QWidget *pgaContainer = QWidget::createWindowContainer(pgaView, this);
+    */
+
+    QString pgaHtmlName = "resources/ui/GroundMotion/pga.html";
+    QWebEngineView *pgaHtmlView = new QWebEngineView(this);
+    pgaHtmlView->load(QUrl::fromLocalFile(QFileInfo(pgaHtmlName).absoluteFilePath()));
+
+
+
+
+
+    resultsTab = new QTabWidget;
+    resultsTab->setMinimumSize(200,layerTableHeight);
+    resultsTab->setMaximumSize(200,1e5);
+    resultsTab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    resultsTab->addTab(meshContainer,"Mesh");
+    //resultsTab->addTab(pgaContainer,"PGA(g)");
+    resultsTab->addTab(pgaHtmlView,"PGA(g)");
+    resultsTab->addTab(new QWidget(),"\u03B3max(%)");
+    resultsTab->addTab(new QWidget(),"maxDisp(m)");
+    resultsTab->addTab(new QWidget(),"maxRu");
+    resultsTab->setTabPosition(QTabWidget::East);
+
+    // add the profile tab into the ui's layout
+    ui->meshLayout->addWidget(resultsTab);
+
+    // set stylesheet for the profile tab
+    QFile profileCSSfile(":/resources/styles/profile.css");
+    if(profileCSSfile.open(QFile::ReadOnly)) {
+      QString styleSheet = QLatin1String(profileCSSfile.readAll());
+      //QTabBar *configTabBar = resultsTab->findChild<QTabBar *>("qt_tabwidget_tabbar");
+      resultsTab->setStyleSheet(styleSheet);
+      profileCSSfile.close();
+    }
+
+
+
+
+
+
+
+
+
+
+    // add QQuickwidget for displaying soil layers
+    QQuickView *plotView = new QQuickView();
+    plotView->rootContext()->setContextProperty("designTableModel", ui->tableView);
+    plotView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
+    plotContainer = QWidget::createWindowContainer(plotView, this);
+    //plotContainer->setFixedSize(QSize(200, 800));
+    //plotContainer->setMinimumSize(layerViewWidth,layerTableHeight);
+    plotContainer->setMinimumSize(200,layerTableHeight);
+    plotContainer->setMaximumSize(200,1e5);
+    plotContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    //plotContainer->setFocusPolicy(Qt::TabFocus);
+    plotView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/PlotView.qml")));
+    ui->soilColumnLayout->addWidget(plotContainer);
+    //plotContainer->setWindowFlags(Qt::Widget | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint);
+
+
+
+    // hide some buttons
+    ui->nextPageBtn->hide();
+    ui->prePageBtn->hide();
+    ui->reBtn->setVisible(false);
     ui->meshBtn->setVisible(true);
-    ui->groupBox_Mesh->setVisible(false);
+
+    // add some connections
+    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
+    connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
+    connect(ui->tableView, SIGNAL(rowRemoved(int)), this, SLOT(on_rowRemoved(int)));
+    //connect(ui->tableView, SIGNAL(pressed(const QModelIndex &)), ui->tableView, SLOT(on_activated(const QModelIndex &)));
+    connect(this, SIGNAL(tableMoved()), this, SLOT(refresh()));
+
+    resize(830 + 80, 350 + 40);
+    //resize(830 + 80 + 280, 530 + 20);
+
+    ui->tableView->m_sqlModel->deActivateAll();
 
 
-    // opensees
 
 
+
+
+
+
+
+
+
+    // init the tab manager on the right-bottom
+    theTabManager = new TabManager(ui->tableView, this);
+    theTabManager->init(ui->tabWidget);
+    //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
+    connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
+    connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
+    connect(this, SIGNAL(runBtnClicked(QWebEngineView*)), theTabManager, SLOT(onRunBtnClicked(QWebEngineView*)));
+
+    // init the dino view
+    dinoView = new QWebEngineView(this);
+    dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
+    dinoView->setVisible(false);
+    //dinoView->setMinimumSize(layerTableWidth,300);
+    //dinoView->setMaximumSize(1e5,1e5);
+    //dinoView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // init GWT
+    ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
+
+    // size control on the right
+    ui->tableView->setMinimumSize(layerTableWidth,200);
+    ui->tableView->setMaximumSize(1e5,1e5);
+    ui->tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->tabWidget->setMinimumSize(layerTableWidth,300);
+    ui->tabWidget->setMaximumSize(1e5,1e5);
+    ui->tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+
+    // add a default layer
+    if(ui->tableView->m_sqlModel->rowCount()<1)
+    {
+        QList<QVariant> valueListRock;
+        valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+        ui->tableView->insertAt(valueListRock,0);
+        /*
+        QList<QVariant> valueList;
+        valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
+        ui->tableView->insertAt(valueList,0);
+        */
+        ui->tableView->setTotalHeight(0);
+        ui->totalHeight->setText("0");
+        ui->totalLayerLineEdit->setText("1");
+    }
+
+    // init the opensess process
     openseesProcess = new QProcess(this);
     //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
     connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
-
-
 
 }
 
@@ -368,23 +350,79 @@ void MainWindow::on_meshBtn_clicked(bool checked)
 {
 
     Q_UNUSED(checked);
+    if (resultsTab->isVisible()){
+        ui->meshBtn->setText(">");
+
+        /*
+        QPropertyAnimation *animation= new QPropertyAnimation(this, "windowOpacity");
+        animation->setDuration(1000);
+        animation->setStartValue(1);
+        animation->setEndValue(0);
+        animation->start();
+        */
+
+        QPropertyAnimation *anim1=new QPropertyAnimation(resultsTab, "pos");
+
+        anim1->setDuration(300);
+
+        anim1->setStartValue(resultsTab->pos());
+
+        anim1->setEndValue(QPoint(resultsTab->pos().x()-220,resultsTab->pos().y()));
+
+        anim1->setEasingCurve(QEasingCurve::OutBounce);
+
+        anim1->start();
+
+
+        QTimer::singleShot(300, this, SLOT(hideShowTab()));
+
+
+        ui->coolSpacer->changeSize(0,0,QSizePolicy::Maximum,QSizePolicy::Maximum);
+    }
+    else{
+
+        QPropertyAnimation *anim1=new QPropertyAnimation(resultsTab, "pos");
+
+        anim1->setDuration(100);
+
+        anim1->setStartValue(resultsTab->pos());
+
+        anim1->setEndValue(QPoint(resultsTab->pos().x()+220,resultsTab->pos().y()));
+
+        anim1->setEasingCurve(QEasingCurve::OutBounce);
+
+        anim1->start();
+
+        ui->meshBtn->setText("<");
+        resultsTab->setVisible(true);
+        ui->coolSpacer->changeSize(5,5,QSizePolicy::Maximum,QSizePolicy::Maximum);
+        plotContainer->setVisible(false);
+        plotContainer->setVisible(true);
+    }
+    /*
     if (ui->groupBox_Mesh->isVisible())
     {
         ui->groupBox_Mesh->setVisible(false);
+
         int w = layerViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
         this->resize(w+80,h+20);
-
-
     }else{
         ui->groupBox_Mesh->setVisible(true);
         //ui->groupBox_Graphic->setVisible(false);
         //int w =  meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
+
         int w = layerViewWidth + meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
         int h = ui->groupBox_Graphic->size().height() ;
         this->resize(w+80,h+20);
     }
+    */
 
+}
+
+void MainWindow::hideShowTab()
+{
+    resultsTab->setVisible(false);
 }
 
 void MainWindow::updateCtrl()
@@ -473,6 +511,7 @@ void MainWindow::insertAbove()
     QList<QVariant> emptyList;
     ui->tableView->insertAbove(emptyList);
     updateCtrl();
+    ui->reBtn->click();
 }
 
 void MainWindow::insertBelow()
@@ -480,6 +519,8 @@ void MainWindow::insertBelow()
     QList<QVariant> emptyList;
     ui->tableView->insertBelow(emptyList);
     updateCtrl();
+    ui->reBtn->click();
+
 }
 
 void MainWindow::remove()
@@ -493,6 +534,7 @@ void MainWindow::remove()
     {
         ui->gotoPageBox->removeItem(count-1);
     }
+    ui->reBtn->click();
 }
 
 void MainWindow::gotoPage(int index)
@@ -551,6 +593,9 @@ void MainWindow::on_thickness_edited()
     ui->gwtEdit->textChanged(QString::number(0));
     ui->gwtEdit->textChanged(QString::number(originalGWT));
 
+    ui->reBtn->click();
+
+
 }
 
 void MainWindow::on_rowRemoved(int row)
@@ -573,9 +618,6 @@ void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
 
 void MainWindow::on_reBtn_clicked()
 {
-
-
-
 
     BonzaTableModel* tableModel = ui->tableView->m_sqlModel;
 
@@ -600,23 +642,23 @@ void MainWindow::on_reBtn_clicked()
     basicSettings["dashpotCoeff"] = FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
     basicSettings["dampingCoeff"] = FEMtab->findChild<QLineEdit*>("VisC")->text().toDouble();
     basicSettings["groundMotion"] = FEMtab->findChild<QLineEdit*>("GMPath")->text().toStdString();
+    basicSettings["OpenSeesPath"] = FEMtab->findChild<QLineEdit*>("openseesPath")->text().toStdString();
     basicSettings["groundWaterTable"] = GWT;
     root["basicSettings"] = basicSettings;
 
-    json soilProfile = {
-
-    };
+    json soilProfile = { };
 
     json layer, soilLayers, material, materials;
 
     //QString FEMString = tableModel->record(index.row()).value("FEM").toString();
     int numLayers = tableModel->rowCount();
+
     for (int i=0; i<numLayers; i++)
     {
         QList<QVariant> list = tableModel->getRowInfo(i);
         std::istringstream iss(list.at(FEM-2).toString().toStdString());
         std::vector<std::string> pars((std::istream_iterator<std::string>(iss)),
-                                         std::istream_iterator<std::string>());
+                                      std::istream_iterator<std::string>());
         double eSize = atof(pars[0].c_str());
         int id = i;
         QStringList thisFEMList = list.at(FEM-2).toString().split(" ");
@@ -627,6 +669,14 @@ void MainWindow::on_reBtn_clicked()
         }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
         {
             DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+        }
+
+        if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
+        {
+            double rockVsTmp = list.at(VS-2).toDouble();
+            double rockDenTmp = list.at(DENSITY-2).toDouble();
+            root["basicSettings"]["rockVs"] = rockVsTmp;
+            root["basicSettings"]["rockDen"] = rockDenTmp;
         }
 
         layer = {
@@ -654,6 +704,7 @@ void MainWindow::on_reBtn_clicked()
 
 
 
+
     soilProfile["soilLayers"] = soilLayers;
 
     root["soilProfile"]=soilProfile;
@@ -675,6 +726,7 @@ void MainWindow::on_reBtn_clicked()
 
     mesher->mesh2DColumn();
     elementModel->clear();
+    elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
 
     //ElementModel* newElementModel = new ElementModel;
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
@@ -695,15 +747,29 @@ void MainWindow::on_reBtn_clicked()
 
 void MainWindow::on_runBtn_clicked()
 {
-    //SiteResponse srt;
-    openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
+    // build tcl file
+    SiteResponse *srt = new SiteResponse();
+    srt->run();
+
+    if(!QDir("out_tcl").exists())
+        QDir().mkdir("out_tcl");
+
+    /*
+     * Calling Opensee to do the work
+     */
+    QString openseespath =  theTabManager->openseespath();
+    //"/Users/simcenter/Codes/OpenSees/bin/opensees"
+    //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
+    openseesProcess->start(openseespath,QStringList()<<"model.tcl");
     openseesErrCount = 1;
     emit runBtnClicked(dinoView);
+
 }
 
 void MainWindow::onOpenSeesFinished()
 {
 
+    //writeSurfaceMotion();
     QString str_err = openseesProcess->readAllStandardError();
 
     if(openseesErrCount==1)
@@ -714,8 +780,74 @@ void MainWindow::onOpenSeesFinished()
             qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
+            theTabManager->reFreshGMTab();
+
+            calcPGA();
+
         }
     }
+
+}
+
+void MainWindow::calcPGA()
+{
+    QString accFileName = "out_tcl/acceleration.out";
+    QFile accFile(accFileName);
+    QVector<double> pga;
+    if(accFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&accFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                QVector<double> thispga;
+                for (int i=1; i<thisLine.size();i+=4)
+                {
+                    double tmp = abs(thisLine[i].trimmed().toDouble());
+                    thispga << tmp;
+                }
+                if(pga.size()!=thispga.size() && pga.size()<1)
+                {
+                    for (int j=0;j<thispga.size();j++)
+                        pga << thispga[j];
+                }
+                if (pga.size()==thispga.size())
+                {
+                    for (int j=0;j<thispga.size();j++)
+                    {
+                        if (thispga[j]>pga[j])
+                            pga[j] = thispga[j];
+                    }
+                }
+            }
+        }
+        accFile.close();
+    }
+
+
+    QFile saveFile(QStringLiteral("out_tcl/pga.dat"));
+    if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+        qWarning("Couldn't open save file.");
+    }
+    QTextStream out(&saveFile);
+
+
+    for (int i=0;i<pga.size();i++)
+        out << QString::number(pga[i]/9.81) << "\n";
+    saveFile.close();
+
+
+
+
+
+}
+
+void MainWindow::writeSurfaceMotion()
+{
 
 }
 

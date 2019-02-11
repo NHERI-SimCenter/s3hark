@@ -3,11 +3,16 @@
 
 
 
+QPushButton#meshBtn {
+    border: none;
+}
+
 BonzaTableView
 {
     selection-background-color: #f2ffcc;
     /*gridline-color: green;*/
     selection-color: black;
+    border: 1px solid black;
 
 }
 
@@ -23,39 +28,29 @@ QLineEdit
     selection-color: green
 }
 
-QGroupBox#groupBox_Graphic {
-    /*background-color: green;*/
-    /*border: 3px solid black;*/
-}
-
-QGroupBox {
-    /*background-color: green;*/
-    /*border: 3px solid black;*/
-
-}
 
 
 
 
 
-QTabWidget::pane {
+QTabWidget#tabWidget::pane {
     border: 1px solid black;
     background: white;
 }
 
-QTabWidget::tab-bar:top {
+QTabWidget#tabWidget::tab-bar:top {
     top: 1px;
 }
 
-QTabWidget::tab-bar:bottom {
+QTabWidget#tabWidget::tab-bar:bottom {
     bottom: 1px;
 }
 
-QTabWidget::tab-bar:left {
+QTabWidget#tabWidget::tab-bar:left {
     right: 1px;
 }
 
-QTabWidget::tab-bar:right {
+QTabWidget#tabWidget::tab-bar:right {
     left: 1px;
 }
 
@@ -68,11 +63,11 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:!selected {
-    background: silver;
+    background: silver; /* #d9f293;*//*b3e6ff*/ /*e2bcda*/
 }
 
 QTabBar::tab:!selected:hover {
-    background: #999;
+    background: #e6f7ff;/*#999*/
 }
 
 QTabBar::tab:top:!selected {

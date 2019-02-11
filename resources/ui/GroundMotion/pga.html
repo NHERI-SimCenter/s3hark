@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.css" rel="stylesheet" type="text/css">
+    <style>
+        .chartcontainer {
+            background-color: rgb(255, 255, 255);
+            height: 88.5%;
+            width: 100%;
+            border: 1px solid white;
+        }
+
+        #chart {
+            height: 100%;
+        }
+
+        #topMargin {
+            height: 9%;
+        }
+
+        
+    </style>
+</head>
+
+<body>
+    <div id="topMargin">
+
+    </div>
+
+    <div class="chartContainer">
+        <div id="chart"></div>
+
+    </div>
+
+    <script src="https://d3js.org/d3.v5.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.min.js"></script>
+    <script>
+        xd = ['Depth', 1, 2, 3, 4, 5, 6];
+        yd = ['PGA', 70, 180, 190, 180, 80, 155];
+        var chart = c3.generate({
+            data: {
+                bindto: '#chart',
+                x: 'Depth',
+                columns: [
+                    xd,
+                    yd
+                ]
+            },
+            spline: {
+                interpolation: {
+                    type: 'monotone', // 'cardinal' is default
+                },
+            },
+            padding: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+            },
+            legend: {
+                show: false,
+            },
+            axis: {
+                rotated: true,
+            }
+        });
+    </script>
+</body>
+
+</html>

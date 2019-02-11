@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QFileInfo>
 #include <QFile>
+#include <QLabel>
 
 
 
@@ -25,9 +26,12 @@ TabManager::TabManager(BonzaTableView *tableViewIn,QWidget *parent) : QDialog(pa
 
 }
 
+
+
 void TabManager::init(QTabWidget* theTab){
     this->tab = theTab;
     tab->setTabsClosable(true);
+
 
     QUiLoader uiLoader;
 
@@ -36,16 +40,23 @@ void TabManager::init(QTabWidget* theTab){
     QFile uiFEMFile(uiFEMName);
     uiFEMFile.open(QIODevice::ReadOnly);
     FEMWidget = uiLoader.load(&uiFEMFile,this);
-    tab->addTab(FEMWidget,"FEM");
+    hideConfigure();
+    tab->addTab(FEMWidget,"Configure");
     initFEMTab();
     connect(FEMWidget->findChild<QPushButton*>("GMBtn"), SIGNAL(clicked()), this, SLOT(onGMBtnClicked()));
+    connect(FEMWidget->findChild<QPushButton*>("openseesBtn"), SIGNAL(clicked()), this, SLOT(onOpenseesBtnClicked()));
+    connect(FEMWidget->findChild<QLineEdit*>("openseesPath"), SIGNAL(textChanged(const QString&)), this, SLOT(onOpenseesTextChanged(const QString&)));
+    connect(FEMWidget->findChild<QLineEdit*>("GMPath"), SIGNAL(textChanged(const QString&)), this, SLOT(onGMTextChanged(const QString&)));
+
+
+
 
 
     QString uiFileName = ":/UI/DefaultMatTab.ui";
     QFile uiFile(uiFileName);
     uiFile.open(QIODevice::ReadOnly);
     defaultWidget = uiLoader.load(&uiFile,this);
-    tab->addTab(defaultWidget,"Material");
+    tab->addTab(defaultWidget,"Layer properties");
 
 
 
@@ -77,6 +88,16 @@ void TabManager::init(QTabWidget* theTab){
     for (int i = 0; i < edtsPM4SandFEM.size(); ++i) {
         connect(edtsPM4SandFEM[i], SIGNAL(editingFinished()), this, SLOT(onDataEdited()));
     }
+    QLineEdit *eSizeEdtTmp= PM4SandWidget->findChild<QLineEdit*>("eSize");
+    eSizeEdtTmp->hide();
+    QLabel *eSizeLabelTmp= PM4SandWidget->findChild<QLabel*>("eSizeLabel");
+    eSizeLabelTmp->hide();
+    QPushButton *secondaryBtn= PM4SandWidget->findChild<QPushButton*>("secondaryBtn");
+    secondaryBtn->setCheckable(true);
+    secondaryBtn->hide();
+    connect(secondaryBtn, SIGNAL(clicked(bool)), this, SLOT(onSecondaryBtnClicked(bool)));
+
+
 
 
 
@@ -94,9 +115,127 @@ void TabManager::init(QTabWidget* theTab){
     for (int i = 0; i < edtsElasticIsotropicFEM.size(); ++i) {
         connect(edtsElasticIsotropicFEM[i], SIGNAL(editingFinished()), this, SLOT(onDataEdited()));
     }
+    eSizeEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("eSize");
+    eSizeEdtTmp->hide();
+    eSizeLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("eSizeLabel");
+    eSizeLabelTmp->hide();
+    QLineEdit *rhoEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("rhoEdt");
+    rhoEdtTmp->hide();
+    QLabel *rhoLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("rhoLabel");
+    rhoLabelTmp->hide();
+
+    QLineEdit *voidEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("voidEdt");
+    voidEdtTmp->hide();
+    QLabel *voidLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("voidLabel");
+    voidLabelTmp->hide();
+
+    QLineEdit *DrEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("DrEdt");
+    DrEdtTmp->hide();
+    QLabel *DrLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("DrLabel");
+    DrLabelTmp->hide();
+
+    QLineEdit *rho_sEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("rho_sEdt");
+    rho_sEdtTmp->hide();
+    QLabel *rho_sLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("rho_sLabel");
+    rho_sLabelTmp->hide();
+
+    QLineEdit *rho_dEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("rho_dEdt");
+    rho_dEdtTmp->hide();
+    QLabel *rho_dLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("rho_dLabel");
+    rho_dLabelTmp->hide();
+
 
 
     reFreshGMTab();
+
+
+}
+
+void TabManager::onSecondaryBtnClicked(bool checked)
+{
+    qDebug()<<"secondary btn clicked: "<<checked;
+    QList<QString> secondaryEdtNameList = {"P_atm", "h0", "emax", "emin", "nb", "nd", "Ado",
+                                      "z_max", "cz", "ce", "phic", "nu", "cgd", "cdr",
+                                      "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo",
+                                        "hPerm","vPerm","uBulk"};
+    QList<QString> secondaryLabelNameList = {"P_atm_2", "h0_2", "emax_2", "emin_2", "nb_2", "nd_2", "Ado_2",
+                                      "z_max_2", "cz_2", "ce_2", "phic_2", "nu_2", "cgd_2", "cdr_2",
+                                      "ckaf_2", "Q_2", "R_2", "m_2", "Fsed_min_2", "p_sedo_2",
+                                        "hPerm_2","vPerm_2","uBulk_2"};
+    QList<QString> hydEdtNameList = {"hPerm","vPerm","uBulk"};
+    QList<QString> hydLabelNameList = {"hPerm_2","vPerm_2","uBulk_2","line2"};
+
+    QVector<QLineEdit*> secondaryEtds;
+    for (int i = 0; i < secondaryEdtNameList.size(); ++i) {
+        QString edtName = secondaryEdtNameList[i] ;
+        secondaryEtds.push_back(ElasticIsotropicWidget->findChild<QLineEdit*>(edtName));
+    }
+
+    QVector<QLabel*> secondaryLabels;
+    for (int i = 0; i < secondaryEdtNameList.size(); ++i) {
+        QString edtName = secondaryEdtNameList[i] ;
+        secondaryLabels.push_back(ElasticIsotropicWidget->findChild<QLabel*>(edtName));
+    }
+
+    if (checked)
+    {
+        for (int i = 0; i < secondaryEtds.size(); ++i) {
+            secondaryEtds[i]->hide();
+        }
+        /*
+        for (int i = 0; i < secondaryLabels.size(); ++i) {
+            secondaryLabels[i]->setVisible(true);
+        }
+        */
+    }else{
+        /*
+        for (int i = 0; i < secondaryEtds.size(); ++i) {
+            secondaryEtds[i]->setVisible(false);
+        }
+        */
+        /*
+        for (int i = 0; i < secondaryLabels.size(); ++i) {
+            secondaryLabels[i]->setVisible(false);
+        }
+        */
+
+    }
+
+
+
+}
+
+void TabManager::hideConfigure()
+{
+    QLineEdit *eSizeH= FEMWidget->findChild<QLineEdit*>("eSizeH");
+    eSizeH->hide();
+    QLineEdit *eSizeV= FEMWidget->findChild<QLineEdit*>("eSizeV");
+    eSizeV->hide();
+    QLabel *eSizeHLabel= FEMWidget->findChild<QLabel*>("eSizeHLabel");
+    eSizeHLabel->hide();
+    QLabel *eSizeVLabel= FEMWidget->findChild<QLabel*>("eSizeVLabel");
+    eSizeVLabel->hide();
+
+    QLabel *pBaseLabel= FEMWidget->findChild<QLabel*>("pBaseLabel");
+    pBaseLabel->hide();
+
+    QLabel *RockVsLabel= FEMWidget->findChild<QLabel*>("RockVsLabel");
+    RockVsLabel->hide();
+    QLabel *RockDenLabel= FEMWidget->findChild<QLabel*>("RockDenLabel");
+    RockDenLabel->hide();
+    QLabel *coeffLabel= FEMWidget->findChild<QLabel*>("coeffLabel");
+    coeffLabel->hide();
+    QLabel *dampLabel= FEMWidget->findChild<QLabel*>("dampLabel");
+    dampLabel->hide();
+
+    QLineEdit *RockVs= FEMWidget->findChild<QLineEdit*>("RockVs");
+    RockVs->hide();
+    QLineEdit *RockDen= FEMWidget->findChild<QLineEdit*>("RockDen");
+    RockDen->hide();
+    QLineEdit *DashpotCoeff= FEMWidget->findChild<QLineEdit*>("DashpotCoeff");
+    DashpotCoeff->hide();
+    QLineEdit *VisC= FEMWidget->findChild<QLineEdit*>("VisC");
+    VisC->hide();
 
 
 }
@@ -106,7 +245,74 @@ void TabManager::onGMBtnClicked()
     qDebug() << "GM btn clicked. ";
     QString file_name = QFileDialog::getOpenFileName(this,"Choose Ground Motion File",".","*");
     FEMWidget->findChild<QLineEdit*>("GMPath")->setText(file_name);
+    writeGM();
+
     onFEMTabEdited();
+
+}
+void TabManager::onOpenseesBtnClicked()
+{
+    qDebug() << "OpenSees btn clicked. ";
+    QString file_name = QFileDialog::getOpenFileName(this,"Choose Ground Motion File",".","*");
+    FEMWidget->findChild<QLineEdit*>("openseesPath")->setText(file_name);
+
+    onFEMTabEdited();
+
+}
+
+
+void TabManager::onOpenseesTextChanged(const QString& text)
+{
+    openseesPathStr = text;
+    onFEMTabEdited();
+}
+void TabManager::onGMTextChanged(const QString& text)
+{
+    onFEMTabEdited();
+}
+
+
+
+void TabManager::writeGM()
+{
+
+    QFile outFile("Rock.vel");
+    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream(&outFile);
+
+    QFile outFileTime("Rock.time");
+    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream streamTime(&outFileTime);
+
+    /*
+     * Get rock motion from file
+     */
+    QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    QFile file(newGmPathStr);
+    QStringList xd, yd;
+    if(file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            xd.append(thisLine[0].trimmed());
+            yd.append(thisLine[1].trimmed());
+        }
+        file.close();
+    }
+
+
+    for (int i=0; i<(yd.size()); i++)
+    {
+        streamTime<<xd.at(i) << "\n";
+        stream<<yd.at(i) << "\n";
+    }
+
+    outFile.close();
+    outFileTime.close();
+
 
 }
 
@@ -120,6 +326,8 @@ void TabManager::onFEMTabEdited()
                 stream<< listFEMtab[i] << ","<<" "<<edtsFEM[i]->text() << endl;
             }
             stream<< "GWT" << ","<<" "<<tableView->getGWT() << endl;
+            //QString openseesPath = FEMWidget->findChild<QLineEdit*>("openseesPath")->text();
+            //stream<< "OpenSeesPath" << ","<<" "<<openseesPath << endl;
             file.close();
     }
 
@@ -129,6 +337,7 @@ void TabManager::onFEMTabEdited()
         reFreshGMTab();
     }
 }
+
 
 void TabManager::reFreshGMTab()
 {
@@ -168,6 +377,9 @@ QString TabManager::loadGMtoString()
 
 
 
+    /*
+     * Get rock motion from file
+     */
     QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
     QFile file(newGmPathStr);
     QStringList xd, yd;
@@ -194,6 +406,46 @@ QString TabManager::loadGMtoString()
         stream << ", "<<yd.at(i);
     stream <<"];" <<endl;
 
+    /*
+     * Get surface motion from file
+     */
+    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
+    QString surfaceVelFileName = "out_tcl/surface.vel";
+    QFile surfaceVelFile(surfaceVelFileName);
+    QStringList xdSurfaceVel, ydSurfaceVel;
+    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceVel.append(thisLine[0].trimmed());
+                ydSurfaceVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceVelFile.close();
+    }
+
+    stream << "xSurfaceVel = ['x'";
+    for (int i=0; i<xdSurfaceVel.size(); i++)
+        stream << ", "<<xdSurfaceVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ySurfaceVel = ['Surface motion'";
+    for (int i=0; i<ydSurfaceVel.size(); i++)
+        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    stream <<"];" <<endl;
+
+    writeSurfaceMotion();
+
+
+
 
     //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
     //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
@@ -204,16 +456,124 @@ QString TabManager::loadGMtoString()
     stream <<"           ynew"<<endl;
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
+
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xSurfaceVel,"<<endl;
+    stream <<"           ySurfaceVel"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
     stream <<"       chart.unload({"<<endl;
     stream <<"           ids: 'Demo motion 1'"<<endl;
     stream <<"       });"<<endl;
     stream <<"       chart.unload({"<<endl;
     stream <<"           ids: 'Demo motion 2'"<<endl;
     stream <<"       });"<<endl;
-    stream <<"       }, 1500);"<<endl;
+    stream <<"       }, 1000);"<<endl;
     return text;
 
 }
+
+bool TabManager::writeSurfaceMotion()
+{
+    QString surfaceAccFileName = "out_tcl/surface.acc";
+    QFile surfaceAccFile(surfaceAccFileName);
+    QStringList xdSurfaceAcc, ydSurfaceAcc;
+    if(surfaceAccFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceAccFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceAcc.append(thisLine[0].trimmed());
+                ydSurfaceAcc.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceAccFile.close();
+    }
+
+
+
+    // write surface motion in json file
+    QJsonObject surfAcc;
+    QFile saveFile(QStringLiteral("EVENT-SRT.json"));
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+    }
+
+
+    double dT;
+    if (xdSurfaceAcc.size()>0)
+        dT = (xdSurfaceAcc.at(xdSurfaceAcc.size()-1).toDouble() - xdSurfaceAcc.at(0).toDouble()) / double(xdSurfaceAcc.size()-1);
+    else
+        dT = 0.005;//TODO
+
+
+
+    QJsonObject evt, timeSerix,timeSeriy, patternx, patterny, RV;
+    QJsonArray evts,timeSeries,patterns,RVs,tx,ty;
+
+
+    for (int i=0; i<ydSurfaceAcc.size(); i++)
+    {
+        tx.append(ydSurfaceAcc.at(i).toDouble());
+        ty.append(0.0);
+    }
+
+
+
+
+    timeSerix["name"]= "accel_X";
+    timeSerix["type"]= "Value";
+    timeSerix["dT"]= dT;
+    timeSerix["data"]= tx;
+    timeSeriy["name"]= "accel_Y";
+    timeSeriy["type"]= "Value";
+    timeSeriy["dT"]= dT;
+    timeSeriy["data"]= ty;
+    timeSeries.append(timeSerix);
+    timeSeries.append(timeSeriy);
+
+    patternx["type"] = "UniformAcceleration";
+    patternx["timeSeries"] = "accel_X";
+    patternx["dof"] = 1;
+    patterny["type"] = "UniformAcceleration";
+    patterny["timeSeries"] = "accel_Y";
+    patterny["dof"] = 1;
+    patterns.append(patternx);
+    patterns.append(patterny);
+
+
+    evt["name"] = "SiteResponseTool";
+    evt["type"] = "Seismic";
+    evt["description"] = "Surface acceleration";
+    evt["dT"] = dT;
+    evt["numSteps"] = xdSurfaceAcc.size();
+    evt["timeSeries"] = timeSeries;
+    evt["pattern"] = patterns;
+    evt["RandomVariables"] = RVs;
+
+
+
+    evts.append(evt);
+    surfAcc["Events"] = evts;
+
+
+    QJsonDocument saveDoc;
+    saveDoc.setObject(surfAcc);
+    saveFile.write(saveDoc.toJson());
+    saveFile.close();
+
+}
+
+
 
 double TabManager::getGWTFromConfig()
 {
@@ -282,6 +642,7 @@ void TabManager::fillFEMTab(){
             stream << "DashpotCoeff,"<<" "<<DashpotCoeff << endl;
             stream << "VisC,"<<" "<<VisC << endl;
             stream << "GMPath,"<<" "<<"Input the path of a ground motion file. " << endl;
+            stream << "openseesPath,"<<" "<<"Input the full path of OpenSees excutable. " << endl;
             stream << "GWT,"<<" "<<"0.0" << endl;
             fileNew.close();
             file.open(QIODevice::ReadOnly);
@@ -300,10 +661,12 @@ void TabManager::fillFEMTab(){
 
     file.close();
 
-    for (int i = 0; i < edtsFEM.size(); i++) {
+    for (int i = 0; i < (edtsFEM.size()); i++) {
         edtsFEM[i]->setText(savedPars.at(i));
     }
+    //edtsFEM[edtsFEM.size()-1]->setText(savedPars.at(edtsFEM.size()));
     GMPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    openseesPathStr = FEMWidget->findChild<QLineEdit*>("openseesPath")->text();
 }
 
 void TabManager::onTableViewClicked(const QModelIndex &index){
@@ -333,8 +696,8 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
 
     for (int j=tab->count();j>0;j--)
         tab->removeTab(j-1);
-    tab->insertTab(0,FEMWidget,"FEM");
-    tab->insertTab(1,currentWidget,"Material");
+    tab->insertTab(0,FEMWidget,"Configure");
+    tab->insertTab(1,currentWidget,"Layer properties");
     tab->insertTab(2,GMView,"Ground motion");
     tab->setCurrentIndex(1);
 
@@ -370,16 +733,16 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
     {
         for (int i = 0; i < FEMStringList.size(); ++i) {
             currentEdts[i]->setText(FEMStringList.at(i));
-            qDebug() << FEMStringList.at(i);
+            //qDebug() << FEMStringList.at(i);
         }
 
         // for Elastic, check the density are the same as shown in the soil layer table
         if (thisMatType == "Elastic")
         {
             QString densityFromTable = tableModel->record(index.row()).value("DENSITY").toString();
-
             QLineEdit* DenEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("rhoEdt");
             QString densityFromForm = DenEdt->text();
+
 
             if(densityFromTable != densityFromForm)
             {
@@ -393,7 +756,36 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 {
                     DenEdt->setText(densityFromTable);
                 }
+
+                double vsFromTable = tableModel->record(index.row()).value("VS").toDouble();
+                QLineEdit* vEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("vEdt");
+                double v = vEdt->text().toDouble();
+                QLineEdit* EEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("EEdt");
+                double E = 2.0 * densityFromTable.toDouble() * vsFromTable * vsFromTable * (1. + v);
+                EEdt->setText(QString::number(E));
+                onDataEdited();// added
             }
+
+
+
+
+            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QLineEdit* esizeEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("eSize");
+            QString esizeFromForm = esizeEdt->text();
+            if(esizeFromTable != esizeFromForm)
+            {
+                qDebug() << "esize here is different from the above table. ";
+                if (esizeFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
+                }
+                else
+                {
+                    esizeEdt->setText(esizeFromTable);
+                    onDataEdited();
+                }
+            }
+            //onDataEdited();
         }
 
         // for PM4Sand, check the density are the same as shown in the soil layer table
@@ -417,7 +809,25 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                     DenEdt->setText(densityFromTable);
                 }
             }
+
+            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QLineEdit* esizeEdt = PM4SandWidget->findChild<QLineEdit*>("eSize");
+            QString esizeFromForm = esizeEdt->text();
+            if(esizeFromTable != esizeFromForm)
+            {
+                qDebug() << "esize here is different from the above table. ";
+                if (esizeFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
+                }
+                else
+                {
+                    esizeEdt->setText(esizeFromTable);
+                    onDataEdited();
+                }
+            }
         }
+        //onDataEdited();
 
     } else
     {

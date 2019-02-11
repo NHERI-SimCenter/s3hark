@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
-    <height>208</height>
+    <width>647</width>
+    <height>314</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,20 +17,20 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>0</y>
-     <width>131</width>
+     <y>20</y>
+     <width>371</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>ElasticIsotropic </string>
+    <string>Parameters of ElasticIsotropic model  </string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>20</y>
+     <x>20</x>
+     <y>60</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -45,8 +45,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>50</y>
+     <x>320</x>
+     <y>60</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -55,11 +55,11 @@
     <string>Poisson's ratio</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_4">
+  <widget class="QLabel" name="rhoLabel">
    <property name="geometry">
     <rect>
      <x>320</x>
-     <y>50</y>
+     <y>80</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -71,8 +71,8 @@
   <widget class="QLineEdit" name="EEdt">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>20</y>
+     <x>160</x>
+     <y>60</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -81,8 +81,8 @@
   <widget class="QLineEdit" name="vEdt">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>50</y>
+     <x>430</x>
+     <y>60</y>
      <width>111</width>
      <height>21</height>
     </rect>
@@ -91,18 +91,18 @@
   <widget class="QLineEdit" name="rhoEdt">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>50</y>
+     <x>420</x>
+     <y>80</y>
      <width>113</width>
      <height>21</height>
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
+  <widget class="QLabel" name="eSizeLabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>80</y>
      <width>141</width>
      <height>16</height>
     </rect>
@@ -114,8 +114,8 @@
   <widget class="QLineEdit" name="eSize">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>20</y>
+     <x>180</x>
+     <y>80</y>
      <width>111</width>
      <height>21</height>
     </rect>
@@ -125,7 +125,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>180</y>
+     <y>220</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -138,7 +138,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>120</y>
+     <y>180</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -150,8 +150,8 @@
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>120</y>
+     <x>330</x>
+     <y>180</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -160,11 +160,11 @@
     <string>vPerm</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_9">
+  <widget class="QLabel" name="voidLabel">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>90</y>
+     <x>310</x>
+     <y>260</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -173,11 +173,11 @@
     <string>void</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_10">
+  <widget class="QLabel" name="DrLabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>90</y>
+     <y>260</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -186,11 +186,11 @@
     <string>Dr</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_11">
+  <widget class="QLabel" name="rho_dLabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>150</y>
+     <y>290</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -199,11 +199,11 @@
     <string>rho_d</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_12">
+  <widget class="QLabel" name="rho_sLabel">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>150</y>
+     <x>300</x>
+     <y>290</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -216,7 +216,7 @@
    <property name="geometry">
     <rect>
      <x>160</x>
-     <y>180</y>
+     <y>220</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -225,8 +225,8 @@
   <widget class="QLineEdit" name="DrEdt">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>90</y>
+     <x>150</x>
+     <y>260</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -236,7 +236,7 @@
    <property name="geometry">
     <rect>
      <x>160</x>
-     <y>120</y>
+     <y>180</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -245,8 +245,8 @@
   <widget class="QLineEdit" name="rho_dEdt">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>150</y>
+     <x>140</x>
+     <y>290</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -255,8 +255,8 @@
   <widget class="QLineEdit" name="voidEdt">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>90</y>
+     <x>430</x>
+     <y>250</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -266,7 +266,7 @@
    <property name="geometry">
     <rect>
      <x>440</x>
-     <y>120</y>
+     <y>180</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -275,8 +275,8 @@
   <widget class="QLineEdit" name="rho_sEdt">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>150</y>
+     <x>430</x>
+     <y>290</y>
      <width>113</width>
      <height>21</height>
     </rect>
@@ -286,13 +286,26 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>70</y>
+     <y>100</y>
      <width>551</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>---------------------------------------------------------------------------------------</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_14">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>140</y>
+     <width>451</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Hydraulic properties (Keep defaults unless you know their meanings)</string>
    </property>
   </widget>
  </widget>

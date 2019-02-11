@@ -18,7 +18,8 @@ bool Mesher::mesh2DColumn(){
     nodes.clear();
     elements.clear();
 
-    std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
+    //std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
+    std::string configFile = "SRT.json";
     std::ifstream i(configFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log
@@ -70,6 +71,9 @@ bool Mesher::mesh2DColumn(){
     int numEles = 0;
     m_eSizeH = eSizeH;
 
+    soilProfile = j["soilProfile"];
+
+
 
     try
     {
@@ -83,8 +87,9 @@ bool Mesher::mesh2DColumn(){
             double eSizeV = l["eSize"];
             if (eSizeV<minESizeV)
             {
-                std::string err = "eSize is tool small. change it in the json file.";
-                throw err;
+                eSizeV = minESizeV;
+                //std::string err = "eSize is tool small. change it in the json file.";
+                //throw err;
             }
             double thickness = l["thickness"];
             double vs = l["vs"];

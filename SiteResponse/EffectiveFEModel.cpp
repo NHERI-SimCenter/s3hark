@@ -136,6 +136,19 @@ SiteResponseModel::SiteResponseModel(SiteLayering layering, std::string modelTyp
 	}
 }
 
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX) : theModelType(modelType),
+																											 theMotionX(motionX),
+																											 theOutputDir(".")
+{
+	if (theMotionX->isInitialized())
+		theDomain = new Domain();
+	else
+	{
+		opserr << "No motion is specified." << endln;
+		exit(-1);
+	}
+}
+
 SiteResponseModel::~SiteResponseModel()
 {
 	if (theDomain != NULL)
@@ -144,10 +157,10 @@ SiteResponseModel::~SiteResponseModel()
 }
 
 
-int SiteResponseModel::buildEffectiveStressModel2D()
+int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 {
-	//Vector zeroVec(3);
-	//zeroVec.Zero();
+	Vector zeroVec(3);
+	zeroVec.Zero();
 
 	// ------------------------------------------
 	// 0. Define some limits
@@ -163,7 +176,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	// 0. Load configurations form json file
 	// ------------------------------------------
 	//std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
-	std::string configFile = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/SRT.json";
+	std::string configFile = "SRT.json";
     std::ifstream i(configFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log
@@ -171,7 +184,11 @@ int SiteResponseModel::buildEffectiveStressModel2D()
     i >> SRT;
 
 	// set outputs for tcl 
-	ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
+	//ofstream s ("/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl", std::ofstream::out);
+	ofstream s ("model.tcl", std::ofstream::out);
+	ofstream ns ("out_tcl/nodesInfo.dat", std::ofstream::out);
+	ofstream es ("out_tcl/elementInfo.dat", std::ofstream::out);
+	//ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
 	s << "# #########################################################" << "\n\n";
 	s << "wipe \n\n";
 
@@ -231,6 +248,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "model BasicBuilder -ndm 2 -ndf 3  \n\n";
 	s << "node " << numNodes + 1 << " 0.0 " << yCoord << endln;
 	s << "node " << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
+	ns << numNodes + 1 << " 0.0 " << yCoord << endln;
+	ns << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
 	numNodes += 2;			
 	json soilProfile,soilLayers,mats;
 	try
@@ -252,7 +271,10 @@ int SiteResponseModel::buildEffectiveStressModel2D()
             int lTag = l["id"];
 			int matTag = l["material"];
             double eSizeV = l["eSize"];
-            if (eSizeV<minESizeV) {std::string err = "eSize is tool small. change it in the json file.";throw err;}
+            if (eSizeV<minESizeV) {
+                //std::string err = "eSize is tool small. change it in the json file.";throw err;
+                eSizeV = minESizeV;
+            }
             double thickness = l["thickness"];
             double vs = l["vs"];
             double Dr = l["Dr"];
@@ -261,6 +283,12 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 			double uBulk = l["uBulk"];
             std::string color = l["color"];
 			std::string lname = l["name"];
+			if (!lname.compare("Rock"))
+			{
+                //rockVs = vs;
+                //rockDen = l["density"];
+				continue;
+			}
 
 			double evoid = 0.0;
 			double rho_d = 0.0;
@@ -348,6 +376,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 
 				s << "node " << numNodes + 1 << " 0.0 " << yCoord << endln;
 				s << "node " << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
+				ns << numNodes + 1 << " 0.0 " << yCoord << endln;
+				ns << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
 
 				theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
 									   *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, 0.0, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
@@ -355,7 +385,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 				s << "element SSPquadUP "<<numElems + 1<<" " 
 					<<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " 0.0 0.0 "<< g * 1.0 << endln;
-			
+				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
+					<< theMat->getTag() << endln;
 
 				theDomain->addElement(theEle);
 
@@ -480,7 +511,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "# 3.1 elastic gravity analysis (transient) \n\n";
 
 	double gamma = 5./6.;
-	double beta = 5./9.;
+    double beta = 4./9.;
 
 	s << "constraints Transformation" << endln;
 	s << "test NormDispIncr 1.0e-4 35 1" << endln;
@@ -519,7 +550,10 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	//theAnalysis = new StaticAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator); // *
 	theAnalysis->setConvergenceTest(*theTest);
 
-	int converged = theAnalysis->analyze(10,1.0); 
+	int converged;
+	if(doAnalysis)
+	{
+	converged = theAnalysis->analyze(10,1.0); 
 	if (!converged)
 	{
 		opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
@@ -528,6 +562,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 		opserr << "Didn't converge at time " << theDomain->getCurrentTime() << endln;
 	}
 	opserr << "Finished with elastic gravity analysis..." << endln << endln;
+	}
 
 
 
@@ -594,6 +629,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	}
 	s << endln;
 
+	if(doAnalysis)
+	{
 	converged = theAnalysis->analyze(10,1.0); 
 	s << "analyze     10 1.0" << endln;
 	if (!converged)
@@ -605,6 +642,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	}
 	opserr << "Finished with plastic gravity analysis..." endln;
 	s << "puts \"Finished with plastic gravity analysis...\"" << endln << endln;
+	}
 	
 
 
@@ -708,6 +746,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "model BasicBuilder -ndm 2 -ndf 2" << endln << endln; 
 	s << "node " << numNodes + 1 << " 0.0 0.0" << endln;
 	s << "node " << numNodes + 2 << " 0.0 0.0" << endln;
+	
 
 	theSP = new SP_Constraint(numNodes + 1, 0, 0.0, true);
 	theDomain->addSP_Constraint(theSP);
@@ -821,18 +860,20 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	std::vector<double> dt;
 
 
-	double dT = 0.001; // This is the time step in solution
-	double motionDT =  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
-	int nSteps = 1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
+    double dT = 0.001; // This is the time step in solution
+    double motionDT = theMotionX->getDt();//  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
+    int nSteps = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
 	int remStep = nSteps * motionDT / dT;
 	s << "set dT " << dT << endln;
 	s << "set motionDT " << motionDT << endln;
-	s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
-	// using a stress input with the dashpot
+    //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
+    s << "set mSeries \"Path -dt $motionDT -filePath Rock.vel -factor $cFactor\""<<endln;
+
+    // using a stress input with the dashpot
 	if (theMotionX->isInitialized())
 	{
 		LoadPattern *theLP = new LoadPattern(1, vis_C);
-		theLP->setTimeSeries(theMotionX->getVelSeries());
+        theLP->setTimeSeries(theMotionX->getVelSeries());
 
 		NodalLoad *theLoad;
 		int numLoads = 3; // for 3D it's 4
@@ -915,7 +956,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 
 	// setup Rayleigh damping   TODO: calcualtion of these paras
 	// apply 2% at the natural frequency and 5*natural frequency
-	double natFreq = SRM_layering.getNaturalPeriod();
+    //double natFreq = SRM_layering.getNaturalPeriod();
 	double pi = 4.0 * atan(1.0);
 
 	/*
@@ -933,7 +974,7 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 
 	if (PRINTDEBUG)
 	{
-		opserr << "f1 = " << natFreq << "    f2 = " << 5.0 * natFreq << endln;
+        //opserr << "f1 = " << natFreq << "    f2 = " << 5.0 * natFreq << endln;
 		opserr << "a0 = " << a0 << "    a1 = " << a1 << endln;
 	}
 	theDomain->setRayleighDampingFactors(a0, a1, 0.0, 0.0);
@@ -1178,6 +1219,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	s << "exit" << endln << endln;
 
 	s.close();
+	ns.close();
+	es.close();
 	
 	
 
@@ -1190,7 +1233,8 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	delete theOutputStreamAll;
 	*/
 
-
+	if(doAnalysis)
+	{
 
 	double totalTime = dT * nSteps;
 	int success = 0;
@@ -1237,6 +1281,9 @@ int SiteResponseModel::buildEffectiveStressModel2D()
 	opsout << progressBar.str().c_str();
 	opsout.flush();
 	opsout << endln;
+	} else{
+		std::cout << "tcl file buit." << std::endl;
+	}
 
 
 	return 0;

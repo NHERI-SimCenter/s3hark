@@ -61,6 +61,15 @@ public:
     Q_INVOKABLE QString getLayerParsNames(int index){return layerParsName[index];}
     Q_INVOKABLE double getLayerParsValues(int index){return layerParsValue[index];}
 
+    Q_INVOKABLE double getGraphicHeight()
+    {
+        return 500.0;
+    }
+    Q_INVOKABLE double getGraphicWidth()
+    {
+        return 100.0;
+    }
+
 
     Q_INVOKABLE double getGWT();
 

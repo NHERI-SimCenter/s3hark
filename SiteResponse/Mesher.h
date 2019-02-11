@@ -80,9 +80,12 @@ public:
     int numElements(){return m_numElements;}
     double eSizeH(){return m_eSizeH;}
     double totalHeight(){return m_totalHeight;}
+
+    double m_totalHeight = 0.0;// not safe here, but I just ...
+
 private:
     double m_eSizeH = 0.0;
-    double m_totalHeight = 0.0;
+
     int m_numLayers = 0;
     int m_numNodes = 0;
     int m_numElements = 0;
