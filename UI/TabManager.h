@@ -14,6 +14,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QFileInfo>
 
 
 
@@ -37,6 +38,8 @@ public:
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
+    void updateDispHtml();
+    void updateAccHtml();
 
 signals:
 
@@ -93,6 +96,8 @@ private:
 
     QString thisMatType;
     QString GMTabHtmlName = "resources/ui/GroundMotion/index.html";
+    QString accHtmlName = "resources/ui/GroundMotion/acc.html";
+    QString dispHtmlName = "resources/ui/GroundMotion/disp.html";
     QString openseesPathStr;
 
 

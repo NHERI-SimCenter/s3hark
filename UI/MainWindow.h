@@ -8,6 +8,8 @@
 #include "ElementModel.h"
 #include <QProcess>
 #include "TabManager.h"
+#include "ProfileManager.h"
+#include "PostProcessor.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -72,7 +74,6 @@ private slots:
     void hideShowTab();
 
     void writeSurfaceMotion();
-    void calcPGA();
 
 signals:
     void gwtChanged(const QString &newGWT);
@@ -87,17 +88,20 @@ private:
     int layerTableWidth = 630;
     int layerTableHeight = 500;//320;
     int openseesErrCount = 0;
-public:
+
+private:// some of them were public
     QWidget *plotContainer;
     QWidget *matContainer;
     QWebEngineView *dinoView;
     Mesher* mesher;
     QQuickView *meshView;
-    QQuickView *pgaView;
+    //QQuickView *pgaView;
     ElementModel* elementModel;
     QProcess* openseesProcess;
     TabManager* theTabManager;
     QTabWidget* resultsTab;
+    ProfileManager* profiler;
+    PostProcessor* postProcessor;
 
     double maxPGA;
 

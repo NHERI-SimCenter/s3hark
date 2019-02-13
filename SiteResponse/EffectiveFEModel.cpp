@@ -144,7 +144,7 @@ SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motio
 		theDomain = new Domain();
 	else
 	{
-		opserr << "No motion is specified." << endln;
+        opserr << "No motion is specified. Program exited." << endln;
 		exit(-1);
 	}
 }
@@ -1282,7 +1282,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	opsout.flush();
 	opsout << endln;
 	} else{
-		std::cout << "tcl file buit." << std::endl;
+        std::cout << "tcl file built." << std::endl;
 	}
 
 

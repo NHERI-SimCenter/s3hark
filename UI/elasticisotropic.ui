@@ -300,12 +300,12 @@
     <rect>
      <x>20</x>
      <y>140</y>
-     <width>451</width>
+     <width>511</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Hydraulic properties (Keep defaults unless you know their meanings)</string>
+    <string>Hydraulic properties of this layer (Keep defaults unless you know their meanings)</string>
    </property>
   </widget>
  </widget>

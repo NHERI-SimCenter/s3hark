@@ -215,6 +215,8 @@ SOURCES += main.cpp\
     SiteResponse/siteLayering.cpp \
     SiteResponse/outcropMotion.cpp \
     #SiteResponse/FEModel3D.cpp
+    UI/ProfileManager.cpp \
+    UI/PostProcessor.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/DatabaseManager.h \
@@ -402,6 +404,8 @@ HEADERS  += UI/MainWindow.h \
     SiteResponse/soillayer.h \
     SiteResponse/outcropMotion.h \
     SiteResponse/siteLayering.h \
+    UI/ProfileManager.h \
+    UI/PostProcessor.h
 
 
 FORMS    += UI/MainWindow.ui \

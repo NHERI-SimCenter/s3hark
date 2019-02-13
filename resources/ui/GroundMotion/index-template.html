@@ -13,9 +13,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <style>
+        #box{
+            border:1px solid red;
+        }
+        #item{
+            margin:0 auto;
+        }
+    </style>
 </head>
 
 <body id="t" class="offline">
@@ -75,7 +82,7 @@
             });
         }, 500);
 
-//UPDATEPOINT
+        //UPDATEPOINT
 
         function updateChart(reader) {
             if (reader.result) {
@@ -148,11 +155,11 @@
 
     </script>
 
-    <div>
-        
-            <input type="button" onclick="location.href='index.html';" value="Accel" />
-            <input type="button" onclick="location.href='index.html';" value="Vel" />
-            <input type="button" onclick="location.href='index.html';" value="Disp" />
+    <div class="box">
+
+        <input class="item" type="button" onclick="location.href='acc.html';" value="Accel" />
+        <input class="item" onclick="location.href='index.html';" value="Vel" />
+        <input class="item" onclick="location.href='disp.html';" value="Disp" />
 
     </div>
 </body>

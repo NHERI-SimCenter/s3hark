@@ -367,7 +367,99 @@ void TabManager::reFreshGMTab()
     newfile.close();
 
     GMView->reload();
+    GMView->show();
+
+    updateAccHtml();
+    updateDispHtml();
+
 }
+
+void TabManager::updateAccHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(accHtmlName);
+    QString dir = htmlInfo.path();
+    QString tmpPath = QDir(dir).filePath("acc-template.html");
+    QString newPath = QDir(dir).filePath("acc.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    //QString insertedString = loadGMtoString();
+    QString insertedString;
+    QTextStream stream(&insertedString);
+    /*
+    QVector<double> depths =  postProcessor->getRuDepths();
+    QVector<double> ru =  postProcessor->getRu();
+
+    stream << "xd = ['Depth'";
+    for (int i=0;i<depths.size();i++)
+        stream << ", " << depths[i];
+    stream << "]; \n";
+    stream << "yd = ['maxRu',NaN";
+    for (int i=0;i<ru.size();i++)
+        stream << ", " << ru[i];
+    stream << ",NaN]; \n";
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+    */
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+}
+
+void TabManager::updateDispHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(dispHtmlName);
+    QString dir = htmlInfo.path();
+    QString tmpPath = QDir(dir).filePath("disp-template.html");
+    QString newPath = QDir(dir).filePath("disp.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    //QString insertedString = loadGMtoString();
+    QString insertedString;
+    QTextStream stream(&insertedString);
+    /*
+    QVector<double> depths =  postProcessor->getRuDepths();
+    QVector<double> ru =  postProcessor->getRu();
+
+    stream << "xd = ['Depth'";
+    for (int i=0;i<depths.size();i++)
+        stream << ", " << depths[i];
+    stream << "]; \n";
+    stream << "yd = ['maxRu',NaN";
+    for (int i=0;i<ru.size();i++)
+        stream << ", " << ru[i];
+    stream << ",NaN]; \n";
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+    */
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+}
+
+
+
 
 QString TabManager::loadGMtoString()
 {
