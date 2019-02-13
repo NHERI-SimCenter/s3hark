@@ -367,7 +367,7 @@ void TabManager::reFreshGMTab()
     newfile.close();
 
     GMView->reload();
-    GMView->show();
+    //GMView->show();
 
     updateAccHtml();
     updateDispHtml();
@@ -391,23 +391,10 @@ void TabManager::updateAccHtml()
     file.close();
 
 
-    //QString insertedString = loadGMtoString();
-    QString insertedString;
-    QTextStream stream(&insertedString);
-    /*
-    QVector<double> depths =  postProcessor->getRuDepths();
-    QVector<double> ru =  postProcessor->getRu();
 
-    stream << "xd = ['Depth'";
-    for (int i=0;i<depths.size();i++)
-        stream << ", " << depths[i];
-    stream << "]; \n";
-    stream << "yd = ['maxRu',NaN";
-    for (int i=0;i<ru.size();i++)
-        stream << ", " << ru[i];
-    stream << ",NaN]; \n";
+    QString insertedString = loadMotions2String("acc");
     text.replace(QString("//UPDATEPOINT"), insertedString);
-    */
+
 
     // write to index.html
     QFile newfile(newPath);
@@ -433,23 +420,9 @@ void TabManager::updateDispHtml()
     file.close();
 
 
-    //QString insertedString = loadGMtoString();
-    QString insertedString;
-    QTextStream stream(&insertedString);
-    /*
-    QVector<double> depths =  postProcessor->getRuDepths();
-    QVector<double> ru =  postProcessor->getRu();
-
-    stream << "xd = ['Depth'";
-    for (int i=0;i<depths.size();i++)
-        stream << ", " << depths[i];
-    stream << "]; \n";
-    stream << "yd = ['maxRu',NaN";
-    for (int i=0;i<ru.size();i++)
-        stream << ", " << ru[i];
-    stream << ",NaN]; \n";
+    QString insertedString = loadMotions2String("disp");
     text.replace(QString("//UPDATEPOINT"), insertedString);
-    */
+
 
     // write to index.html
     QFile newfile(newPath);
@@ -563,6 +536,113 @@ QString TabManager::loadGMtoString()
     stream <<"           ids: 'Demo motion 2'"<<endl;
     stream <<"       });"<<endl;
     stream <<"       }, 1000);"<<endl;
+    return text;
+
+}
+
+QString TabManager::loadMotions2String(QString motion)
+{
+
+    QString text;
+    QTextStream stream(&text);
+
+    QString vaseVelFileName = "out_tcl/base."+motion;
+    QFile baseVelFile(vaseVelFileName);
+    QStringList xdBaseVel, ydBaseVel;
+    if(baseVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&baseVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdBaseVel.append(thisLine[0].trimmed());
+                ydBaseVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        baseVelFile.close();
+    }
+
+    stream << "xnew = ['x'";
+    for (int i=0; i<xdBaseVel.size(); i++)
+        stream << ", "<<xdBaseVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ynew = ['Rock motion'";
+    for (int i=0; i<ydBaseVel.size(); i++)
+        stream << ", "<<ydBaseVel.at(i);
+    stream <<"];" <<endl;
+
+    /*
+     * Get surface motion from file
+     */
+    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
+    QString surfaceVelFileName = "out_tcl/surface."+motion;
+    QFile surfaceVelFile(surfaceVelFileName);
+    QStringList xdSurfaceVel, ydSurfaceVel;
+    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceVel.append(thisLine[0].trimmed());
+                ydSurfaceVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceVelFile.close();
+    }
+
+    stream << "xSurfaceVel = ['x'";
+    for (int i=0; i<xdSurfaceVel.size(); i++)
+        stream << ", "<<xdSurfaceVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ySurfaceVel = ['Surface motion'";
+    for (int i=0; i<ydSurfaceVel.size(); i++)
+        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    stream <<"];" <<endl;
+
+    writeSurfaceMotion();
+
+
+
+
+    //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
+    //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    stream << "       setTimeout(function () {"<<endl;
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xnew,"<<endl;
+    stream <<"           ynew"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xSurfaceVel,"<<endl;
+    stream <<"           ySurfaceVel"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 1'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 2'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       }, 0);"<<endl;
     return text;
 
 }

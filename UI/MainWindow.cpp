@@ -770,6 +770,7 @@ void MainWindow::onOpenSeesFinished()
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
             theTabManager->reFreshGMTab();
+            theTabManager->reFreshGMView();
 
             resultsTab->setCurrentIndex(1);
 

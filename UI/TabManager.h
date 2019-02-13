@@ -35,11 +35,13 @@ public:
     void writeGM();
     bool writeSurfaceMotion();
     QString loadGMtoString();
+    QString loadMotions2String(QString);
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
     void updateDispHtml();
     void updateAccHtml();
+    void reFreshGMView(){GMView->show();}
 
 signals:
 
