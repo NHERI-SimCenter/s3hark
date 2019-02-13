@@ -285,6 +285,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
     connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
 
+    if(!QDir("out_tcl").exists())
+        QDir().mkdir("out_tcl");
+
 
 
 }
