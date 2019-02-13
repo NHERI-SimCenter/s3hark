@@ -53,6 +53,7 @@
             color: #666666;
         }
     </style>
+
 </head>
 
 <body id="t" class="offline">
@@ -89,7 +90,7 @@
 
                 },
                 y: {
-                    label: { text: 'Vel (m/s)', position: 'outer-middle' },
+                    label: { text: 'Disp (m)', position: 'outer-middle' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -110,7 +111,7 @@
                     ['Demo motion 2', 1, 100, 290, 70, 10, 260]
                 ]
             });
-        }, 500);
+        }, 0);
 
         //UPDATEPOINT
 
@@ -188,8 +189,8 @@
     <div class="box">
 
         <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='index.html';" value="Vel" />
-        <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
+        <input class="btn" type="button" onclick="location.href='index.html';" value="Vel" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
 
     </div>
 </body>

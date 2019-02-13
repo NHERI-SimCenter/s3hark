@@ -26,7 +26,7 @@
     <string>Parameters of ElasticIsotropic model  </string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="ELabel">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -42,7 +42,7 @@
     <string>Elastic modulus</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="vLabel">
    <property name="geometry">
     <rect>
      <x>320</x>
@@ -121,7 +121,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_6">
+  <widget class="QLabel" name="uBulkLabel">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -134,7 +134,7 @@
     <string>uBulk</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_7">
+  <widget class="QLabel" name="hPermLabel">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -147,7 +147,7 @@
     <string>hPerm</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_8">
+  <widget class="QLabel" name="vPermLabel">
    <property name="geometry">
     <rect>
      <x>330</x>
@@ -300,12 +300,12 @@
     <rect>
      <x>20</x>
      <y>140</y>
-     <width>451</width>
+     <width>511</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Hydraulic properties (Keep defaults unless you know their meanings)</string>
+    <string>Hydraulic properties of this layer (Keep defaults unless you know their meanings)</string>
    </property>
   </widget>
  </widget>

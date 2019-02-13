@@ -276,7 +276,8 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
                 QString data = valueListRock.at(i).toString();
                 m_sqlModel->setData(m_sqlModel->index(m_nTotal, col), data);
             }
-            m_sqlModel->setData(m_sqlModel->index(m_nTotal, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
+            //m_sqlModel->setData(m_sqlModel->index(m_nTotal, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
+            m_sqlModel->setData(m_sqlModel->index(m_nTotal, COLOR), "Black");
         }
 
         // print table for debug

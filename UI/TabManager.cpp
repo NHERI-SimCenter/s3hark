@@ -104,6 +104,8 @@ void TabManager::init(QTabWidget* theTab){
 
 
 
+
+
     QFile uiFileElasticIsotropic(":/UI/ElasticIsotropic.ui");
     uiFileElasticIsotropic.open(QIODevice::ReadOnly);
     ElasticIsotropicWidget = uiLoader.load(&uiFileElasticIsotropic,this);
@@ -144,11 +146,40 @@ void TabManager::init(QTabWidget* theTab){
     QLabel *rho_dLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("rho_dLabel");
     rho_dLabelTmp->hide();
 
+    // adding tooltips
+    QLabel *ELabel= ElasticIsotropicWidget->findChild<QLabel*>("ELabel");
+    ELabel->setToolTip("Pa");
+    QLabel *vLabel= ElasticIsotropicWidget->findChild<QLabel*>("vLabel");
+    vLabel->setToolTip("Poisson's ratio");
+    QLabel *hPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("hPermLabel");
+    hPermLabel->setToolTip("");
+    QLabel *vPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("vPermLabel");
+    vPermLabel->setToolTip("");
+    QLabel *uBulkLabel= ElasticIsotropicWidget->findChild<QLabel*>("uBulkLabel");
+    uBulkLabel->setToolTip("");
+
 
 
     reFreshGMTab();
 
 
+}
+
+void TabManager::setPM4SandToolTps()
+{
+    /*
+    // adding tooltips
+    QLabel *ELabel= ElasticIsotropicWidget->findChild<QLabel*>("ELabel");
+    ELabel->setToolTip("Pa");
+    QLabel *vLabel= ElasticIsotropicWidget->findChild<QLabel*>("vLabel");
+    vLabel->setToolTip("Poisson's ratio");
+    QLabel *hPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("hPermLabel");
+    hPermLabel->setToolTip("");
+    QLabel *vPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("vPermLabel");
+    vPermLabel->setToolTip("");
+    QLabel *uBulkLabel= ElasticIsotropicWidget->findChild<QLabel*>("uBulkLabel");
+    uBulkLabel->setToolTip("");
+    */
 }
 
 void TabManager::onSecondaryBtnClicked(bool checked)
@@ -268,6 +299,7 @@ void TabManager::onOpenseesTextChanged(const QString& text)
 }
 void TabManager::onGMTextChanged(const QString& text)
 {
+    rockmotionpathStr = text;
     onFEMTabEdited();
 }
 
@@ -367,7 +399,72 @@ void TabManager::reFreshGMTab()
     newfile.close();
 
     GMView->reload();
+    //GMView->show();
+
+    updateAccHtml();
+    updateDispHtml();
+
 }
+
+void TabManager::updateAccHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(accHtmlName);
+    QString dir = htmlInfo.path();
+    QString tmpPath = QDir(dir).filePath("acc-template.html");
+    QString newPath = QDir(dir).filePath("acc.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+
+    QString insertedString = loadMotions2String("acc");
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+}
+
+void TabManager::updateDispHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(dispHtmlName);
+    QString dir = htmlInfo.path();
+    QString tmpPath = QDir(dir).filePath("disp-template.html");
+    QString newPath = QDir(dir).filePath("disp.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    QString insertedString = loadMotions2String("disp");
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+}
+
+
+
 
 QString TabManager::loadGMtoString()
 {
@@ -471,6 +568,113 @@ QString TabManager::loadGMtoString()
     stream <<"           ids: 'Demo motion 2'"<<endl;
     stream <<"       });"<<endl;
     stream <<"       }, 1000);"<<endl;
+    return text;
+
+}
+
+QString TabManager::loadMotions2String(QString motion)
+{
+
+    QString text;
+    QTextStream stream(&text);
+
+    QString vaseVelFileName = "out_tcl/base."+motion;
+    QFile baseVelFile(vaseVelFileName);
+    QStringList xdBaseVel, ydBaseVel;
+    if(baseVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&baseVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdBaseVel.append(thisLine[0].trimmed());
+                ydBaseVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        baseVelFile.close();
+    }
+
+    stream << "xnew = ['x'";
+    for (int i=0; i<xdBaseVel.size(); i++)
+        stream << ", "<<xdBaseVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ynew = ['Rock motion'";
+    for (int i=0; i<ydBaseVel.size(); i++)
+        stream << ", "<<ydBaseVel.at(i);
+    stream <<"];" <<endl;
+
+    /*
+     * Get surface motion from file
+     */
+    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
+    QString surfaceVelFileName = "out_tcl/surface."+motion;
+    QFile surfaceVelFile(surfaceVelFileName);
+    QStringList xdSurfaceVel, ydSurfaceVel;
+    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceVel.append(thisLine[0].trimmed());
+                ydSurfaceVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceVelFile.close();
+    }
+
+    stream << "xSurfaceVel = ['x'";
+    for (int i=0; i<xdSurfaceVel.size(); i++)
+        stream << ", "<<xdSurfaceVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ySurfaceVel = ['Surface motion'";
+    for (int i=0; i<ydSurfaceVel.size(); i++)
+        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    stream <<"];" <<endl;
+
+    writeSurfaceMotion();
+
+
+
+
+    //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
+    //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    stream << "       setTimeout(function () {"<<endl;
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xnew,"<<endl;
+    stream <<"           ynew"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xSurfaceVel,"<<endl;
+    stream <<"           ySurfaceVel"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 1'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 2'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       }, 0);"<<endl;
     return text;
 
 }

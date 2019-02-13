@@ -154,18 +154,6 @@ MainWindow::MainWindow(QWidget *parent) :
     meshView->rootContext()->setContextProperty("sqlModel", ui->tableView->m_sqlModel);
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
 
-    // pga view
-    /*
-    pgaView = new QQuickView();
-    pgaView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/PGAView.qml")));
-    pgaView->rootContext()->setContextProperty("elements", elementModel);
-    pgaView->rootContext()->setContextProperty("sqlModel", ui->tableView->m_sqlModel);
-    QWidget *pgaContainer = QWidget::createWindowContainer(pgaView, this);
-    */
-
-    QString pgaHtmlName = "resources/ui/GroundMotion/pga.html";
-    QWebEngineView *pgaHtmlView = new QWebEngineView(this);
-    pgaHtmlView->load(QUrl::fromLocalFile(QFileInfo(pgaHtmlName).absoluteFilePath()));
 
 
 
@@ -176,12 +164,10 @@ MainWindow::MainWindow(QWidget *parent) :
     resultsTab->setMaximumSize(200,1e5);
     resultsTab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     resultsTab->addTab(meshContainer,"Mesh");
-    //resultsTab->addTab(pgaContainer,"PGA(g)");
-    resultsTab->addTab(pgaHtmlView,"PGA(g)");
-    resultsTab->addTab(new QWidget(),"\u03B3max(%)");
-    resultsTab->addTab(new QWidget(),"maxDisp(m)");
-    resultsTab->addTab(new QWidget(),"maxRu");
-    resultsTab->setTabPosition(QTabWidget::East);
+
+
+    profiler = new ProfileManager(resultsTab, postProcessor ,this);
+
 
     // add the profile tab into the ui's layout
     ui->meshLayout->addWidget(resultsTab);
@@ -293,10 +279,16 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->totalLayerLineEdit->setText("1");
     }
 
+
     // init the opensess process
     openseesProcess = new QProcess(this);
     //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
     connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
+
+    if(!QDir("out_tcl").exists())
+        QDir().mkdir("out_tcl");
+
+
 
 }
 
@@ -749,6 +741,7 @@ void MainWindow::on_runBtn_clicked()
 {
     // build tcl file
     SiteResponse *srt = new SiteResponse();
+    //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
     srt->run();
 
     if(!QDir("out_tcl").exists())
@@ -758,11 +751,18 @@ void MainWindow::on_runBtn_clicked()
      * Calling Opensee to do the work
      */
     QString openseespath =  theTabManager->openseespath();
+    QString rockmotionpath =  theTabManager->rockmotionpath();
+    if (openseespath == "" || rockmotionpath == "")
+    {
+        QMessageBox::information(this,tr("Path error"), "You need to specify opensees' path and rock motion file's path in the configure tab.", tr("OK."));
+    }else
+    {
     //"/Users/simcenter/Codes/OpenSees/bin/opensees"
     //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
     openseesProcess->start(openseespath,QStringList()<<"model.tcl");
     openseesErrCount = 1;
     emit runBtnClicked(dinoView);
+    }
 
 }
 
@@ -781,70 +781,21 @@ void MainWindow::onOpenSeesFinished()
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
             theTabManager->reFreshGMTab();
+            theTabManager->reFreshGMView();
 
-            calcPGA();
+            resultsTab->setCurrentIndex(1);
+
+            postProcessor = new PostProcessor();
+            profiler->updatePostProcessor(postProcessor);
+            connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
+            postProcessor->update();
 
         }
     }
 
 }
 
-void MainWindow::calcPGA()
-{
-    QString accFileName = "out_tcl/acceleration.out";
-    QFile accFile(accFileName);
-    QVector<double> pga;
-    if(accFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&accFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            if (thisLine.size()<2)
-                break;
-            else
-            {
-                thisLine.removeAll("");
-                QVector<double> thispga;
-                for (int i=1; i<thisLine.size();i+=4)
-                {
-                    double tmp = abs(thisLine[i].trimmed().toDouble());
-                    thispga << tmp;
-                }
-                if(pga.size()!=thispga.size() && pga.size()<1)
-                {
-                    for (int j=0;j<thispga.size();j++)
-                        pga << thispga[j];
-                }
-                if (pga.size()==thispga.size())
-                {
-                    for (int j=0;j<thispga.size();j++)
-                    {
-                        if (thispga[j]>pga[j])
-                            pga[j] = thispga[j];
-                    }
-                }
-            }
-        }
-        accFile.close();
-    }
 
-
-    QFile saveFile(QStringLiteral("out_tcl/pga.dat"));
-    if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
-        qWarning("Couldn't open save file.");
-    }
-    QTextStream out(&saveFile);
-
-
-    for (int i=0;i<pga.size();i++)
-        out << QString::number(pga[i]/9.81) << "\n";
-    saveFile.close();
-
-
-
-
-
-}
 
 void MainWindow::writeSurfaceMotion()
 {
