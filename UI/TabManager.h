@@ -39,9 +39,11 @@ public:
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
+    QString rockmotionpath(){return rockmotionpathStr;}
     void updateDispHtml();
     void updateAccHtml();
     void reFreshGMView(){GMView->show();}
+    void setPM4SandToolTps();
 
 signals:
 
@@ -50,6 +52,7 @@ public slots:
     void onTableViewUpdated(const QModelIndex&,const QModelIndex&);
     void onDataEdited();
     void onGMBtnClicked();
+    //
     void onOpenseesBtnClicked();
     void onFEMTabEdited();
     double getGWTFromConfig();
@@ -101,6 +104,7 @@ private:
     QString accHtmlName = "resources/ui/GroundMotion/acc.html";
     QString dispHtmlName = "resources/ui/GroundMotion/disp.html";
     QString openseesPathStr;
+    QString rockmotionpathStr;
 
 
 

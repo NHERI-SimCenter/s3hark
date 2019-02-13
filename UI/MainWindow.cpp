@@ -741,6 +741,7 @@ void MainWindow::on_runBtn_clicked()
 {
     // build tcl file
     SiteResponse *srt = new SiteResponse();
+    //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
     srt->run();
 
     if(!QDir("out_tcl").exists())
@@ -750,11 +751,18 @@ void MainWindow::on_runBtn_clicked()
      * Calling Opensee to do the work
      */
     QString openseespath =  theTabManager->openseespath();
+    QString rockmotionpath =  theTabManager->rockmotionpath();
+    if (openseespath == "" || rockmotionpath == "")
+    {
+        QMessageBox::information(this,tr("Path error"), "You need to specify opensees' path and rock motion file's path in the configure tab.", tr("OK."));
+    }else
+    {
     //"/Users/simcenter/Codes/OpenSees/bin/opensees"
     //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
     openseesProcess->start(openseespath,QStringList()<<"model.tcl");
     openseesErrCount = 1;
     emit runBtnClicked(dinoView);
+    }
 
 }
 

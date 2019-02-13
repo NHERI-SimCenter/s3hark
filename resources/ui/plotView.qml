@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtQml.Models 2.2
 
-import QtQuick.Shapes 1.11
+import QtQuick.Shapes 1.0
 
 Rectangle {
     id: container

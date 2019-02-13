@@ -104,6 +104,8 @@ void TabManager::init(QTabWidget* theTab){
 
 
 
+
+
     QFile uiFileElasticIsotropic(":/UI/ElasticIsotropic.ui");
     uiFileElasticIsotropic.open(QIODevice::ReadOnly);
     ElasticIsotropicWidget = uiLoader.load(&uiFileElasticIsotropic,this);
@@ -144,11 +146,40 @@ void TabManager::init(QTabWidget* theTab){
     QLabel *rho_dLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("rho_dLabel");
     rho_dLabelTmp->hide();
 
+    // adding tooltips
+    QLabel *ELabel= ElasticIsotropicWidget->findChild<QLabel*>("ELabel");
+    ELabel->setToolTip("Pa");
+    QLabel *vLabel= ElasticIsotropicWidget->findChild<QLabel*>("vLabel");
+    vLabel->setToolTip("Poisson's ratio");
+    QLabel *hPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("hPermLabel");
+    hPermLabel->setToolTip("");
+    QLabel *vPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("vPermLabel");
+    vPermLabel->setToolTip("");
+    QLabel *uBulkLabel= ElasticIsotropicWidget->findChild<QLabel*>("uBulkLabel");
+    uBulkLabel->setToolTip("");
+
 
 
     reFreshGMTab();
 
 
+}
+
+void TabManager::setPM4SandToolTps()
+{
+    /*
+    // adding tooltips
+    QLabel *ELabel= ElasticIsotropicWidget->findChild<QLabel*>("ELabel");
+    ELabel->setToolTip("Pa");
+    QLabel *vLabel= ElasticIsotropicWidget->findChild<QLabel*>("vLabel");
+    vLabel->setToolTip("Poisson's ratio");
+    QLabel *hPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("hPermLabel");
+    hPermLabel->setToolTip("");
+    QLabel *vPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("vPermLabel");
+    vPermLabel->setToolTip("");
+    QLabel *uBulkLabel= ElasticIsotropicWidget->findChild<QLabel*>("uBulkLabel");
+    uBulkLabel->setToolTip("");
+    */
 }
 
 void TabManager::onSecondaryBtnClicked(bool checked)
@@ -268,6 +299,7 @@ void TabManager::onOpenseesTextChanged(const QString& text)
 }
 void TabManager::onGMTextChanged(const QString& text)
 {
+    rockmotionpathStr = text;
     onFEMTabEdited();
 }
 
