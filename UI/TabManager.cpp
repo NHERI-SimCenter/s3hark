@@ -284,7 +284,7 @@ void TabManager::onGMBtnClicked()
 void TabManager::onOpenseesBtnClicked()
 {
     qDebug() << "OpenSees btn clicked. ";
-    QString file_name = QFileDialog::getOpenFileName(this,"Choose Ground Motion File",".","*");
+    QString file_name = QFileDialog::getOpenFileName(this,"Choose opensees excutable",".","*");
     FEMWidget->findChild<QLineEdit*>("openseesPath")->setText(file_name);
 
     onFEMTabEdited();
@@ -299,7 +299,7 @@ void TabManager::onOpenseesTextChanged(const QString& text)
 }
 void TabManager::onGMTextChanged(const QString& text)
 {
-    rockmotionpathStr = text;
+    GMPathStr = text;
     onFEMTabEdited();
 }
 
