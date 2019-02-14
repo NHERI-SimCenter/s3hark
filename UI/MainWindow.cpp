@@ -739,29 +739,38 @@ void MainWindow::on_reBtn_clicked()
 
 void MainWindow::on_runBtn_clicked()
 {
-    // build tcl file
-    SiteResponse *srt = new SiteResponse();
-    //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
-    srt->run();
-
-    if(!QDir("out_tcl").exists())
-        QDir().mkdir("out_tcl");
-
-    /*
-     * Calling Opensee to do the work
-     */
-    QString openseespath =  theTabManager->openseespath();
-    QString rockmotionpath =  theTabManager->rockmotionpath();
-    if (openseespath == "" || rockmotionpath == "")
+    int numLayers = ui->totalLayerLineEdit->text().toInt();
+    if (numLayers<=1)
     {
-        QMessageBox::information(this,tr("Path error"), "You need to specify opensees' path and rock motion file's path in the configure tab.", tr("OK."));
-    }else
-    {
-    //"/Users/simcenter/Codes/OpenSees/bin/opensees"
-    //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
-    openseesProcess->start(openseespath,QStringList()<<"model.tcl");
-    openseesErrCount = 1;
-    emit runBtnClicked(dinoView);
+        QMessageBox::information(this,tr("Soil err"), "You need to add at least one soil layer.", tr("OK."));
+
+    }
+    else{
+        QString openseespath =  theTabManager->openseespath();
+        QString rockmotionpath =  theTabManager->rockmotionpath();
+        bool openseesEmpty = openseespath=="" || openseespath=="Input the full path of OpenSees excutable.";
+        bool rockEmpty = rockmotionpath=="" || rockmotionpath=="Input the path of a ground motion file.";
+        if (openseesEmpty || rockEmpty)
+        {
+            QMessageBox::information(this,tr("Path error"), "You need to specify OpenSees' path and rock motion file's path in the configure tab.", tr("OK."));
+        }else{
+            // build tcl file
+            SiteResponse *srt = new SiteResponse();
+            //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
+            srt->run();
+
+            if(!QDir("out_tcl").exists())
+                QDir().mkdir("out_tcl");
+
+            /*
+            * Calling Opensee to do the work
+            */
+            //"/Users/simcenter/Codes/OpenSees/bin/opensees"
+            //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
+            openseesProcess->start(openseespath,QStringList()<<"model.tcl");
+            openseesErrCount = 1;
+            emit runBtnClicked(dinoView);
+        }
     }
 
 }
