@@ -39,7 +39,7 @@ public:
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
-    QString rockmotionpath(){return rockmotionpathStr;}
+    QString rockmotionpath(){return GMPathStr;}
     void updateDispHtml();
     void updateAccHtml();
     void reFreshGMView(){GMView->show();}
@@ -104,7 +104,7 @@ private:
     QString accHtmlName = "resources/ui/GroundMotion/acc.html";
     QString dispHtmlName = "resources/ui/GroundMotion/disp.html";
     QString openseesPathStr;
-    QString rockmotionpathStr;
+    //QString rockmotionpathStr;
 
 
 
