@@ -31,10 +31,11 @@ INCLUDEPATH += FEM \
 
 unix: {
 # You need to modify this section if your blas and lapack is in a different place
-LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
-        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
-        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
-        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
+#LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
+#        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
+#        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
+#        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
+LIBS += -llapack -lblas
 }
 win32: {
 # You must append your lapack libs if it is not in a standard place.
@@ -216,7 +217,8 @@ SOURCES += main.cpp\
     SiteResponse/outcropMotion.cpp \
     #SiteResponse/FEModel3D.cpp
     UI/ProfileManager.cpp \
-    UI/PostProcessor.cpp
+    UI/PostProcessor.cpp \
+    UI/RockOutcrop1D.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/DatabaseManager.h \
@@ -405,7 +407,8 @@ HEADERS  += UI/MainWindow.h \
     SiteResponse/outcropMotion.h \
     SiteResponse/siteLayering.h \
     UI/ProfileManager.h \
-    UI/PostProcessor.h
+    UI/PostProcessor.h \
+    UI/RockOutcrop1D.h
 
 
 FORMS    += UI/MainWindow.ui \
@@ -414,7 +417,8 @@ FORMS    += UI/MainWindow.ui \
     UI/ElasticIsotropic.ui \
     UI/DefaultMatTab.ui \
     UI/GroundMotion.ui \
-    UI/FEM.ui
+    UI/FEM.ui \
+    UI/RockOutcrop1D.ui
 
 RESOURCES += \
     resources.qrc
