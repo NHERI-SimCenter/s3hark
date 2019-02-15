@@ -49,3 +49,5 @@ VS/
 
 SiteResponse/bin/
 Backup
+makefile
+*stash
