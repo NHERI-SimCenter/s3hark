@@ -33,6 +33,8 @@ public:
     void updateCtrl();
 
 
+public slots:
+    void on_thickness_edited();
 private slots:
     void insert();
     void insertAbove();
@@ -47,9 +49,9 @@ private slots:
 
     void on_delRowBtn_clicked();
     void on_addRowBtn_clicked();
-    void on_meshBtn_clicked(bool checked);
+    void on_meshBtn_clicked();
 
-    void on_thickness_edited();
+
 
     void on_gwtEdit_textChanged(const QString &arg1);
 
@@ -104,6 +106,14 @@ private:// some of them were public
     PostProcessor* postProcessor;
 
     double maxPGA;
+
+ public:
+    QString rootDir = qApp->applicationDirPath();
+    QString analysisDir = QDir(rootDir).filePath("analysis");
+    QString tclName = QDir(analysisDir).filePath("model.tcl");
+    QString outputDir = QDir(analysisDir).filePath("out_tcl");
+    QString dinoHtmlName = QDir(rootDir).filePath("resources/ui/DinoRun/index.html");
+    QString srtFileName = QDir(analysisDir).filePath("SRT.json");
 
 
 };

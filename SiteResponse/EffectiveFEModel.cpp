@@ -176,8 +176,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	// 0. Load configurations form json file
 	// ------------------------------------------
 	//std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
-	std::string configFile = "SRT.json";
-    std::ifstream i(configFile);
+    //std::string configFile = "SRT.json";
+    std::ifstream i(theConfigFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log
     json SRT;
@@ -185,9 +185,14 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	// set outputs for tcl 
 	//ofstream s ("/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl", std::ofstream::out);
+    /*
 	ofstream s ("model.tcl", std::ofstream::out);
 	ofstream ns ("out_tcl/nodesInfo.dat", std::ofstream::out);
 	ofstream es ("out_tcl/elementInfo.dat", std::ofstream::out);
+    */
+    ofstream s (theAnalysisDir + "/model.tcl", std::ofstream::out);//TODO: may not work on windows
+    ofstream ns (theTclOutputDir+"/nodesInfo.dat", std::ofstream::out);
+    ofstream es (theTclOutputDir+"/elementInfo.dat", std::ofstream::out);
 	//ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
 	s << "# #########################################################" << "\n\n";
 	s << "wipe \n\n";

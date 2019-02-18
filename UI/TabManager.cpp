@@ -22,6 +22,31 @@ TabManager::TabManager(BonzaTableView *tableViewIn,QWidget *parent) : QDialog(pa
 
     tableModel = tableView->m_sqlModel;
 
+    if(!QDir(analysisDir).exists())
+        QDir().mkdir(analysisDir);
+
+    /*
+    QString dirname = QDir::currentPath();
+    QString femfilename = "Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_12_0_clang_64bit2-Debug/FEM.dat";
+    QString fillfullpath = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_12_0_clang_64bit2-Debug/FEM.dat";
+            //QDir(dirname).filePath(femfilename);
+
+    QString logname = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_12_0_clang_64bit2-Debug/log";
+    QFile newfilex(logname);
+    newfilex.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfilex.write("not quit here.\n");
+
+    newfilex.write(("femFilename folder: "+femFilename.toUtf8()+"   !\n"));
+    newfilex.write(("analysis folder: "+analysisDir.toUtf8()+"   !\n"));
+    newfilex.write(("current folder: "+dirname.toUtf8()+"   !\n"));
+    newfilex.write((fillfullpath+"\n").toUtf8());
+    if (QFile::exists(analysisDir))
+        newfilex.write("analysisDir:" +analysisDir.toUtf8() +" exist.\n");
+    else
+        newfilex.write("analysisDir doesn't exist.\n");
+
+    newfilex.close();
+    */
 
 
 }
@@ -42,14 +67,12 @@ void TabManager::init(QTabWidget* theTab){
     FEMWidget = uiLoader.load(&uiFEMFile,this);
     hideConfigure();
     tab->addTab(FEMWidget,"Configure");
+
     initFEMTab();
     connect(FEMWidget->findChild<QPushButton*>("GMBtn"), SIGNAL(clicked()), this, SLOT(onGMBtnClicked()));
     connect(FEMWidget->findChild<QPushButton*>("openseesBtn"), SIGNAL(clicked()), this, SLOT(onOpenseesBtnClicked()));
     connect(FEMWidget->findChild<QLineEdit*>("openseesPath"), SIGNAL(textChanged(const QString&)), this, SLOT(onOpenseesTextChanged(const QString&)));
     connect(FEMWidget->findChild<QLineEdit*>("GMPath"), SIGNAL(textChanged(const QString&)), this, SLOT(onGMTextChanged(const QString&)));
-
-
-
 
 
     QString uiFileName = ":/UI/DefaultMatTab.ui";
@@ -62,7 +85,8 @@ void TabManager::init(QTabWidget* theTab){
 
     GMView = new QWebEngineView(this);
     //GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
-    GMView->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName).absoluteFilePath()));
+    QString GMTabHtmlName_true = QDir(rootDir).filePath(GMTabHtmlName);
+    GMView->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName_true).absoluteFilePath()));
     tab->addTab(GMView,"Ground motion");
 
 
@@ -308,11 +332,11 @@ void TabManager::onGMTextChanged(const QString& text)
 void TabManager::writeGM()
 {
 
-    QFile outFile("Rock.vel");
+    QFile outFile(analysisDir+"/Rock.vel");
     outFile.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream stream(&outFile);
 
-    QFile outFileTime("Rock.time");
+    QFile outFileTime(analysisDir+"/Rock.time");
     outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream streamTime(&outFileTime);
 
@@ -350,7 +374,8 @@ void TabManager::writeGM()
 
 void TabManager::onFEMTabEdited()
 {
-    QString filename = "FEM.dat";
+    // writing FEM.dat
+    QString filename = femFilename;//"FEM.dat";
     QFile file(filename);
     if(file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
             QTextStream stream(&file);
@@ -373,11 +398,14 @@ void TabManager::onFEMTabEdited()
 
 void TabManager::reFreshGMTab()
 {
+
     // get file paths
     QFileInfo indexHtmlInfo(GMTabHtmlName);
-    QString dir = indexHtmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("index-template.html");
-    QString newPath = QDir(dir).filePath("index.html");
+    //QString dir = indexHtmlInfo.path();
+    //QString tmpPath = QDir(dir).filePath("index-template.html");
+    //QString newPath = QDir(dir).filePath("index.html");
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
     QFile::remove(newPath);
     //QFile::copy(tmpPath, newPath);
 
@@ -410,9 +438,9 @@ void TabManager::updateAccHtml()
 {
     // get file paths
     QFileInfo htmlInfo(accHtmlName);
-    QString dir = htmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("acc-template.html");
-    QString newPath = QDir(dir).filePath("acc.html");
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/acc-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -439,9 +467,9 @@ void TabManager::updateDispHtml()
 {
     // get file paths
     QFileInfo htmlInfo(dispHtmlName);
-    QString dir = htmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("disp-template.html");
-    QString newPath = QDir(dir).filePath("disp.html");
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/disp-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -507,7 +535,7 @@ QString TabManager::loadGMtoString()
      * Get surface motion from file
      */
     //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
-    QString surfaceVelFileName = "out_tcl/surface.vel";
+    QString surfaceVelFileName = analysisDir+"/out_tcl/surface.vel";
     QFile surfaceVelFile(surfaceVelFileName);
     QStringList xdSurfaceVel, ydSurfaceVel;
     if(surfaceVelFile.open(QIODevice::ReadOnly)) {
@@ -578,7 +606,7 @@ QString TabManager::loadMotions2String(QString motion)
     QString text;
     QTextStream stream(&text);
 
-    QString vaseVelFileName = "out_tcl/base."+motion;
+    QString vaseVelFileName = analysisDir+"/out_tcl/base."+motion;
     QFile baseVelFile(vaseVelFileName);
     QStringList xdBaseVel, ydBaseVel;
     if(baseVelFile.open(QIODevice::ReadOnly)) {
@@ -614,7 +642,7 @@ QString TabManager::loadMotions2String(QString motion)
      * Get surface motion from file
      */
     //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
-    QString surfaceVelFileName = "out_tcl/surface."+motion;
+    QString surfaceVelFileName = analysisDir+"/out_tcl/surface."+motion;
     QFile surfaceVelFile(surfaceVelFileName);
     QStringList xdSurfaceVel, ydSurfaceVel;
     if(surfaceVelFile.open(QIODevice::ReadOnly)) {
@@ -681,7 +709,7 @@ QString TabManager::loadMotions2String(QString motion)
 
 bool TabManager::writeSurfaceMotion()
 {
-    QString surfaceAccFileName = "out_tcl/surface.acc";
+    QString surfaceAccFileName = analysisDir+"/out_tcl/surface.acc";
     QFile surfaceAccFile(surfaceAccFileName);
     QStringList xdSurfaceAcc, ydSurfaceAcc;
     if(surfaceAccFile.open(QIODevice::ReadOnly)) {
@@ -707,7 +735,7 @@ bool TabManager::writeSurfaceMotion()
 
     // write surface motion in json file
     QJsonObject surfAcc;
-    QFile saveFile(QStringLiteral("EVENT-SRT.json"));
+    QFile saveFile(analysisDir + "/EVENT-SRT.json");
     if (!saveFile.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't open save file.");
     }
@@ -782,7 +810,7 @@ bool TabManager::writeSurfaceMotion()
 double TabManager::getGWTFromConfig()
 {
     double GWT=0.0;
-    QString filename = "FEM.dat";
+    QString filename = femFilename;//"FEM.dat";
     QFile file(filename);
     if(!file.open(QIODevice::ReadOnly)) {
         file.close();
@@ -816,7 +844,6 @@ void TabManager::initFEMTab(){
         connect(edtsFEM[i], SIGNAL(editingFinished()), this, SLOT(onFEMTabEdited()));
     }
 
-
     fillFEMTab();
 
 
@@ -824,7 +851,7 @@ void TabManager::initFEMTab(){
 
 void TabManager::fillFEMTab(){
 
-    QString filename = "FEM.dat";
+    QString filename = femFilename;// "FEM.dat";//QDir(dirname).filePath(femfilename);
     QFile file(filename);
     if(!file.open(QIODevice::ReadOnly)) {
         //QMessageBox::information(nullptr, "error", file.errorString());
@@ -865,9 +892,13 @@ void TabManager::fillFEMTab(){
 
     file.close();
 
+
     for (int i = 0; i < (edtsFEM.size()); i++) {
         edtsFEM[i]->setText(savedPars.at(i));
     }
+
+
+
     //edtsFEM[edtsFEM.size()-1]->setText(savedPars.at(edtsFEM.size()));
     GMPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
     openseesPathStr = FEMWidget->findChild<QLineEdit*>("openseesPath")->text();
@@ -912,6 +943,8 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
         qDebug() <<"Mat " << infos.at(MATERIAL-2).toString();
     }
     */
+
+
 
     fillMatTab(thisMatType, index);
 

@@ -39,7 +39,10 @@ public:
 
 	int   buildEffectiveStressModel2D(bool doAnalysis);
 	int   runEffectiveStressModel2D();
-	void  setOutputDir(std::string outDir) { theOutputDir = outDir; };
+    void  setOutputDir(std::string outDir) { theOutputDir = outDir; }
+    void setConfigFile(std::string configFile) { theConfigFile = configFile; }
+    void  setTclOutputDir(std::string outDir) { theTclOutputDir = outDir; }
+    void  setAnalysisDir(std::string anaDir) { theAnalysisDir = anaDir; }
 	int subStepAnalyze(double dT, int subStep, int success, int remStep, DirectIntegrationAnalysis* theTransientAnalysis);
 
 private:
@@ -49,6 +52,9 @@ private:
 	OutcropMotion*  theMotionZ;
 	std::string     theOutputDir;
 	std::string 	theModelType;
+    std::string 	theConfigFile;
+    std::string     theTclOutputDir;
+    std::string     theAnalysisDir;
 };
 
 

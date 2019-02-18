@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QMap>
-static const QString g_dbFileName = "data.dat";
+static const QString g_dbFileName = "database.dat";
 static const QString g_dbTableName = "soil";
 static const QString g_dbFEMTableName = "FEM";
 

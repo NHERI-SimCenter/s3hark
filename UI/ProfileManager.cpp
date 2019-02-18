@@ -17,9 +17,9 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     {
         // get file paths
         QFileInfo htmlInfo(pgaHtmlName);
-        QString dir = htmlInfo.path();
-        QString tmpPath = QDir(dir).filePath("pga-template.html");
-        QString newPath = QDir(dir).filePath("pga.html");
+        //QString dir = htmlInfo.path();
+        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/pga-template.html");
+        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/pga.html");
         QFile::copy(tmpPath, newPath);
     }
     pgaHtmlView->load(QUrl::fromLocalFile(QFileInfo(pgaHtmlName).absoluteFilePath()));
@@ -33,9 +33,9 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     {
         // get file paths
         QFileInfo htmlInfo(gammaHtmlName);
-        QString dir = htmlInfo.path();
-        QString tmpPath = QDir(dir).filePath("gamma-template.html");
-        QString newPath = QDir(dir).filePath("gamma.html");
+        //QString dir = htmlInfo.path();
+        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/gamma-template.html");
+        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/gamma.html");
         QFile::copy(tmpPath, newPath);
     }
     gammaHtmlView->load(QUrl::fromLocalFile(QFileInfo(gammaHtmlName).absoluteFilePath()));
@@ -48,9 +48,9 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     {
         // get file paths
         QFileInfo htmlInfo(dispHtmlName);
-        QString dir = htmlInfo.path();
-        QString tmpPath = QDir(dir).filePath("disp-template.html");
-        QString newPath = QDir(dir).filePath("disp.html");
+        //QString dir = htmlInfo.path();
+        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/disp-template.html");
+        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/disp.html");
         QFile::copy(tmpPath, newPath);
     }
     dispHtmlView->load(QUrl::fromLocalFile(QFileInfo(dispHtmlName).absoluteFilePath()));
@@ -63,9 +63,9 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     {
         // get file paths
         QFileInfo htmlInfo(dispHtmlName);
-        QString dir = htmlInfo.path();
-        QString tmpPath = QDir(dir).filePath("ru-template.html");
-        QString newPath = QDir(dir).filePath("ru.html");
+        //QString dir = htmlInfo.path();
+        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/ru-template.html");
+        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/ru.html");
         QFile::copy(tmpPath, newPath);
     }
     ruHtmlView->load(QUrl::fromLocalFile(QFileInfo(ruHtmlName).absoluteFilePath()));
@@ -117,9 +117,9 @@ void ProfileManager::updatePGAHtml()
 {
     // get file paths
     QFileInfo htmlInfo(pgaHtmlName);
-    QString dir = htmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("pga-template.html");
-    QString newPath = QDir(dir).filePath("pga.html");
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/pga-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/pga.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -159,9 +159,9 @@ void ProfileManager::updateGammaHtml()
 {
     // get file paths
     QFileInfo htmlInfo(gammaHtmlName);
-    QString dir = htmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("gamma-template.html");
-    QString newPath = QDir(dir).filePath("gamma.html");
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/gamma-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/gamma.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -203,9 +203,9 @@ void ProfileManager::updateDispHtml()
 {
     // get file paths
     QFileInfo htmlInfo(gammaHtmlName);
-    QString dir = htmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("disp-template.html");
-    QString newPath = QDir(dir).filePath("disp.html");
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/disp-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/disp.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -247,10 +247,11 @@ void ProfileManager::updateRuHtml()
 {
     // get file paths
     QFileInfo htmlInfo(gammaHtmlName);
-    QString dir = htmlInfo.path();
-    QString tmpPath = QDir(dir).filePath("ru-template.html");
-    QString newPath = QDir(dir).filePath("ru.html");
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/ru-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/ru.html");
     QFile::remove(newPath);
+
 
     // read template file into string
     QFile file(tmpPath);

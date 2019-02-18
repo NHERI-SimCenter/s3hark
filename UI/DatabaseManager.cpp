@@ -25,7 +25,7 @@ bool DatabaseManager::createConnect()
             else
             {
                 m_db = QSqlDatabase::addDatabase("QSQLITE", "READ");
-                m_db.setDatabaseName(g_dbFileName);
+                m_db.setDatabaseName(dbFilename);
             }
         };
         break;
@@ -36,7 +36,7 @@ bool DatabaseManager::createConnect()
             else
             {
                 m_db = QSqlDatabase::addDatabase("QSQLITE", "WRITE");
-                m_db.setDatabaseName(g_dbFileName);
+                m_db.setDatabaseName(dbFilename);
             }
         };
         break;

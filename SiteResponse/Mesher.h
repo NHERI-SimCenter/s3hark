@@ -90,6 +90,7 @@ private:
     int m_numNodes = 0;
     int m_numElements = 0;
     std::string m_outPutFile;
+    std::string m_configureFile;
 
 
 };

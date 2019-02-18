@@ -47,6 +47,8 @@ public:
 
 signals:
 
+public:
+    QString rootDir = qApp->applicationDirPath();// QDir::currentPath();
 public slots:
     void onTableViewClicked(const QModelIndex &index);
     void onTableViewUpdated(const QModelIndex&,const QModelIndex&);
@@ -100,11 +102,16 @@ private:
     QVector<QLineEdit*> edtsPM4SandFEM;
 
     QString thisMatType;
-    QString GMTabHtmlName = "resources/ui/GroundMotion/index.html";
-    QString accHtmlName = "resources/ui/GroundMotion/acc.html";
-    QString dispHtmlName = "resources/ui/GroundMotion/disp.html";
+    QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
+    QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
+    QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
+
+
     QString openseesPathStr;
     //QString rockmotionpathStr;
+    QString analysisName = "analysis";
+    QString analysisDir = QDir(rootDir).filePath(analysisName);
+    QString femFilename = QDir(analysisDir).filePath("configure.dat");
 
 
 

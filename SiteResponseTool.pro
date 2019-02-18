@@ -422,4 +422,15 @@ RESOURCES += \
 
 
 
+# Notes:
+# /usr/local/lib/libJPEG.dylib -> /usr/local/Cellar/jpeg/9c/lib/libjpeg.dylib
+# /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib
 
+# /usr/local/lib/libGIF.dylib -> /usr/local/Cellar/giflib/5.1.4_1/lib/libgif.dylib
+# /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib
+
+# /usr/local/lib/libTIFF.dylib -> /usr/local/Cellar/libtiff/4.0.9_4/lib/libtiff.dylib
+# /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib
+
+# /usr/local/lib/libPng.dylib -> /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib
+# /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib

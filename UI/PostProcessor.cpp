@@ -12,7 +12,8 @@ PostProcessor::PostProcessor(QTabWidget *tab,QWidget *parent) : QDialog(parent)
 
 int PostProcessor::getEleCount()
 {
-    QFile file("out_tcl/elementInfo.dat");
+//    /QFile file("out_tcl/elementInfo.dat");
+    QFile file(elementFileName);
     eleCount = 0;
     file.open(QIODevice::ReadOnly); //| QIODevice::Text)
     QTextStream in(&file);
@@ -40,7 +41,7 @@ void PostProcessor::calcDepths()
 {
 
 
-    QString nodesFileName = "out_tcl/nodesInfo.dat";
+    //QString nodesFileName = "out_tcl/nodesInfo.dat";
     QFile nodesFile(nodesFileName);
     QVector<double> depths;
     if(nodesFile.open(QIODevice::ReadOnly)) {
@@ -73,7 +74,7 @@ void PostProcessor::calcDepths()
         m_depths.append( depths[i] );
 
 
-    QFile saveFile(QStringLiteral("out_tcl/depths.dat"));
+    QFile saveFile(dephsFileName);
     if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qWarning("Couldn't open save file.");
     }
@@ -97,7 +98,7 @@ void PostProcessor::calcRuDepths()
 
 void PostProcessor::calcPGA()
 {
-    QString accFileName = "out_tcl/acceleration.out";
+    //QString accFileName = accFileName;
     QFile accFile(accFileName);
     QVector<double> pga;
     if(accFile.open(QIODevice::ReadOnly)) {
@@ -141,7 +142,7 @@ void PostProcessor::calcPGA()
 
 
 
-    QFile saveFile(QStringLiteral("out_tcl/pga.dat"));
+    QFile saveFile(pgaFileName);
     if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qWarning("Couldn't open save file.");
     }
@@ -161,7 +162,7 @@ void PostProcessor::calcPGA()
 
 void PostProcessor::calcGamma()
 {
-    QString FileName = "out_tcl/strain.out";
+    QString FileName = strainFileName;
     QFile File(FileName);
     QVector<double> v;
     if(File.open(QIODevice::ReadOnly)) {
@@ -205,7 +206,7 @@ void PostProcessor::calcGamma()
 
 
 
-    QFile saveFile(QStringLiteral("out_tcl/gammaMax.dat"));
+    QFile saveFile(gammaMaxFileName);
     if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qWarning("Couldn't open save file.");
     }
@@ -221,7 +222,7 @@ void PostProcessor::calcGamma()
 
 void PostProcessor::calcDisp()
 {
-    QString FileName = "out_tcl/displacement.out";
+    QString FileName = dispFileName;
     QFile File(FileName);
     QVector<double> v;
     QVector<double> v1;
@@ -271,7 +272,7 @@ void PostProcessor::calcDisp()
 
 
 
-    QFile saveFile(QStringLiteral("out_tcl/dispMax.dat"));
+    QFile saveFile(dispMaxFileName);
     if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qWarning("Couldn't open save file.");
     }
@@ -287,7 +288,7 @@ void PostProcessor::calcDisp()
 
 void PostProcessor::calcRu()
 {
-    QString FileName = "out_tcl/stress.out";
+    QString FileName = stressFileName;
     QFile File(FileName);
     QVector<double> v;
     QVector<double> v1;
@@ -340,7 +341,7 @@ void PostProcessor::calcRu()
 
 
 
-    QFile saveFile(QStringLiteral("out_tcl/ru.dat"));
+    QFile saveFile(ruFileName);
     if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qWarning("Couldn't open save file.");
     }
