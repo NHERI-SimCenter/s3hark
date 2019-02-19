@@ -135,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent) :
     elementModel->clear();
     elementModel->setWidth(mesher->eSizeH());
     elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
+    elementModel->setNodes(mesher->nodes);
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
     {
         int tag = mesher->elements[n-1]->tag();
@@ -144,7 +145,8 @@ MainWindow::MainWindow(QWidget *parent) :
         int l = mesher->elements[n-1]->l();
         double t = mesher->elements[n-1]->thickness();
         QString color = QString::fromStdString(mesher->elements[n-1]->color());
-        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+        bool isActive = false;
+        elementModel->addElement("quad",tag,i,j,k,l,t,color,isActive);
     }
     elementModel->refresh();
 
@@ -220,7 +222,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->meshBtn->setVisible(true);
 
     // add some connections
-    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked()) );
+    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
     connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
     connect(ui->tableView, SIGNAL(rowRemoved(int)), this, SLOT(on_rowRemoved(int)));
     //connect(ui->tableView, SIGNAL(pressed(const QModelIndex &)), ui->tableView, SLOT(on_activated(const QModelIndex &)));
@@ -235,7 +237,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // init the tab manager on the right-bottom
-    theTabManager = new TabManager(ui->tableView, this);
+    theTabManager = new TabManager(ui->tableView, elementModel ,this);
     theTabManager->init(ui->tabWidget);
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
@@ -339,10 +341,10 @@ void MainWindow::onTotalLayerEdited()
 
 
 
-void MainWindow::on_meshBtn_clicked()
+void MainWindow::on_meshBtn_clicked(bool checked)
 {
 
-    //Q_UNUSED(checked);
+    Q_UNUSED(checked);
     if (resultsTab->isVisible()){
         ui->meshBtn->setText(">");
 
@@ -720,6 +722,7 @@ void MainWindow::on_reBtn_clicked()
     mesher->mesh2DColumn();
     elementModel->clear();
     elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
+    elementModel->setNodes(mesher->nodes);
 
     //ElementModel* newElementModel = new ElementModel;
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
@@ -732,7 +735,8 @@ void MainWindow::on_reBtn_clicked()
         int l = mesher->elements[n-1]->l();
         double t = mesher->elements[n-1]->thickness();
         QString color = QString::fromStdString(mesher->elements[n-1]->color());
-        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+        bool isActive = false;
+        elementModel->addElement("quad",tag,i,j,k,l,t,color,isActive);
     }
     elementModel->refresh();
 

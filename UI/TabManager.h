@@ -15,6 +15,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFileInfo>
+#include <QWebChannel>
+#include "ElementModel.h"
 
 
 
@@ -23,7 +25,7 @@ class TabManager : public QDialog
     Q_OBJECT
 public:
     explicit TabManager(QWidget *parent = nullptr);
-    TabManager(BonzaTableView *tableView,QWidget *parent = nullptr);
+    TabManager(BonzaTableView *tableView,ElementModel *emodel,QWidget *parent = nullptr);
     void init(QTabWidget* theTab);
     void fillMatTab(QString ,const QModelIndex &index);
     void cleanForm(QVector<QLineEdit*> currentEdts);
@@ -71,6 +73,7 @@ private:
     QString currentMatType;
     BonzaTableView *tableView;
     BonzaTableModel *tableModel;
+    ElementModel* elementModel;
 
     QFile uiFilePM4Sand;
     QFile uiFileElasticIsotropic;
@@ -112,6 +115,8 @@ private:
     QString analysisName = "analysis";
     QString analysisDir = QDir(rootDir).filePath(analysisName);
     QString femFilename = QDir(analysisDir).filePath("configure.dat");
+
+
 
 
 

@@ -27,7 +27,7 @@ class BonzaTableView : public QTableView
 {
     Q_OBJECT
     //Q_PROPERTY(double m_nGWT READ getGWT WRITE setGWT NOTIFY gwtChanged)
-    Q_PROPERTY(double m_nGWT MEMBER m_nGWT NOTIFY gwtChanged)
+    Q_PROPERTY(double m_nGWT MEMBER m_nGWT READ getGWT NOTIFY gwtChanged)
 
 
 public:
@@ -71,7 +71,13 @@ public:
     }
 
 
+ Q_INVOKABLE   QString saysth(){
+        qDebug() << "invoked from js";
+        return "Hello";
+    }
+public:
     Q_INVOKABLE double getGWT();
+
 
     Q_INVOKABLE void setActive(int row)
     {

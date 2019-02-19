@@ -16,11 +16,12 @@ TabManager::TabManager(QWidget *parent) : QDialog(parent)
 
 }
 
-TabManager::TabManager(BonzaTableView *tableViewIn,QWidget *parent) : QDialog(parent)
+TabManager::TabManager(BonzaTableView *tableViewIn, ElementModel *emodel,QWidget *parent) : QDialog(parent),elementModel(emodel)
 {
     tableView = tableViewIn;
 
     tableModel = tableView->m_sqlModel;
+
 
     if(!QDir(analysisDir).exists())
         QDir().mkdir(analysisDir);
@@ -82,12 +83,22 @@ void TabManager::init(QTabWidget* theTab){
     tab->addTab(defaultWidget,"Layer properties");
 
 
-
+    // load ground motion view from html
     GMView = new QWebEngineView(this);
     //GMView->load(QUrl("file:////Users/simcenter/Codes/SimCenter/SiteResponseTool/resources/ui/GroundMotion/index.html"));
     QString GMTabHtmlName_true = QDir(rootDir).filePath(GMTabHtmlName);
-    GMView->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName_true).absoluteFilePath()));
+    //GMView->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName_true).absoluteFilePath()));
+    QWebChannel *pWebChannel   = new QWebChannel(GMView->page());
+    //TInteractObj *pInteractObj = new TInteractObj(this);
+    pWebChannel->registerObject(QStringLiteral("elementModel"), elementModel);
+    GMView->page()->setWebChannel(pWebChannel);
+    GMView->page()->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName_true).absoluteFilePath()));
+    //GMView->show();
+
     tab->addTab(GMView,"Ground motion");
+
+
+
 
 
 
@@ -300,7 +311,7 @@ void TabManager::onGMBtnClicked()
     qDebug() << "GM btn clicked. ";
     QString file_name = QFileDialog::getOpenFileName(this,"Choose Ground Motion File",".","*");
     FEMWidget->findChild<QLineEdit*>("GMPath")->setText(file_name);
-    writeGM();
+    //writeGM();
 
     onFEMTabEdited();
 
@@ -374,6 +385,8 @@ void TabManager::writeGM()
 
 void TabManager::onFEMTabEdited()
 {
+    writeGM();
+
     // writing FEM.dat
     QString filename = femFilename;//"FEM.dat";
     QFile file(filename);
@@ -426,11 +439,11 @@ void TabManager::reFreshGMTab()
     newfile.write(text.toUtf8());
     newfile.close();
 
-    GMView->reload();
-    //GMView->show();
-
     updateAccHtml();
     updateDispHtml();
+
+    GMView->reload();
+    //GMView->show();
 
 }
 

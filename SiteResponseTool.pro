@@ -4,7 +4,7 @@
 #                                                         #
 #---------------------------------------------------------#
 
-QT       += core gui sql quick qml webenginewidgets uitools
+QT       += core gui sql quick qml webenginewidgets uitools webengine webchannel
 
 CONFIG += c++11
 

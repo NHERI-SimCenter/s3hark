@@ -15,6 +15,9 @@
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <!-- Load qwebchannel.js -->
+    <script type="text/javascript" src="../../js/qwebchannel.js"></script>
     <style>
         body {
             text-align: center;
@@ -114,67 +117,55 @@
 
         //UPDATEPOINT
 
-        function updateChart(reader) {
-            if (reader.result) {
-                //$("#output").html(reader.result);
-                fileContent = reader.result.split("\n");
-                var x = ['x'];
-                var yrock = ['Rock motion'];
-                fileContent.forEach(function (element) {
-                    lineStr = element.split(" ");
-                    if (lineStr[0] != "") {
-                        x.push(lineStr[0]);
-                        yrock.push(lineStr[1]);
-                    } else {
+        function showResultAt(elementID) {
+            //window.alert("Activated id: " + elementID);
+  
+                chart.load({
+                    columns: [
+                        ['x', 1, 2, 3, 4, 5, 6],
+                        ['Demo motion 3', 1, 100, 290, 70, 10, 260]
+                    ]
+                });
+                chart.unload({
+                    ids: 'Rock motion'
+                });
+ 
+        }
 
-                    }
+        function output(message) {
+            var output = document.getElementById("output");
+            output.innerHTML = output.innerHTML + message + "<br>";
+        }
+        function modifyAnswerToLife(newAnswer) {
+            document.getElementById("currentAnswer").innerHTML = "Current answer to life: " + newAnswer;
+        }
+        window.onload = function () {
+
+            new QWebChannel(qt.webChannelTransport, function (channel) {
+                // all published objects are available in channel.objects under
+                // the identifier set in their attached WebChannel.id property
+                //var sage = channel.objects.wiseMan;
+
+                // access a property
+                //modifyAnswerToLife(sage.answerToLife);
+
+                // connect to a signal
+                //sage.answerToLifeChanged.connect(function(message) {
+                //    output("Got signal: " + message);
+                //    modifyAnswerToLife(message);
+                //});
+                window.elementModel = channel.objects.elementModel;
+                var gwt = elementModel.activeID;
+
+                elementModel.activeIDChanged.connect(function (activeID) {
+                    //output("Activated id: " + activeID);
+                    //showResultAt(activeID);
 
                 });
-                setTimeout(function () {
-                    chart.load({
-                        columns: [
-                            x,
-                            yrock
-                        ]
-                    });
-                    chart.unload({
-                        ids: 'Demo motion 1'
-                    });
-                    chart.unload({
-                        ids: 'Demo motion 2'
-                    });
-                }, 500);
 
-            }
+                //output("Connected to WebChannel, ready to send/receive messages!");
+            });
         }
-
-        function getObjectURL(file) {
-            var url = null;
-            if (window.createObjcectURL != undefined) {
-                url = window.createOjcectURL(file);
-            } else if (window.URL != undefined) {
-                url = window.URL.createObjectURL(file);
-            } else if (window.webkitURL != undefined) {
-                url = window.webkitURL.createObjectURL(file);
-            }
-            return url;
-        }
-
-
-        var openFile = function (event) {
-            var input = event.target;
-            var reader = new FileReader();
-            reader.onload = function () {
-                if (reader.result) {
-                    updateChart(reader);
-                    //console.log(reader.result);
-                    //$("#output").html(reader.result);
-                }
-            };
-            reader.readAsText(input.files[0]);
-
-
-        };
 
 
 
@@ -188,8 +179,15 @@
     <div class="box">
 
         <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='index.html';" value="Vel" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='index.html';"
+            value="Vel" />
         <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
+
+        <div>
+            <!--<p>Here lie the answers:</p>-->
+            <!--<p id="currentAnswer">Current answer to life: ?</p>-->
+            <div id="output"></div>
+        </div>
 
     </div>
 </body>

@@ -49,7 +49,7 @@ private slots:
 
     void on_delRowBtn_clicked();
     void on_addRowBtn_clicked();
-    void on_meshBtn_clicked();
+    void on_meshBtn_clicked(bool checked);
 
 
 
