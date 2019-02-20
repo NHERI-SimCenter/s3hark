@@ -53,14 +53,44 @@ Rectangle {
                 border.width: active ? 2 : 0.5
                 property bool active2: active
 
-                /*Rectangle {
-                    x: soilWidth + 5
+                Rectangle {
+                    x: soilWidth + 10
                     y: -5
                     width: 10
                     height: 10
-                    color: active ? "blue" : transparent
+                    color: white
                     radius: 10 / 2
-                }*/
+                }
+
+
+
+                property real startXGWT: (width - soilWidth) / 2
+                property real startYGWT: 0.0//(theGWT + 0.15 * elements.getTotalHeight(
+                Shape {
+
+                    // water table
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: active ? "blue" : "white"
+                        strokeStyle: ShapePath.SolidLine
+                        dashPattern: [1, 2]
+
+                        startX: soilWidth+1 + 5
+                        startY: -5
+                        PathLine {
+                            x: soilWidth+1
+                            y: 0
+                        }
+                        PathLine {
+                            x: soilWidth+1 +5
+                            y: 5
+                        }
+
+
+                    }
+                }
+
+
 
                 //Text { text: tag + " " + h + " " + totalHeight + " " + hFactor }
                 MouseArea {
@@ -76,28 +106,6 @@ Rectangle {
             }
         }
 
-        //property real parentHeight: parent.height
-        //property real theGWT: elements.getCurrentHeight()
-        property real startXGWT: (width - soilWidth) / 2
-        property real startYGWT: 0.0//(theGWT + 0.15 * elements.getTotalHeight(
 
-        Shape {
-
-            // water table
-            ShapePath {
-                strokeWidth: 2
-                strokeColor: "green"
-                strokeStyle: ShapePath.SolidLine
-                dashPattern: [1, 2]
-
-                startX: startXGWT
-                startY: startYGWT
-                PathLine {
-                    x: p1X
-                    y: p1Y
-                }
-
-            }
-        }
     }
 }

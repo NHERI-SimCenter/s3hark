@@ -833,7 +833,7 @@ QString TabManager::loadNodeResponse(QString motion)
         eleID -= 1;
         //stream << "n1 = ['Node 1'";
         //stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
-        stream << "n"+QString::number(eleID)+" = ['Selected Node '";
+        stream << "n"+QString::number(eleID)+" = ['Node marked by <'";
         for (int i=0; i<v[j].size(); i++)
             stream << ", "<<v[j][i];
         stream <<"];" <<endl;
