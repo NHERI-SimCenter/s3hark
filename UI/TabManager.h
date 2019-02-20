@@ -17,6 +17,8 @@
 #include <QFileInfo>
 #include <QWebChannel>
 #include "ElementModel.h"
+#include "PostProcessor.h"
+
 
 
 
@@ -38,6 +40,7 @@ public:
     bool writeSurfaceMotion();
     QString loadGMtoString();
     QString loadMotions2String(QString);
+    QString loadNodeResponse(QString);
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
@@ -46,8 +49,11 @@ public:
     void updateAccHtml();
     void reFreshGMView(){GMView->show();}
     void setPM4SandToolTps();
+    void updatePostProcessor(PostProcessor *postProcessort);
+    void setGMViewLoaded(){GMViewLoaded = true;}
 
 signals:
+
 
 public:
     QString rootDir = qApp->applicationDirPath();// QDir::currentPath();
@@ -64,6 +70,9 @@ public slots:
     void onOpenseesTextChanged(const QString&);
     void onGMTextChanged(const QString&);
     void onSecondaryBtnClicked(bool);
+    void onElementDataChanged(QModelIndex,QModelIndex);
+    void onTabBarClicked(int);
+    void onGMLoadFinished(bool);
 
 
 private:
@@ -74,6 +83,7 @@ private:
     BonzaTableView *tableView;
     BonzaTableModel *tableModel;
     ElementModel* elementModel;
+    PostProcessor *postProcessor;
 
     QFile uiFilePM4Sand;
     QFile uiFileElasticIsotropic;
@@ -115,6 +125,8 @@ private:
     QString analysisName = "analysis";
     QString analysisDir = QDir(rootDir).filePath(analysisName);
     QString femFilename = QDir(analysisDir).filePath("configure.dat");
+
+    bool GMViewLoaded = false;
 
 
 

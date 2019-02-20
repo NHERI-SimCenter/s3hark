@@ -4,17 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
-    <title>chrome easter egg: t-rex runner</title>
+    <title>Motions</title>
 
     <!-- Load c3.css -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.css" rel="stylesheet">
+    <link href="../../styles/c3.css" rel="stylesheet">
 
     <!-- Load d3.js and c3.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js" charset="utf-8"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.11/c3.min.js"></script>
+    <script src="../../js/d3.v5.min.js" charset="utf-8"></script>
+    <script src="../../js/c3.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="../../js/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
 
     <!-- Load qwebchannel.js -->
     <script type="text/javascript" src="../../js/qwebchannel.js"></script>
@@ -117,19 +117,33 @@
 
         //UPDATEPOINT
 
+        
         function showResultAt(elementID) {
-            //window.alert("Activated id: " + elementID);
-  
-                chart.load({
-                    columns: [
-                        ['x', 1, 2, 3, 4, 5, 6],
-                        ['Demo motion 3', 1, 100, 290, 70, 10, 260]
-                    ]
-                });
-                chart.unload({
-                    ids: 'Rock motion'
-                });
- 
+            var queue = [
+                function () {
+                    chart.unload();
+                },
+                function () {
+                    chart.load({
+                        columns: [
+                            xnew,
+                            ynew
+                        ]
+                    });
+                },
+                function () {
+                    chart.load({
+                        columns: [
+                            time,
+                            eval("n" + elementID.toString())
+                        ]
+                    });
+                },
+            ];
+            var i = 0;
+            queue.forEach(function (f) {
+                setTimeout(f, 500 * i++);
+            });
         }
 
         function output(message) {
@@ -142,28 +156,15 @@
         window.onload = function () {
 
             new QWebChannel(qt.webChannelTransport, function (channel) {
-                // all published objects are available in channel.objects under
-                // the identifier set in their attached WebChannel.id property
-                //var sage = channel.objects.wiseMan;
-
-                // access a property
-                //modifyAnswerToLife(sage.answerToLife);
-
-                // connect to a signal
-                //sage.answerToLifeChanged.connect(function(message) {
-                //    output("Got signal: " + message);
-                //    modifyAnswerToLife(message);
-                //});
+                
                 window.elementModel = channel.objects.elementModel;
                 var gwt = elementModel.activeID;
 
-                elementModel.activeIDChanged.connect(function (activeID) {
-                    //output("Activated id: " + activeID);
-                    //showResultAt(activeID);
-
+                elementModel.activeIDChanged.connect(function (activeID) {                 
+                    showResultAt(activeID);
                 });
 
-                //output("Connected to WebChannel, ready to send/receive messages!");
+               
             });
         }
 
@@ -184,8 +185,6 @@
         <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
 
         <div>
-            <!--<p>Here lie the answers:</p>-->
-            <!--<p id="currentAnswer">Current answer to life: ?</p>-->
             <div id="output"></div>
         </div>
 

@@ -32,6 +32,16 @@ public:
     QVector<double> getDisp(){return m_disp;}
     QVector<double> getRu(){return m_ru;}
 
+    QString getElementFileName(){return elementFileName;}
+    QString getNodesFileName(){return nodesFileName;}
+    QString getDephsFileName(){return dephsFileName;}
+    QString getAccFileName(){return accFileName;}
+    QString getDispFileName(){return dispFileName;}
+    QString getVelFileName(){return velFileName;}
+    QString getStrainFileName(){return strainFileName;}
+    QString getStressFileName(){return stressFileName;}
+
+
 signals:
     void updateFinished();
 private:
@@ -50,6 +60,7 @@ private:
     QString dephsFileName = QDir(m_outputDir).filePath("depths.dat");
     QString accFileName = QDir(m_outputDir).filePath("acceleration.out");
     QString dispFileName = QDir(m_outputDir).filePath("displacement.out");
+    QString velFileName = QDir(m_outputDir).filePath("velocity.out");
     QString strainFileName = QDir(m_outputDir).filePath("strain.out");
     QString stressFileName = QDir(m_outputDir).filePath("stress.out");
 

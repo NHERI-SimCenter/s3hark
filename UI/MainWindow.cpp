@@ -238,6 +238,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // init the tab manager on the right-bottom
     theTabManager = new TabManager(ui->tableView, elementModel ,this);
+    theTabManager->updatePostProcessor(postProcessor);
     theTabManager->init(ui->tabWidget);
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
@@ -795,6 +796,7 @@ void MainWindow::onOpenSeesFinished()
             qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
+            theTabManager->setGMViewLoaded();
             theTabManager->reFreshGMTab();
             theTabManager->reFreshGMView();
 
@@ -802,6 +804,7 @@ void MainWindow::onOpenSeesFinished()
 
             postProcessor = new PostProcessor(outputDir);
             profiler->updatePostProcessor(postProcessor);
+            theTabManager->updatePostProcessor(postProcessor);
             connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
             postProcessor->update();
 

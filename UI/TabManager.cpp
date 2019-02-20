@@ -49,10 +49,34 @@ TabManager::TabManager(BonzaTableView *tableViewIn, ElementModel *emodel,QWidget
     newfilex.close();
     */
 
-
 }
 
+void TabManager::onTabBarClicked(int tabinx)
+{
 
+    if(tabinx==2 && !GMViewLoaded)
+    {
+        GMView->reload();
+        GMViewLoaded = true;
+    }
+    //emit onTabBarClickedFinished();
+
+    //elementModel->reSetActive();
+
+    //emit GMView->loadFinished(true);
+
+}
+void TabManager::onGMLoadFinished(bool ok)
+{
+    //elementModel->reSetActive();
+}
+
+void TabManager::onElementDataChanged(QModelIndex,QModelIndex)
+{
+    //tab->setCurrentIndex(2);
+    //GMView->reload();
+    //emit elementModel->activeIDChanged(1);
+}
 
 void TabManager::init(QTabWidget* theTab){
     this->tab = theTab;
@@ -94,6 +118,8 @@ void TabManager::init(QTabWidget* theTab){
     GMView->page()->setWebChannel(pWebChannel);
     GMView->page()->load(QUrl::fromLocalFile(QFileInfo(GMTabHtmlName_true).absoluteFilePath()));
     //GMView->show();
+
+    //GMView->reload();
 
     tab->addTab(GMView,"Ground motion");
 
@@ -196,6 +222,10 @@ void TabManager::init(QTabWidget* theTab){
 
 
     reFreshGMTab();
+
+    //connect(elementModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onElementDataChanged(QModelIndex,QModelIndex)));
+    connect(tab,SIGNAL(tabBarClicked(int)), this, SLOT(onTabBarClicked(int)));
+    connect(GMView,SIGNAL(loadFinished(bool)), this, SLOT(onGMLoadFinished(bool)));
 
 
 }
@@ -580,6 +610,9 @@ QString TabManager::loadGMtoString()
         stream << ", "<<ydSurfaceVel.at(i).toDouble();
     stream <<"];" <<endl;
 
+    QString nodeResponseStr = loadNodeResponse("vel");
+    stream << nodeResponseStr;
+
     writeSurfaceMotion();
 
 
@@ -587,6 +620,7 @@ QString TabManager::loadGMtoString()
 
     //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
     //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    //stream << "       chart.unload();"<<endl;
     stream << "       setTimeout(function () {"<<endl;
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
@@ -651,6 +685,13 @@ QString TabManager::loadMotions2String(QString motion)
         stream << ", "<<ydBaseVel.at(i);
     stream <<"];" <<endl;
 
+
+
+    QString nodeResponseStr = loadNodeResponse(motion);
+    stream << nodeResponseStr;
+
+
+
     /*
      * Get surface motion from file
      */
@@ -694,6 +735,7 @@ QString TabManager::loadMotions2String(QString motion)
 
     //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
     //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    stream << "       chart.unload();"<<endl;
     stream << "       setTimeout(function () {"<<endl;
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
@@ -715,8 +757,93 @@ QString TabManager::loadMotions2String(QString motion)
     stream <<"       chart.unload({"<<endl;
     stream <<"           ids: 'Demo motion 2'"<<endl;
     stream <<"       });"<<endl;
-    stream <<"       }, 0);"<<endl;
+    stream <<"       }, 500);"<<endl;
     return text;
+
+}
+
+void TabManager::updatePostProcessor(PostProcessor *postProcessort)
+{
+    postProcessor = postProcessort;
+}
+
+QString TabManager::loadNodeResponse(QString motion)
+{
+    QString motionFileName;
+    if(motion=="acc")
+            motionFileName = postProcessor->getAccFileName();
+    else if (motion=="vel")
+        motionFileName = postProcessor->getVelFileName();
+    else if (motion=="disp")
+        motionFileName = postProcessor->getDispFileName();
+    else
+        qWarning("motion must be acc, vel or disp!");
+
+    QFile File(motionFileName);
+
+    QVector<QVector<double>> v;
+    if(File.open(QIODevice::ReadOnly)) {
+        QTextStream in(&File);
+        int lineCount = 0;
+        int numCols = 0;
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            thisLine.removeAll("");
+            int sizeThisLine = thisLine.size();
+            lineCount += 1;
+            if (lineCount==1)
+                numCols = sizeThisLine;
+            if (sizeThisLine != numCols && lineCount>1)
+            {
+                lineCount -= 1;
+                break;
+            }
+            else
+            {
+                //thisLine.removeAll("");
+                for (int i=0; i<thisLine.size();i++)// TODO: 3D?
+                {
+                    if (lineCount==1)
+                    {
+                        QVector<double> tmpV;
+                        v.append(tmpV);
+                    }
+                    v[i].append((thisLine[i].trimmed().toDouble()));
+                }
+            }
+        }
+        File.close();
+    }
+
+    QString text;
+    QTextStream stream(&text);
+
+    if(v.size()>0)
+    {
+    stream << "time = ['x'";
+    for (int i=0; i<v[0].size(); i++)
+        stream << ", "<<v[0][i];
+    stream <<"];" <<endl;
+
+
+    int eleID = 3;
+    for (int j=7;j<v.size();j+=4)
+    {
+        eleID -= 1;
+        //stream << "n1 = ['Node 1'";
+        //stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+        stream << "n"+QString::number(eleID)+" = ['Selected Node '";
+        for (int i=0; i<v[j].size(); i++)
+            stream << ", "<<v[j][i];
+        stream <<"];" <<endl;
+    }
+    }
+
+
+    return text;
+
+
 
 }
 

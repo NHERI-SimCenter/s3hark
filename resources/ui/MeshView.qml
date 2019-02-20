@@ -49,7 +49,7 @@ Rectangle {
                 height: h * hFactor
                 width: soilWidth
                 color: mcolor
-                border.color: active ? "red" : "green"
+                border.color: active ? "red" : "black"
                 border.width: active ? 2 : 0.5
                 property bool active2: active
 

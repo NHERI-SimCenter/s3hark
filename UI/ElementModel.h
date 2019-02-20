@@ -51,10 +51,9 @@ public:
             mRecords[i][activeRole] = false;
         mRecords[row][activeRole] = true;
         emit dataChanged(index(0,activeRole),index(mRecords.size()-1,activeRole));
-        emit activeIDChanged(row);
-
-
+        emit activeIDChanged(row); //this is emitted from tabmanager
     }
+
 
 signals:
     void activeIDChanged(int actID);
@@ -69,6 +68,10 @@ public slots:
             hpos += mRecords[i][hRole].toDouble();
         return hpos;}
     int getActiveID() {return activeID;}
+    void reSetActive()
+    {
+       setActive(getActiveID());
+    }
 private:
     QHash<int,QByteArray> mRoleNames;
     QList<QHash<int,QVariant>> mRecords;
