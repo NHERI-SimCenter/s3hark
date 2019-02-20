@@ -11,6 +11,7 @@ ElementModel::ElementModel(QObject *parent)
     mRoleNames[lRole] = "l";
     mRoleNames[hRole] = "h";
     mRoleNames[mcolorRole] = "mcolor";
+    mRoleNames[activeRole] = "active";
 }
 
 
@@ -59,7 +60,7 @@ QVariant ElementModel::data(const QModelIndex &index, int role) const
 
 
 
-void ElementModel::addElement(QString type, int tag, int i, int j, int k, int l, double h, QString color)
+void ElementModel::addElement(QString type, int tag, int i, int j, int k, int l, double h, QString color, bool active)
 {
 
     QHash<int,QVariant> row;
@@ -71,6 +72,7 @@ void ElementModel::addElement(QString type, int tag, int i, int j, int k, int l,
     row[lRole] = QString::number(l);
     row[hRole] = QString::number(h);
     row[mcolorRole] = color;
+    row[activeRole] = active;
     mRecords.append(row);
 
 

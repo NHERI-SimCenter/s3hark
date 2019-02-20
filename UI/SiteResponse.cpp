@@ -21,7 +21,11 @@ OPS_Stream *opserrPtr = &ferr;
 OPS_Stream *opsoutPtr = &sserr;
 
 
-SiteResponse::SiteResponse()
+SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::string outDir) :
+    m_configureFile(configureFile),
+    m_analysisDir(anaDir),
+    m_outputDir(outDir)
+
 {
 
     //./siteresponse ../test/siteLayering.loc -bbp ../test/9130326.nwhp.vel.bbp out thisLog
@@ -54,11 +58,14 @@ SiteResponse::SiteResponse()
     else {
         std::string bbpLName = "Log";
         //std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
-        std::string motionXFN("Rock");
+        std::string motionXFN(anaDir+"/Rock");//TODO: may not work on windows
         motionX.setMotion(motionXFN.c_str());
         bbpOName = "out";
         model = new SiteResponseModel("2D", &motionX);
         model->setOutputDir(bbpOName);
+        model->setAnalysisDir(anaDir);
+        model->setTclOutputDir(outDir);
+        model->setConfigFile(configureFile);
 
     }
 

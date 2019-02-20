@@ -8,7 +8,7 @@ Mesher::Mesher()
 }
 
 Mesher::Mesher(std::string jsonFile):
-m_outPutFile(jsonFile)
+m_configureFile(jsonFile)
 {
 
 }
@@ -19,8 +19,8 @@ bool Mesher::mesh2DColumn(){
     elements.clear();
 
     //std::string configFile = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/SRT.json";
-    std::string configFile = "SRT.json";
-    std::ifstream i(configFile);
+    //std::string configFile = "SRT.json";
+    std::ifstream i(m_configureFile);
     if(!i)
         return false;// failed to open SRT.json TODO: print to log
 

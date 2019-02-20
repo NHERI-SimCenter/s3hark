@@ -7,6 +7,7 @@
 #include <QWebEngineView>
 #include <QFileInfo>
 #include <QDir>
+#include <QApplication>
 #include "PostProcessor.h"
 
 class ProfileManager : public QDialog
@@ -25,7 +26,8 @@ public:
 public slots:
     void onPostProcessorUpdated();
     void onTabBarClicked(int);
-
+public:
+    QString rootDir = qApp->applicationDirPath();
 private:
     QTabWidget *m_tab;
     QWebEngineView *pgaHtmlView;
@@ -33,10 +35,10 @@ private:
     QWebEngineView *dispHtmlView;
     QWebEngineView *ruHtmlView;
     PostProcessor *postProcessor;
-    QString pgaHtmlName = "resources/ui/Profile/pga.html";
-    QString gammaHtmlName = "resources/ui/Profile/gamma.html";
-    QString dispHtmlName = "resources/ui/Profile/disp.html";
-    QString ruHtmlName = "resources/ui/Profile/ru.html";
+    QString pgaHtmlName = QDir(rootDir).filePath("resources/ui/Profile/pga.html");
+    QString gammaHtmlName = QDir(rootDir).filePath("resources/ui/Profile/gamma.html");
+    QString dispHtmlName = QDir(rootDir).filePath("resources/ui/Profile/disp.html");
+    QString ruHtmlName = QDir(rootDir).filePath("resources/ui/Profile/ru.html");
 };
 
 #endif // PROFILEMANAGER_H

@@ -15,6 +15,10 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFileInfo>
+#include <QWebChannel>
+#include "ElementModel.h"
+#include "PostProcessor.h"
+
 
 
 
@@ -23,7 +27,7 @@ class TabManager : public QDialog
     Q_OBJECT
 public:
     explicit TabManager(QWidget *parent = nullptr);
-    TabManager(BonzaTableView *tableView,QWidget *parent = nullptr);
+    TabManager(BonzaTableView *tableView,ElementModel *emodel,QWidget *parent = nullptr);
     void init(QTabWidget* theTab);
     void fillMatTab(QString ,const QModelIndex &index);
     void cleanForm(QVector<QLineEdit*> currentEdts);
@@ -36,6 +40,7 @@ public:
     bool writeSurfaceMotion();
     QString loadGMtoString();
     QString loadMotions2String(QString);
+    QString loadNodeResponse(QString);
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
@@ -44,9 +49,14 @@ public:
     void updateAccHtml();
     void reFreshGMView(){GMView->show();}
     void setPM4SandToolTps();
+    void updatePostProcessor(PostProcessor *postProcessort);
+    void setGMViewLoaded(){GMViewLoaded = true;}
 
 signals:
 
+
+public:
+    QString rootDir = qApp->applicationDirPath();// QDir::currentPath();
 public slots:
     void onTableViewClicked(const QModelIndex &index);
     void onTableViewUpdated(const QModelIndex&,const QModelIndex&);
@@ -60,6 +70,9 @@ public slots:
     void onOpenseesTextChanged(const QString&);
     void onGMTextChanged(const QString&);
     void onSecondaryBtnClicked(bool);
+    void onElementDataChanged(QModelIndex,QModelIndex);
+    void onTabBarClicked(int);
+    void onGMLoadFinished(bool);
 
 
 private:
@@ -69,6 +82,8 @@ private:
     QString currentMatType;
     BonzaTableView *tableView;
     BonzaTableModel *tableModel;
+    ElementModel* elementModel;
+    PostProcessor *postProcessor;
 
     QFile uiFilePM4Sand;
     QFile uiFileElasticIsotropic;
@@ -100,11 +115,20 @@ private:
     QVector<QLineEdit*> edtsPM4SandFEM;
 
     QString thisMatType;
-    QString GMTabHtmlName = "resources/ui/GroundMotion/index.html";
-    QString accHtmlName = "resources/ui/GroundMotion/acc.html";
-    QString dispHtmlName = "resources/ui/GroundMotion/disp.html";
+    QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
+    QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
+    QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
+
+
     QString openseesPathStr;
     //QString rockmotionpathStr;
+    QString analysisName = "analysis";
+    QString analysisDir = QDir(rootDir).filePath(analysisName);
+    QString femFilename = QDir(analysisDir).filePath("configure.dat");
+
+    bool GMViewLoaded = false;
+
+
 
 
 

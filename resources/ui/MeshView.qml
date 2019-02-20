@@ -1,4 +1,7 @@
 import QtQuick 2.0
+import QtQml.Models 2.2
+
+import QtQuick.Shapes 1.0
 
 Rectangle {
     anchors.centerIn: parent
@@ -46,19 +49,63 @@ Rectangle {
                 height: h * hFactor
                 width: soilWidth
                 color: mcolor
-                border.color: "green"
-                border.width: 0.5
+                border.color: active ? "red" : "black"
+                border.width: active ? 2 : 0.5
+                property bool active2: active
+
+                Rectangle {
+                    x: soilWidth + 10
+                    y: -5
+                    width: 10
+                    height: 10
+                    color: white
+                    radius: 10 / 2
+                }
+
+
+
+                property real startXGWT: (width - soilWidth) / 2
+                property real startYGWT: 0.0//(theGWT + 0.15 * elements.getTotalHeight(
+                Shape {
+
+                    // water table
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: active ? "blue" : "white"
+                        strokeStyle: ShapePath.SolidLine
+                        dashPattern: [1, 2]
+
+                        startX: soilWidth+1 + 5
+                        startY: -5
+                        PathLine {
+                            x: soilWidth+1
+                            y: 0
+                        }
+                        PathLine {
+                            x: soilWidth+1 +5
+                            y: 5
+                        }
+
+
+                    }
+                }
+
+
 
                 //Text { text: tag + " " + h + " " + totalHeight + " " + hFactor }
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
+                        elements.setActive(index)
                         //soilModel.setActive(index) ;
+                        //parent.border.color = "red"
                         console.log(elements.getTotalHeight())
                     }
                     enabled: true
                 }
             }
         }
+
+
     }
 }

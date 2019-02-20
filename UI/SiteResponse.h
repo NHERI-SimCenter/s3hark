@@ -11,7 +11,7 @@
 class SiteResponse {
 
 public:
-	SiteResponse();
+    SiteResponse(std::string configureFile,std::string anaDir,std::string outDir);
 	~SiteResponse();
 
     void run();
@@ -24,6 +24,9 @@ private:
     // read the motion
     OutcropMotion motionX;
     OutcropMotion motionZ;
+    std::string m_configureFile;
+    std::string m_analysisDir;
+    std::string m_outputDir;
 
 
 

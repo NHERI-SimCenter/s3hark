@@ -41,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
+    // create analysis dir
+    if(!QDir(analysisDir).exists())
+        QDir().mkdir(analysisDir);
+
     // random seed
     unsigned uintTime = static_cast<unsigned>(QTime::currentTime().msec());
     qsrand(uintTime);
@@ -120,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //--------------------------------------------------------------------------------//
 
     // init a 2D mesher
-    mesher = new Mesher();
+    mesher = new Mesher(srtFileName.toStdString());
     mesher->mesh2DColumn();
 
 
@@ -131,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent) :
     elementModel->clear();
     elementModel->setWidth(mesher->eSizeH());
     elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
+    elementModel->setNodes(mesher->nodes);
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
     {
         int tag = mesher->elements[n-1]->tag();
@@ -140,7 +145,8 @@ MainWindow::MainWindow(QWidget *parent) :
         int l = mesher->elements[n-1]->l();
         double t = mesher->elements[n-1]->thickness();
         QString color = QString::fromStdString(mesher->elements[n-1]->color());
-        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+        bool isActive = false;
+        elementModel->addElement("quad",tag,i,j,k,l,t,color,isActive);
     }
     elementModel->refresh();
 
@@ -165,8 +171,10 @@ MainWindow::MainWindow(QWidget *parent) :
     resultsTab->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     resultsTab->addTab(meshContainer,"Mesh");
 
-
-    profiler = new ProfileManager(resultsTab, postProcessor ,this);
+    postProcessor = new PostProcessor(outputDir);
+    profiler = new ProfileManager(resultsTab, postProcessor ,this);   
+    //connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
+    //postProcessor->update();
 
 
     // add the profile tab into the ui's layout
@@ -228,15 +236,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-
-
-
-
-
-
-
     // init the tab manager on the right-bottom
-    theTabManager = new TabManager(ui->tableView, this);
+    theTabManager = new TabManager(ui->tableView, elementModel ,this);
+    theTabManager->updatePostProcessor(postProcessor);
     theTabManager->init(ui->tabWidget);
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
@@ -245,7 +247,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // init the dino view
     dinoView = new QWebEngineView(this);
-    dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
+
+    dinoView->load(QUrl::fromLocalFile(dinoHtmlName));
     dinoView->setVisible(false);
     //dinoView->setMinimumSize(layerTableWidth,300);
     //dinoView->setMaximumSize(1e5,1e5);
@@ -282,11 +285,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // init the opensess process
     openseesProcess = new QProcess(this);
+    openseesProcess->setWorkingDirectory(analysisDir);
     //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
     connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
 
-    if(!QDir("out_tcl").exists())
-        QDir().mkdir("out_tcl");
+    if(!QDir(outputDir).exists())
+        QDir().mkdir(outputDir);
 
 
 
@@ -703,7 +707,7 @@ void MainWindow::on_reBtn_clicked()
     root["materials"]=materials;
 
     // write prettified JSON to another file
-    QString file_name = "SRT.json";
+    QString file_name = srtFileName;//"SRT.json";
     //QString file_name = QFileDialog::getSaveFileName(this, tr("Choose Path for saving the analysis"), "", tr("Config Files (*.json)"));
 
     if (!file_name.isNull())
@@ -719,6 +723,7 @@ void MainWindow::on_reBtn_clicked()
     mesher->mesh2DColumn();
     elementModel->clear();
     elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
+    elementModel->setNodes(mesher->nodes);
 
     //ElementModel* newElementModel = new ElementModel;
     for(std::vector<int>::size_type n = mesher->elements.size(); n > 0; n--)
@@ -731,7 +736,8 @@ void MainWindow::on_reBtn_clicked()
         int l = mesher->elements[n-1]->l();
         double t = mesher->elements[n-1]->thickness();
         QString color = QString::fromStdString(mesher->elements[n-1]->color());
-        elementModel->addElement("quad",tag,i,j,k,l,t,color);
+        bool isActive = false;
+        elementModel->addElement("quad",tag,i,j,k,l,t,color,isActive);
     }
     elementModel->refresh();
 
@@ -755,19 +761,20 @@ void MainWindow::on_runBtn_clicked()
             QMessageBox::information(this,tr("Path error"), "You need to specify OpenSees' path and rock motion file's path in the configure tab.", tr("OK."));
         }else{
             // build tcl file
-            SiteResponse *srt = new SiteResponse();
+            SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
+                                                 analysisDir.toStdString(),outputDir.toStdString());
             //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
             srt->run();
 
-            if(!QDir("out_tcl").exists())
-                QDir().mkdir("out_tcl");
+            if(!QDir(outputDir).exists())
+                QDir().mkdir(outputDir);
 
             /*
             * Calling Opensee to do the work
             */
             //"/Users/simcenter/Codes/OpenSees/bin/opensees"
             //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
-            openseesProcess->start(openseespath,QStringList()<<"model.tcl");
+            openseesProcess->start(openseespath,QStringList()<<tclName);
             openseesErrCount = 1;
             emit runBtnClicked(dinoView);
         }
@@ -789,13 +796,15 @@ void MainWindow::onOpenSeesFinished()
             qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
             theTabManager->getTab()->setCurrentIndex(2);
+            theTabManager->setGMViewLoaded();
             theTabManager->reFreshGMTab();
             theTabManager->reFreshGMView();
 
             resultsTab->setCurrentIndex(1);
 
-            postProcessor = new PostProcessor();
+            postProcessor = new PostProcessor(outputDir);
             profiler->updatePostProcessor(postProcessor);
+            theTabManager->updatePostProcessor(postProcessor);
             connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
             postProcessor->update();
 
