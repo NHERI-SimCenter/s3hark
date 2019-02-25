@@ -31,10 +31,11 @@ INCLUDEPATH += FEM \
 
 unix: {
 # You need to modify this section if your blas and lapack is in a different place
-LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
-        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
-        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
-        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
+#LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
+#        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
+#        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
+#        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
+LIBS += -llapack -lblas
 }
 win32: {
 # You must append your lapack libs if it is not in a standard place.
@@ -45,6 +46,7 @@ LIBS += -L"$$_PRO_FILE_PWD_/lib"
 
 SOURCES += main.cpp\
         UI/MainWindow.cpp \
+        UI/RockOutcrop.cpp \
     UI/DatabaseManager.cpp \
     UI/BonzaTableView.cpp \
     UI/InsertWindow.cpp \
@@ -219,6 +221,7 @@ SOURCES += main.cpp\
     UI/PostProcessor.cpp
 
 HEADERS  += UI/MainWindow.h \
+    UI/RockOutcrop.h \
     UI/DatabaseManager.h \
     GlobalConstances.h \
     UI/BonzaTableView.h \
@@ -409,6 +412,7 @@ HEADERS  += UI/MainWindow.h \
 
 
 FORMS    += UI/MainWindow.ui \
+    UI/RockOutcrop.ui \
     UI/InsertWindow.ui \
     UI/PM4Sand.ui \
     UI/ElasticIsotropic.ui \
