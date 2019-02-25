@@ -22,7 +22,7 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
-  <widget class="QWidget" name="centralWidget">
+
    <layout class="QGridLayout" name="gridLayout">
     <item row="1" column="3">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -468,7 +468,7 @@
      </spacer>
     </item>
    </layout>
-  </widget>
+
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -479,17 +479,9 @@
     </rect>
    </property>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+
  </widget>
- <layoutdefault spacing="6" margin="11"/>
+ <layoutdefault spacing="0" margin="0"/>
  <customwidgets>
   <customwidget>
    <class>BonzaTableView</class>

@@ -175,17 +175,17 @@ void ProfileManager::updateGammaHtml()
     //QString insertedString = loadGMtoString();
     QString insertedString;
     QTextStream stream(&insertedString);
-    QVector<double> depths =  postProcessor->getDepths();
+    QVector<double> depths =  postProcessor->getRuDepths();
     QVector<double> gamma =  postProcessor->getGamma();
 
     stream << "xd = ['Depth'";
     for (int i=0;i<depths.size();i++)
         stream << ", " << depths[i];
     stream << "]; \n";
-    stream << "yd = ['&gamma;'";
+    stream << "yd = ['&gamma;',NaN";
     for (int i=0;i<gamma.size();i++)
         stream << ", " << gamma[i];
-    stream << "]; \n";
+    stream << ",NaN]; \n";
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
     // write to index.html

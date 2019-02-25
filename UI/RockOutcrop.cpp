@@ -85,11 +85,6 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui->gotoPageBox->hide();
     ui->curPageLabel->hide();
 
-    /* FMK
-    // margins of centralWidget
-    centralWidget()->layout()->setContentsMargins(0, 0, 0, 0);
-    statusBar()->hide();
-    ui->mainToolBar->hide();
 
     // set the global stylesheet
     QFile file(":/resources/styles/stylesheet.css");
@@ -97,7 +92,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
       QString styleSheet = QLatin1String(file.readAll());
       this->setStyleSheet(styleSheet);
     }
-    */
+
 
     // validator for total layers, must be int between 0 and MAXLAYERS
     ui->totalLayerLineEdit->setValidator(new QIntValidator(0, MAXLAYERS, this));
@@ -878,7 +873,7 @@ void RockOutcrop::refresh()
     QTime dieTime= QTime::currentTime().addMSecs(500);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-    resize(ui->centralWidget->width(),ui->centralWidget->height()+1);
+    //resize(ui->centralWidget->width(),ui->centralWidget->height()+1);
 
 
 
