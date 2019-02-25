@@ -40,6 +40,7 @@ public:
     bool writeSurfaceMotion();
     QString loadGMtoString();
     QString loadMotions2String(QString);
+    QString loadPWPResponse();
     QString loadNodeResponse(QString);
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
@@ -47,6 +48,7 @@ public:
     QString rockmotionpath(){return GMPathStr;}
     void updateDispHtml();
     void updateAccHtml();
+    void updatePWPHtml();
     void reFreshGMView(){GMView->show();}
     void setPM4SandToolTps();
     void updatePostProcessor(PostProcessor *postProcessort);
@@ -118,6 +120,7 @@ private:
     QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
     QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
+    QString pwpHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/pwp.html");
 
 
     QString openseesPathStr;

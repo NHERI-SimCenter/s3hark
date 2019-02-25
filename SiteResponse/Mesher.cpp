@@ -96,6 +96,8 @@ bool Mesher::mesh2DColumn(){
             int matTag = l["material"];
             std::string color = l["color"];
 
+            if (thickness>0.000001)
+            {
             int numEleThisLayer = static_cast<int> (std::round(thickness / eSizeV));
             numEleThisLayer = std::max(1,numEleThisLayer);
             double t = thickness / numEleThisLayer;
@@ -107,11 +109,12 @@ bool Mesher::mesh2DColumn(){
                 node = new Nodex(numNodes + 2, eSizeH, ycrd, 0.0);
                 nodes.push_back(node);
 
-                elem = new Quadx(numEles, numNodes-2, numNodes-1, numNodes+2, numNodes+1, t, color);
+                elem = new Quadx(numEles, numNodes-1, numNodes, numNodes+2, numNodes+1, t, color);
                 elements.push_back(elem);
 
                 numNodes += 2;
                 numEles += 1;
+            }
             }
 
             std::cout << "eleTag: " << eTag << std::endl;

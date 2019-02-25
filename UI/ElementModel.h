@@ -33,6 +33,7 @@ public:
     QHash<int,QByteArray>roleNames() const;
     int rowCount(const QModelIndex &parent=QModelIndex()) const;
     int rowCount() const;
+    int getSize(){return mRecords.size();}
     int columnCount(const QModelIndex &parent=QModelIndex()) const;
     QModelIndex index(int row, int column, const QModelIndex &parent=QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const;

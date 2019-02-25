@@ -40,6 +40,7 @@ public:
     QString getVelFileName(){return velFileName;}
     QString getStrainFileName(){return strainFileName;}
     QString getStressFileName(){return stressFileName;}
+    QString getPWPFileName(){return pwpFileName;}
 
 
 signals:
@@ -63,6 +64,7 @@ private:
     QString velFileName = QDir(m_outputDir).filePath("velocity.out");
     QString strainFileName = QDir(m_outputDir).filePath("strain.out");
     QString stressFileName = QDir(m_outputDir).filePath("stress.out");
+    QString pwpFileName = QDir(m_outputDir).filePath("porePressure.out");
 
     // processed dat
     QString pgaFileName = QDir(m_outputDir).filePath("pga.dat");

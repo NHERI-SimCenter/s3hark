@@ -10,19 +10,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
-        int height = this->height()<int(0.85*rec.height())?int(0.85*rec.height()):this->height();
-        int width  = this->width()<int(0.85*rec.width())?int(0.85*rec.width()):this->width();
+        int height = this->height()<int(0.35*rec.height())?int(0.35*rec.height()):this->height();
+        int width  = this->width()<int(0.35*rec.width())?int(0.35*rec.width()):this->width();
     this->resize(width, height);
 
     QWidget *theWidget = new RockOutcrop();
     this->setCentralWidget(theWidget);
 
-    // set the global stylesheet
-    QFile file(":/resources/styles/stylesheet.css");
-    if(file.open(QFile::ReadOnly)) {
-      QString styleSheet = QLatin1String(file.readAll());
-      this->setStyleSheet(styleSheet);
-    }
+    /*
+    // margins of centralWidget
+    centralWidget()->layout()->setContentsMargins(0, 0, 0, 0);
+    statusBar()->hide();
+    ui->mainToolBar->hide();
+    */
 }
 
 MainWindow::~MainWindow()

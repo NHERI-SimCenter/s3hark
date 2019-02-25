@@ -13,8 +13,8 @@
     <script src="../../js/d3.v5.min.js" charset="utf-8"></script>
     <script src="../../js/c3.js"></script>
 
-    <script src="../../js/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
+    <script src="../../js/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
     <!-- Load qwebchannel.js -->
     <script type="text/javascript" src="../../js/qwebchannel.js"></script>
@@ -92,7 +92,7 @@
 
                 },
                 y: {
-                    label: { text: 'Vel (m/s)', position: 'outer-middle' },
+                    label: { text: 'PWP (pa)', position: 'outer-middle' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -117,7 +117,6 @@
 
         //UPDATEPOINT
 
-        
         function showResultAt(elementID) {
             var queue = [
                 function () {
@@ -135,7 +134,7 @@
                     chart.load({
                         columns: [
                             time,
-                            eval("n" + elementID.toString())
+                            eval("pwp" + elementID.toString())
                         ]
                     });
                 },
@@ -180,12 +179,13 @@
     <div class="box">
 
         <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='index.html';"
+        <input class="btn" type="button" onclick="location.href='index.html';"
             value="Vel" />
         <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
-        <input class="btn" type="button" onclick="location.href='pwp.html';" value="PWP" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='pwp.html';" value="PWP" />
 
         <div>
+            
             <div id="output"></div>
         </div>
 
