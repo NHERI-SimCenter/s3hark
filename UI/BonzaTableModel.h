@@ -91,10 +91,42 @@ public:
             }
             */
             QSqlTableModel::setData(index, value, Qt::EditRole);
+            /*
             if(ic==THICKNESS || ic==FEM || ic==ESIZE || ic==DENSITY || ic==VS)
             {
                 emit thicknessEdited();
             }
+            */
+            emit thicknessEdited();
+
+            return submitAll();
+        }
+
+        QSqlTableModel::setData(index, value, Qt::EditRole);
+        return submitAll();
+
+    }
+
+    bool setDataSilent( const QModelIndex &index, const QVariant &value, int role = Qt::EditRole )
+    {
+        if(!index.isValid())
+            return false;
+
+        int ir = index.row();
+        int ic = index.column();
+        int numLayers = this->rowCount();
+
+        if (abs(ir - (numLayers-1)) < 1e-5 && numLayers==1) // First time to add Rock layer
+        {
+            QSqlTableModel::setData(index, value, Qt::EditRole);
+            return submitAll();
+        }
+
+
+        if ( ic != CHECKED )
+        {
+            QSqlTableModel::setData(index, value, Qt::EditRole);
+
 
             return submitAll();
         }

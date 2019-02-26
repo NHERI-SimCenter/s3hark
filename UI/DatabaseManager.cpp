@@ -11,6 +11,12 @@ DatabaseManager::DatabaseManager(QObject *parent) :
     QObject(parent),
     m_status(Read)
 {
+    if (useJSONasInput)
+    {
+        QFile file (dbFilename);
+        if (file.exists())
+            file.remove();
+    }
 }
 
 
@@ -46,7 +52,7 @@ bool DatabaseManager::createConnect()
     {
         if ( !m_db.open() )
         {
-            qDebug()<< QString(" can't open database >>>>>> data.sqlite");
+            qDebug()<< QString(" can't open database >>>>>> database.dat");
             qDebug() << "error code: " << m_db.lastError();
             return false;
         }

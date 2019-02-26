@@ -263,20 +263,27 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui->tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
-    // add a default layer
-    if(ui->tableView->m_sqlModel->rowCount()<1)
+    if (useJSONasInput)
     {
-        QList<QVariant> valueListRock;
-        valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
-        ui->tableView->insertAt(valueListRock,0);
-        /*
+        elementModel->clear();
+        elementModel->refresh();
+        loadFromJson();
+    }else{
+        // add a default layer
+        if(ui->tableView->m_sqlModel->rowCount()<1)
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+            /*
         QList<QVariant> valueList;
         valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
         ui->tableView->insertAt(valueList,0);
         */
-        ui->tableView->setTotalHeight(0);
-        ui->totalHeight->setText("0");
-        ui->totalLayerLineEdit->setText("1");
+            ui->tableView->setTotalHeight(0);
+            ui->totalHeight->setText("0");
+            ui->totalLayerLineEdit->setText("1");
+        }
     }
 
 
@@ -290,6 +297,58 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
         QDir().mkdir(outputDir);
 
 
+}
+
+
+void RockOutcrop::loadFromJson()
+{
+
+
+    QString in;
+    QFile inputFile(srtFileName);
+    if(inputFile.open(QFile::ReadOnly)) {
+    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    in = inputFile.readAll();
+    inputFile.close();
+    }
+
+    QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
+    //qWarning() << indoc.isNull();
+    QJsonObject inobj = indoc.object();
+    qWarning() << inobj.value(QString("author"));
+    qWarning() << inobj["author"];
+    qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();  // <- print my title
+
+    QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
+    QJsonArray materials = inobj["materials"].toArray();
+    for (int i=soilLayers.size()-1; i>=0; i--)
+    {
+        QJsonObject l = soilLayers[i].toObject();
+        QString name = l["name"].toString();
+        QString color = l["color"].toString();
+        int id = l["id"].toInt();
+        QString material = materials[i].toObject()["type"].toString();
+        double Dr = l["Dr"].toDouble();
+        double density = l["density"].toDouble();
+        double eSize = l["eSize"].toDouble();
+        double hPerm = l["hPerm"].toDouble();
+        double vPerm = l["vPerm"].toDouble();
+        double thickness = l["thickness"].toDouble();
+        double vs = l["vs"].toDouble();
+
+        if (i==soilLayers.size()-1)// Rock
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << density << vs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+        }else{
+            QList<QVariant> valueList;
+            valueList << name << thickness << density << vs << material << eSize;
+            ui->tableView->insertAtSilent(valueList,0);
+        }
+
+    }
+    ui->reBtn->click();
 
 }
 
@@ -758,6 +817,7 @@ void RockOutcrop::on_runBtn_clicked()
             QMessageBox::information(this,tr("Path error"), "You need to specify OpenSees' path and rock motion file's path in the configure tab.", tr("OK."));
         }else{
             // build tcl file
+            ui->reBtn->click();
             SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                  analysisDir.toStdString(),outputDir.toStdString());
             //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));

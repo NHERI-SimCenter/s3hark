@@ -61,20 +61,7 @@ public:
     Q_INVOKABLE QString getLayerParsNames(int index){return layerParsName[index];}
     Q_INVOKABLE double getLayerParsValues(int index){return layerParsValue[index];}
 
-    Q_INVOKABLE double getGraphicHeight()
-    {
-        return 500.0;
-    }
-    Q_INVOKABLE double getGraphicWidth()
-    {
-        return 100.0;
-    }
 
-
- Q_INVOKABLE   QString saysth(){
-        qDebug() << "invoked from js";
-        return "Hello";
-    }
 public:
     Q_INVOKABLE double getGWT();
 
@@ -111,6 +98,7 @@ public slots:
     void insertBelow(const QList<QVariant> &valueList);
     void insertAbove(const QList<QVariant> &valueList);
     void insertAt(const QList<QVariant> &valueList, int row);
+    void insertAtSilent(const QList<QVariant> &valueList, int row);
     void remove();
     void removeOneRow(int row);
     void removeOnPage();

@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QRect rec = QGuiApplication::primaryScreen()->geometry();
         int height = this->height()<int(0.35*rec.height())?int(0.35*rec.height()):this->height();
-        int width  = this->width()<int(0.35*rec.width())?int(0.35*rec.width()):this->width();
+        int width  = this->width()<int(0.85*rec.width())?int(0.85*rec.width()):this->width();
     this->resize(width, height);
 
     QWidget *theWidget = new RockOutcrop();

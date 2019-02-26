@@ -26,10 +26,12 @@ public:
     explicit RockOutcrop(QWidget *parent = nullptr);
     ~RockOutcrop();
     void updateCtrl();
+    void loadFromJson();
 
 
 public slots:
     void on_thickness_edited();
+
 private slots:
     void insert();
     void insertAbove();
