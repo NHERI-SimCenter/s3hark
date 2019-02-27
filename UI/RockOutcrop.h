@@ -30,9 +30,12 @@ public:
 
 
 public slots:
+
     void on_thickness_edited();
+    void onConfigTabUpdated();
 
 private slots:
+
     void insert();
     void insertAbove();
     void insertBelow();
@@ -45,20 +48,19 @@ private slots:
     void totalHeightChanged();
 
     void on_delRowBtn_clicked();
+
     void on_addRowBtn_clicked();
+
     void on_meshBtn_clicked(bool checked);
-
-
 
     void on_gwtEdit_textChanged(const QString &arg1);
 
+    void on_gwtEdit_editingFinished();
+
     void on_rowRemoved(int row);
 
-
-
-
-
     void on_reBtn_clicked();
+
     void on_runBtn_clicked();
 
     json createMaterial(int tag, std::string matType, std::string parameters);
@@ -68,6 +70,7 @@ private slots:
     void refresh();
 
     ElementModel* getElementModel()const;
+
     void onOpenSeesFinished();
 
     void hideShowTab();

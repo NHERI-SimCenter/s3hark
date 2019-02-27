@@ -48,8 +48,6 @@ public:
 
     void setTotalHeight(double h) {m_ntotalHeight = h;}
 
-
-
     BonzaTableModel* m_sqlModel;
 
     QVector<QMap<QString,double>> m_LayerVector;

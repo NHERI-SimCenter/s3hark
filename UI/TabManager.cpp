@@ -98,6 +98,9 @@ void TabManager::init(QTabWidget* theTab){
     connect(FEMWidget->findChild<QPushButton*>("openseesBtn"), SIGNAL(clicked()), this, SLOT(onOpenseesBtnClicked()));
     connect(FEMWidget->findChild<QLineEdit*>("openseesPath"), SIGNAL(textChanged(const QString&)), this, SLOT(onOpenseesTextChanged(const QString&)));
     connect(FEMWidget->findChild<QLineEdit*>("GMPath"), SIGNAL(textChanged(const QString&)), this, SLOT(onGMTextChanged(const QString&)));
+    connect(FEMWidget->findChild<QLineEdit*>("openseesPath"), SIGNAL(editingFinished()), this, SLOT(onConfigTabEdtFinished()));
+    connect(FEMWidget->findChild<QLineEdit*>("GMPath"), SIGNAL(editingFinished()), this, SLOT(onConfigTabEdtFinished()));
+
 
 
     QString uiFileName = ":/UI/DefaultMatTab.ui";
@@ -121,7 +124,7 @@ void TabManager::init(QTabWidget* theTab){
 
     //GMView->reload();
 
-    tab->addTab(GMView,"Ground motion");
+    tab->addTab(GMView,"Response");
 
 
 
@@ -366,6 +369,11 @@ void TabManager::onGMTextChanged(const QString& text)
 {
     GMPathStr = text;
     onFEMTabEdited();
+}
+
+void TabManager::onConfigTabEdtFinished()
+{
+    emit configTabUpdated();
 }
 
 
@@ -1129,15 +1137,12 @@ void TabManager::fillFEMTab(){
         QStringList thisLine = line.split(",");
         savedPars.append(thisLine[1].trimmed());
     }
-
     file.close();
 
 
     for (int i = 0; i < (edtsFEM.size()); i++) {
         edtsFEM[i]->setText(savedPars.at(i));
     }
-
-
 
     //edtsFEM[edtsFEM.size()-1]->setText(savedPars.at(edtsFEM.size()));
     GMPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
@@ -1173,7 +1178,7 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
         tab->removeTab(j-1);
     tab->insertTab(0,FEMWidget,"Configure");
     tab->insertTab(1,currentWidget,"Layer properties");
-    tab->insertTab(2,GMView,"Ground motion");
+    tab->insertTab(2,GMView,"Response");
     tab->setCurrentIndex(1);
 
     /*
@@ -1187,6 +1192,65 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
 
 
     fillMatTab(thisMatType, index);
+
+}
+
+void TabManager::updateGMPath(QString path)
+{
+    edtsFEM[GMPathPos]->setText(path);
+}
+void TabManager::updateOpenSeesPath(QString path)
+{
+    edtsFEM[OpenSeesPathPos]->setText(path);
+}
+
+void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
+{
+    QString name = l["name"].toString();
+    QString color = l["color"].toString();
+    int id = l["id"].toInt();
+    QString matType = mat["type"].toString();
+    double hPermval = l["hPerm"].toDouble();
+    double vPermval = l["vPerm"].toDouble();
+    double uBulkval = l["uBulk"].toDouble();
+
+
+    // update element pars
+    if(matType=="Elastic")
+    {
+        double E = mat["E"].toDouble();
+        double poisson = mat["poisson"].toDouble();
+
+        // update
+        QLineEdit *EEdt= ElasticIsotropicWidget->findChild<QLineEdit*>("EEdt");
+        EEdt->setText(QString::number(E));
+        QLineEdit *vEdt= ElasticIsotropicWidget->findChild<QLineEdit*>("vEdt");
+        vEdt->setText(QString::number(poisson));
+        QLineEdit *hPerm= ElasticIsotropicWidget->findChild<QLineEdit*>("hPermEdt");
+        hPerm->setText(QString::number(hPermval));
+        QLineEdit *vPerm= ElasticIsotropicWidget->findChild<QLineEdit*>("vPermEdt");
+        vPerm->setText(QString::number(vPermval));
+        QLineEdit *uBulk= ElasticIsotropicWidget->findChild<QLineEdit*>("uBulkEdt");
+        uBulk->setText(QString::number(uBulkval));
+
+    } else if(matType=="PM4Sand")
+    {
+        for (int i = 0; i < listPM4SandFEM.size(); ++i) {
+            QString edtName = listPM4SandFEM[i] ;
+            if(!mat[edtName].isNull())
+                edtsPM4SandFEM[i]->setText(QString::number(mat[edtName].toDouble()));
+        }
+        QLineEdit *hPerm= PM4SandWidget->findChild<QLineEdit*>("hPerm");
+        hPerm->setText(QString::number(hPermval));
+        QLineEdit *vPerm= PM4SandWidget->findChild<QLineEdit*>("vPerm");
+        vPerm->setText(QString::number(vPermval));
+        QLineEdit *uBulk= PM4SandWidget->findChild<QLineEdit*>("uBulk");
+        uBulk->setText(QString::number(uBulkval));
+    }
+
+    // send the signal to update FEM cell
+    onDataEdited();
+
 
 }
 

@@ -55,6 +55,7 @@ public:
     void setGMViewLoaded(){GMViewLoaded = true;}
 
 signals:
+    void configTabUpdated();
 
 
 public:
@@ -75,6 +76,10 @@ public slots:
     void onElementDataChanged(QModelIndex,QModelIndex);
     void onTabBarClicked(int);
     void onGMLoadFinished(bool);
+    void updateGMPath(QString);
+    void updateOpenSeesPath(QString);
+    void updateLayerTab(QJsonObject,QJsonObject);
+    void onConfigTabEdtFinished();
 
 
 private:
@@ -103,6 +108,8 @@ private:
     QVector<QLineEdit*> currentEdts;
 
     QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath", "openseesPath"  };
+    int GMPathPos = 6;
+    int OpenSeesPathPos = 7;
 
 
     QList<QString> listElasticIsotropicFEM = {"eSize", "EEdt", "vEdt", "rhoEdt", "DrEdt","voidEdt","hPermEdt","vPermEdt","rho_dEdt","rho_sEdt","uBulkEdt"};
@@ -128,12 +135,9 @@ private:
     QString analysisName = "analysis";
     QString analysisDir = QDir(rootDir).filePath(analysisName);
     QString femFilename = QDir(analysisDir).filePath("configure.dat");
+    QString srtFileName = QDir(analysisDir).filePath("SRT.json");
 
     bool GMViewLoaded = false;
-
-
-
-
 
 
 };

@@ -105,10 +105,14 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
     // change the total height if soil layer is edited
     connect(ui->totalHeight, SIGNAL(editingFinished()),this, SLOT(totalHeightChanged()) );
-    //connect(this, SIGNAL(gwtChanged(const QString)), this, SLOT(on_gwtEdit_textChanged(const QString)));
+    connect(ui->gwtEdit, SIGNAL(editingFinished()), this, SLOT(on_gwtEdit_editingFinished()));
 
     // set limits for ground water table to be (0.0,1000)
     ui->gwtEdit->setValidator(new QDoubleValidator(0.0,10000.0,2,ui->gwtEdit));
+
+    // height and count of layers not allowed to edit
+    ui->totalHeight->setReadOnly(true);
+    ui->totalLayerLineEdit->setReadOnly(true);
 
 
 
@@ -241,6 +245,8 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
     connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
     connect(this, SIGNAL(runBtnClicked(QWebEngineView*)), theTabManager, SLOT(onRunBtnClicked(QWebEngineView*)));
+    // if configure tab changed, update SRT.json
+    connect(theTabManager, SIGNAL(configTabUpdated()), this, SLOT(onConfigTabUpdated()));
 
     // init the dino view
     dinoView = new QWebEngineView(this);
@@ -299,6 +305,18 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 }
 
+void RockOutcrop::on_gwtEdit_editingFinished()
+{
+    // update SRT.json
+    ui->reBtn->click();
+}
+
+void RockOutcrop::onConfigTabUpdated()
+{
+    // update SRT.json
+    ui->reBtn->click();
+}
+
 
 void RockOutcrop::loadFromJson()
 {
@@ -310,6 +328,17 @@ void RockOutcrop::loadFromJson()
     inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
     in = inputFile.readAll();
     inputFile.close();
+    }else{
+        // if not input file provided add a default layer
+        if(ui->tableView->m_sqlModel->rowCount()<1)
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+            ui->tableView->setTotalHeight(0);
+            ui->totalHeight->setText("0");
+            ui->totalLayerLineEdit->setText("1");
+        }
     }
 
     QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
@@ -327,6 +356,7 @@ void RockOutcrop::loadFromJson()
         QString name = l["name"].toString();
         QString color = l["color"].toString();
         int id = l["id"].toInt();
+        QJsonObject mat = materials[i].toObject();
         QString material = materials[i].toObject()["type"].toString();
         double Dr = l["Dr"].toDouble();
         double density = l["density"].toDouble();
@@ -343,11 +373,30 @@ void RockOutcrop::loadFromJson()
             ui->tableView->insertAt(valueListRock,0);
         }else{
             QList<QVariant> valueList;
-            valueList << name << thickness << density << vs << material << eSize;
+            if (color=="")
+                color = QColor::fromRgb(QRandomGenerator::global()->generate()).name();
+            valueList << name << thickness << density << vs << material << eSize << color;
             ui->tableView->insertAtSilent(valueList,0);
+
         }
 
+        theTabManager->updateLayerTab(l,mat);
+
     }
+
+
+
+    QJsonObject basicSettings = inobj["basicSettings"].toObject();
+    QString groundMotion = basicSettings["groundMotion"].toString();
+    theTabManager->updateGMPath(groundMotion);
+    QString OpenSeesPath = basicSettings["OpenSeesPath"].toString();
+    theTabManager->updateOpenSeesPath(OpenSeesPath);
+
+    ui->gwtEdit->setText(QString::number(basicSettings["groundWaterTable"].toDouble()));
+
+    ui->totalLayerLineEdit->setText(QString::number(soilLayers.size()));
+
+
     ui->reBtn->click();
 
 }

@@ -51,9 +51,9 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     m_nLastPageSize = lastPageSize();
     this->updateModel();    //update the table on each page
     this->setModel(m_sqlModel);
-    //this->hideColumn(0);
-    //this->hideColumn(FEM);
-    //this->hideColumn(COLOR);
+    this->hideColumn(0);
+    this->hideColumn(FEM);
+    this->hideColumn(COLOR);
     this->verticalHeader()->hide();
 
     this->setColumnHidden(1,true);
@@ -397,7 +397,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
                 QString data = valueList.at(i).toString();
                 m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, col), data);
             }
-            m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
+            //m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, COLOR), QColor::fromRgb(QRandomGenerator::global()->generate()).name());
         }else{//Rock
             //QList<QVariant> valueListRock;
             //valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
