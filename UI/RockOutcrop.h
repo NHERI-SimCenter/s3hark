@@ -35,6 +35,8 @@ public:
     //bool outputAppDataToJSON(QJsonObject &rvObject);
     //bool inputAppDataFromJSON(QJsonObject &rvObject);
 
+    void cleanTable();
+
 
 
 public slots:
