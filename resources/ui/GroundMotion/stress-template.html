@@ -48,7 +48,7 @@
             color: #ffffff;
             padding: 5px 10px;
         }
-
+        
         #nodeBtn {
             border: 1px solid #062e4e;
             background-color: #5f64ac;
@@ -111,7 +111,7 @@
 
                 },
                 y: {
-                    label: { text: 'Vel (m/s)', position: 'outer-middle' },
+                    label: { text: 'σ', position: 'outer-middle' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -155,7 +155,7 @@
                     chart.load({
                         columns: [
                             time,
-                            eval("n" + elementID.toString())
+                            eval("Stress" + elementID.toString())
                         ]
                     });
                 },
@@ -199,14 +199,13 @@
 
     <div class="box">
 
-        <input class="btn" id="nodeBtn" style="border: 1px solid #fc0404; " type="button" onclick="location.href='index.html';" value="Node" />
-        <input class="btn" id="eleBtn"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
+        <input class="btn" id="nodeBtn"  type="button" onclick="location.href='index.html';" value="Node" />
+        <input class="btn" id="eleBtn" style="border: 1px solid #fc0404; width: 60px;"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
         &nbsp;&nbsp;&nbsp; 
-        <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='index.html';"
-            value="Vel" />
-        <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
-        <input class="btn" type="button" onclick="location.href='pwp.html';" value="PWP" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='stress.html';" value="Stress" />
+        <input  class="btn" type="button" onclick="location.href='strain.html';"
+            value="Strain" />
+        
 
         <div>
             <div id="output"></div>

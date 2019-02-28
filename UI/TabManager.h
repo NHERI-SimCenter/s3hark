@@ -41,6 +41,7 @@ public:
     QString loadGMtoString();
     QString loadMotions2String(QString);
     QString loadPWPResponse();
+    QString loadEleResponse(QString);
     QString loadNodeResponse(QString);
     QTabWidget* getTab(){return tab;}
     void hideConfigure();
@@ -49,6 +50,8 @@ public:
     void updateDispHtml();
     void updateAccHtml();
     void updatePWPHtml();
+    void updateStrainHtml();
+    void updateStressHtml();
     void reFreshGMView(){GMView->show();}
     void setPM4SandToolTps();
     void updatePostProcessor(PostProcessor *postProcessort);
@@ -128,6 +131,8 @@ private:
     QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
     QString pwpHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/pwp.html");
+    QString strainHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/strain.html");
+    QString stressHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/stress.html");
 
 
     QString openseesPathStr;

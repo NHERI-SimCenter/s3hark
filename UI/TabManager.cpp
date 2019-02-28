@@ -480,6 +480,8 @@ void TabManager::reFreshGMTab()
     updateAccHtml();
     updateDispHtml();
     updatePWPHtml();
+    updateStrainHtml();
+    updateStressHtml();
 
     GMView->reload();
     //GMView->show();
@@ -533,6 +535,63 @@ void TabManager::updateDispHtml()
 
 
     QString insertedString = loadMotions2String("disp");
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+}
+
+void TabManager::updateStrainHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(strainHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/strain-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/strain.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    QString insertedString = loadEleResponse("strain");
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+}
+
+
+void TabManager::updateStressHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(strainHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stress-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stress.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    QString insertedString = loadEleResponse("stress");
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
 
@@ -813,6 +872,10 @@ QString TabManager::loadNodeResponse(QString motion)
         motionFileName = postProcessor->getVelFileName();
     else if (motion=="disp")
         motionFileName = postProcessor->getDispFileName();
+    else if (motion=="strain")
+        motionFileName = postProcessor->getStrainFileName();
+    else if (motion=="stress")
+        motionFileName = postProcessor->getStressFileName();
     else
         qWarning("motion must be acc, vel or disp!");
 
@@ -941,6 +1004,88 @@ QString TabManager::loadPWPResponse()
         eleID -= 1;
         //stream << "n1 = ['Node 1'";
         stream << "pwp"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+        //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+        for (int i=0; i<v[j].size(); i++)
+            stream << ", "<<v[j][i];
+        stream <<"];" <<endl;
+    }
+    }
+
+
+    return text;
+
+
+
+}
+
+QString TabManager::loadEleResponse(QString motion)
+{
+
+    QString fileName;
+    if (motion=="strain")
+        fileName = postProcessor->getStrainFileName();
+    else if (motion=="stress")
+        fileName = postProcessor->getStressFileName();
+
+    QFile File(fileName);
+
+    QVector<QVector<double>> v;
+    if(File.open(QIODevice::ReadOnly)) {
+        QTextStream in(&File);
+        int lineCount = 0;
+        int numCols = 0;
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            thisLine.removeAll("");
+            int sizeThisLine = thisLine.size();
+            lineCount += 1;
+            if (lineCount==1)
+                numCols = sizeThisLine;
+            if (sizeThisLine != numCols && lineCount>1)
+            {
+                lineCount -= 1;
+                break;
+            }
+            else
+            {
+                //thisLine.removeAll("");
+                for (int i=0; i<thisLine.size();i++)// TODO: 3D?
+                {
+                    if (lineCount==1)
+                    {
+                        QVector<double> tmpV;
+                        v.append(tmpV);
+                    }
+                    v[i].append((thisLine[i].trimmed().toDouble()));
+                }
+            }
+        }
+        File.close();
+    }
+
+    QString text;
+    QTextStream stream(&text);
+
+    if(v.size()>0)
+    {
+    stream << "time = ['x'";
+    for (int i=0; i<v[0].size(); i++)
+        stream << ", "<<v[0][i];
+    stream <<"];" <<endl;
+
+    QString outTitle;
+    if(motion=="strain")
+        outTitle = "Strain";
+    else if(motion=="stress")
+        outTitle="Stress";
+
+    int eleID = elementModel->getSize();
+    for (int j=3;j<v.size();j+=3)
+    {
+        eleID -= 1;
+        //stream << "n1 = ['Node 1'";
+        stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
         //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
         for (int i=0; i<v[j].size(); i++)
             stream << ", "<<v[j][i];

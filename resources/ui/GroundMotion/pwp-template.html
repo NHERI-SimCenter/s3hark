@@ -25,7 +25,7 @@
 
         .box {
             border: 1px solid white;
-            width: 300px;
+            width: 500px;
             text-align: center;
             margin: 0 auto
         }
@@ -38,6 +38,20 @@
         .btn {
             border: 1px solid #0066cc;
             background-color: #0099cc;
+            color: #ffffff;
+            padding: 5px 10px;
+        }
+
+        #eleBtn {
+            border: 1px solid #043302;
+            background-color: #5fac8e;
+            color: #ffffff;
+            padding: 5px 10px;
+        }
+        
+        #nodeBtn {
+            border: 1px solid #062e4e;
+            background-color: #5f64ac;
             color: #ffffff;
             padding: 5px 10px;
         }
@@ -183,6 +197,9 @@
     </script>
 
     <div class="box">
+        <input class="btn" id="nodeBtn" style="border: 1px solid #fc0404; " type="button" onclick="location.href='index.html';" value="Node" />
+        <input class="btn" id="eleBtn"  type="button" style="width: 60px;" onclick="location.href='acc.html';" value="Element" />
+        &nbsp;&nbsp;&nbsp; 
 
         <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
         <input class="btn" type="button" onclick="location.href='index.html';" value="Vel" />
