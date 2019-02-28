@@ -33,6 +33,8 @@ static const QString g_colorLabel = "Color";
 
 #define MAXLAYERS 20
 
+#define useJSONasInput true
+
 
 #endif // GLOBALCONSTANCES_H
 
