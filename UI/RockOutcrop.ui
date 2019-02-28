@@ -579,16 +579,6 @@
     </spacer>
    </item>
   </layout>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1385</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
  </widget>
  <layoutdefault spacing="0" margin="0"/>
  <customwidgets>
