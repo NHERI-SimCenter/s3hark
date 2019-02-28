@@ -401,6 +401,27 @@ void RockOutcrop::loadFromJson()
 
 }
 
+
+bool
+RockOutcrop::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["EventClassification"]="Earthquake";
+    jsonObject["Application"] = "Site Response";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+    return true;
+}
+
+bool
+RockOutcrop::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    return true;
+}
+
 bool RockOutcrop::inputFromJSON(QJsonObject& inobj) {
 
     qWarning() << inobj.value(QString("author"));
