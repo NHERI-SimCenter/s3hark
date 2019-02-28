@@ -420,6 +420,7 @@ void RockOutcrop::loadFromJson()
 
 }
 
+
 void RockOutcrop::cleanTable()
 {
     for (int i=0; i<ui->tableView->m_sqlModel->rowCount()+1;i++)
@@ -431,6 +432,28 @@ void RockOutcrop::cleanTable()
     ui->totalLayerLineEdit->setText("0");
     elementModel->clear();
     elementModel->refresh();
+}
+
+
+
+bool
+RockOutcrop::outputAppDataToJSON(QJsonObject &jsonObject) {
+
+    //
+    // per API, need to add name of application to be called in AppLication
+    // and all data to be used in ApplicationDate
+    //
+
+    jsonObject["EventClassification"]="Earthquake";
+    jsonObject["Application"] = "Site Response";
+    QJsonObject dataObj;
+    jsonObject["ApplicationData"] = dataObj;
+    return true;
+}
+
+bool
+RockOutcrop::inputAppDataFromJSON(QJsonObject &jsonObject) {
+    return true;
 }
 
 
