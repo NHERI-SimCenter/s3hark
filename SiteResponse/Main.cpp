@@ -54,64 +54,55 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// read the layering file
-	std::string layersFN(argv[1]);
-	std::string bbpOName(".");
-	SiteLayering siteLayers(layersFN.c_str());
+	std::string configureFile = argv[1];
+	std::string anaDir = argv[2];
+	std::string outDir = argv[3];
+	SiteResponseModel *model;
 
-	// read the motion
-	OutcropMotion motionX;
-	OutcropMotion motionZ;
-
-	if (strcmp(argv[2], "-bbp") == 0)
-	{
-		std::string bbpFName(argv[3]);
-		bbpOName = std::string(argv[4]);
-		std::string bbpLName = std::string(argv[5]);
-		ferr.setFile(bbpLName.c_str(), APPEND);
-		// read bbp style motion
-		motionX.setBBPMotion(bbpFName.c_str(), 1);
-		motionZ.setBBPMotion(bbpFName.c_str(), 2);
-	}
-	else {
-		// read OpenSees style motion
-                std::string bbpLName = std::string(argv[4]);
-                std::string motionXFN(argv[2]);
-                motionX.setMotion(motionXFN.c_str());
-                opserr << ">>> motion file:. <<<" << motionXFN.c_str() << endln;
-
-                bbpOName = std::string(argv[3]);
-		
-
-		/*
-		if (argc > 3)
-		{
-			std::string motionZFN(argv[3]);
-			motionZ.setMotion(motionXFN.c_str());
-		}
-		*/
-	}
-
-	/*
-	ofstream *s = new ofstream;
-  	s->open("model.tcl", std::ofstream::out);
-  	ofstream &tclFile = *s;
-	//int runEffectiveStressModel(ofstream &s)
-	s->close();
-	*/
+	//./siteresponse ../test/siteLayering.loc -bbp ../test/9130326.nwhp.vel.bbp out thisLog
+    // read the layering file
+    std::string layersFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/siteLayering.loc");
+    std::string bbpOName(".");
+    SiteLayering siteLayers(layersFN.c_str());
+    int t = siteLayers.getNumLayers();
 
 
-	//SiteResponseModel model(siteLayers, "3D", &motionX, &motionZ);
-	SiteResponseModel model(siteLayers, "2D", &motionX);
-	model.setOutputDir(bbpOName);
-	//model.runTotalStressModel();
-	//model.runEffectiveStressModel();
+    // read the motion
+    OutcropMotion motionX;
+    //OutcropMotion motionZ;
 
-	bool runAnalysis = false;
-	model.buildEffectiveStressModel2D(runAnalysis);
-	//model.runEffectiveStressModel2D();
+    int inputStyle = 2; // bbp=1 opensees=2
+
+    if (inputStyle == 1)
+    {
+        std::string bbpFName("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/9130326.nwhp.vel.bbp");
+        bbpOName = std::string("out");
+        std::string bbpLName = std::string("thisLog");
+        //ferr.setFile(bbpLName.c_str(), APPEND);
+        // read bbp style motion
+        motionX.setBBPMotion(bbpFName.c_str(), 1);
+        //motionZ.setBBPMotion(bbpFName.c_str(), 2);
+
+        model = new SiteResponseModel(siteLayers, "2D", &motionX);
+        model->setOutputDir(bbpOName);
+    }
+    else {
+        std::string bbpLName = "Log";
+        //std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
+        std::string motionXFN(anaDir+"/Rock");//TODO: may not work on windows
+        motionX.setMotion(motionXFN.c_str());
+        bbpOName = "out";
+        model = new SiteResponseModel("2D", &motionX);
+        model->setOutputDir(bbpOName);
+        model->setAnalysisDir(anaDir);
+        model->setTclOutputDir(outDir);
+        model->setConfigFile(configureFile);
+
+        bool runAnalysis = false;
+    	model->buildEffectiveStressModel2D(runAnalysis);
+
+    }
 
 
-	
-	return 0;
+
 }

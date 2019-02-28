@@ -37,7 +37,7 @@
 
 
 RockOutcrop::RockOutcrop(QWidget *parent) :
-    QWidget(parent),
+    SimCenterAppWidget(parent),
     ui(new Ui::RockOutcrop)
 {
 
@@ -273,7 +273,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     {
         elementModel->clear();
         elementModel->refresh();
-        loadFromJson();
+        //loadFromJson();
     }else{
         // add a default layer
         if(ui->tableView->m_sqlModel->rowCount()<1)
@@ -346,7 +346,7 @@ void RockOutcrop::loadFromJson()
     QJsonObject inobj = indoc.object();
     qWarning() << inobj.value(QString("author"));
     qWarning() << inobj["author"];
-    qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();  // <- print my title
+    qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();
 
     QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
     QJsonArray materials = inobj["materials"].toArray();
@@ -399,6 +399,66 @@ void RockOutcrop::loadFromJson()
 
     ui->reBtn->click();
 
+}
+
+bool RockOutcrop::inputFromJSON(QJsonObject& inobj) {
+
+    qWarning() << inobj.value(QString("author"));
+    qWarning() << inobj["author"];
+    qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();
+
+    QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
+    QJsonArray materials = inobj["materials"].toArray();
+    for (int i=soilLayers.size()-1; i>=0; i--)
+    {
+        QJsonObject l = soilLayers[i].toObject();
+        QString name = l["name"].toString();
+        QString color = l["color"].toString();
+        int id = l["id"].toInt();
+        QJsonObject mat = materials[i].toObject();
+        QString material = materials[i].toObject()["type"].toString();
+        double Dr = l["Dr"].toDouble();
+        double density = l["density"].toDouble();
+        double eSize = l["eSize"].toDouble();
+        double hPerm = l["hPerm"].toDouble();
+        double vPerm = l["vPerm"].toDouble();
+        double thickness = l["thickness"].toDouble();
+        double vs = l["vs"].toDouble();
+
+        if (i==soilLayers.size()-1)// Rock
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << density << vs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+        }else{
+            QList<QVariant> valueList;
+            if (color=="")
+                color = QColor::fromRgb(QRandomGenerator::global()->generate()).name();
+            valueList << name << thickness << density << vs << material << eSize << color;
+            ui->tableView->insertAtSilent(valueList,0);
+
+        }
+
+        theTabManager->updateLayerTab(l,mat);
+
+    }
+
+
+
+    QJsonObject basicSettings = inobj["basicSettings"].toObject();
+    QString groundMotion = basicSettings["groundMotion"].toString();
+    theTabManager->updateGMPath(groundMotion);
+    QString OpenSeesPath = basicSettings["OpenSeesPath"].toString();
+    theTabManager->updateOpenSeesPath(OpenSeesPath);
+
+    ui->gwtEdit->setText(QString::number(basicSettings["groundWaterTable"].toDouble()));
+
+    ui->totalLayerLineEdit->setText(QString::number(soilLayers.size()));
+
+
+    ui->reBtn->click();
+
+    return true;
 }
 
 RockOutcrop::~RockOutcrop()
@@ -716,6 +776,44 @@ void RockOutcrop::on_gwtEdit_textChanged(const QString &newGWT)
 }
 
 
+bool RockOutcrop::outputToJSON(QJsonObject &root)
+{
+
+
+    QString in;
+    QFile inputFile(srtFileName);
+    if(inputFile.open(QFile::ReadOnly)) {
+    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    in = inputFile.readAll();
+    inputFile.close();
+    }else{
+        // if not input file provided add a default layer
+        if(ui->tableView->m_sqlModel->rowCount()<1)
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+            ui->tableView->setTotalHeight(0);
+            ui->totalHeight->setText("0");
+            ui->totalLayerLineEdit->setText("1");
+        }
+    }
+
+    QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
+    //qWarning() << indoc.isNull();
+    if (indoc.isNull())
+    {
+        qWarning() << "SRT.json is missing.";
+        return false;
+    }
+    else{
+        root = indoc.object();
+        return true;
+    }
+
+
+}
+
 
 void RockOutcrop::on_reBtn_clicked()
 {
@@ -870,7 +968,7 @@ void RockOutcrop::on_runBtn_clicked()
             SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                  analysisDir.toStdString(),outputDir.toStdString());
             //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
-            srt->run();
+            srt->buildTcl();
 
             if(!QDir(outputDir).exists())
                 QDir().mkdir(outputDir);
