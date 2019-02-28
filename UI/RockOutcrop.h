@@ -32,8 +32,8 @@ public:
     // SimCenterWidget interface
     bool outputToJSON(QJsonObject &rvObject);
     bool inputFromJSON(QJsonObject &rvObject);
-    //bool outputAppDataToJSON(QJsonObject &rvObject);
-    //bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool outputAppDataToJSON(QJsonObject &rvObject);
+    bool inputAppDataFromJSON(QJsonObject &rvObject);
 
 
 
