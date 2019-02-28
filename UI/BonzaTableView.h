@@ -59,6 +59,22 @@ public:
     Q_INVOKABLE QString getLayerParsNames(int index){return layerParsName[index];}
     Q_INVOKABLE double getLayerParsValues(int index){return layerParsValue[index];}
 
+    void cleanTable(){
+        m_nStartId = 0;
+         m_nPageSize=MAXLAYERS;
+         m_nCurPageSize=0;
+         m_nLastPageSize=0;
+         m_nTotal=0;
+
+         m_nCurPage=1;
+         m_nTotalPage=0;
+
+         m_ntotalHeight=10;
+         m_nGWT = 0;
+
+
+    }
+
 
 public:
     Q_INVOKABLE double getGWT();

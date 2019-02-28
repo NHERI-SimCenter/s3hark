@@ -1067,6 +1067,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s<< "eval \"recorder Node -file out_tcl/base.acc -time -dT $motionDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
 	s<< "eval \"recorder Node -file out_tcl/base.vel -time -dT $motionDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
 
+
 	// Record pwp at node 17
 	dofToRecord.resize(1);
 	dofToRecord(0) = 2; // only record the pore pressure dof

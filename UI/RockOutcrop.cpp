@@ -274,6 +274,25 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
         elementModel->clear();
         elementModel->refresh();
         //loadFromJson();
+
+        if(ui->tableView->m_sqlModel->rowCount()<1)
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+
+            ui->tableView->setTotalHeight(0);
+            ui->totalHeight->setText("0");
+            ui->totalLayerLineEdit->setText("1");
+
+
+            QList<QVariant> valueList;
+            valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
+            ui->tableView->insertAt(valueList,0);
+            ui->totalLayerLineEdit->setText("2");
+
+        }
+
     }else{
         // add a default layer
         if(ui->tableView->m_sqlModel->rowCount()<1)
@@ -402,6 +421,21 @@ void RockOutcrop::loadFromJson()
 }
 
 
+void RockOutcrop::cleanTable()
+{
+    for (int i=0; i<ui->tableView->m_sqlModel->rowCount()+1;i++)
+        ui->tableView->removeOneRow(0);
+
+    ui->tableView->cleanTable();
+    ui->gwtEdit->setText("0");
+    ui->totalHeight->setText("0");
+    ui->totalLayerLineEdit->setText("0");
+    elementModel->clear();
+    elementModel->refresh();
+}
+
+
+
 bool
 RockOutcrop::outputAppDataToJSON(QJsonObject &jsonObject) {
 
@@ -422,7 +456,11 @@ RockOutcrop::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
+
 bool RockOutcrop::inputFromJSON(QJsonObject& inobj) {
+
+    cleanTable();
+    cleanTable();
 
     qWarning() << inobj.value(QString("author"));
     qWarning() << inobj["author"];
@@ -745,7 +783,26 @@ void RockOutcrop::on_delRowBtn_clicked()
 
 void RockOutcrop::on_addRowBtn_clicked()
 {
-    emit ui->tableView->insertBelowAct();
+    if(ui->tableView->m_sqlModel->rowCount()<1)
+    {
+        QList<QVariant> valueListRock;
+        valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
+        ui->tableView->insertAt(valueListRock,0);
+
+        ui->tableView->setTotalHeight(0);
+        ui->totalHeight->setText("0");
+        ui->totalLayerLineEdit->setText("1");
+
+
+        QList<QVariant> valueList;
+        valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
+        ui->tableView->insertAt(valueList,0);
+        ui->totalLayerLineEdit->setText("2");
+
+    }else
+    {
+        emit ui->tableView->insertBelowAct();
+    }
 }
 
 /**
@@ -969,6 +1026,8 @@ void RockOutcrop::on_reBtn_clicked()
 
 void RockOutcrop::on_runBtn_clicked()
 {
+    //cleanTable();cleanTable();
+
     int numLayers = ui->totalLayerLineEdit->text().toInt();
     if (numLayers<=1)
     {
@@ -994,9 +1053,9 @@ void RockOutcrop::on_runBtn_clicked()
             if(!QDir(outputDir).exists())
                 QDir().mkdir(outputDir);
 
-            /*
-            * Calling Opensee to do the work
-            */
+            //
+            // Calling Opensee to do the work
+            //
             //"/Users/simcenter/Codes/OpenSees/bin/opensees"
             //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
             openseesProcess->start(openseespath,QStringList()<<tclName);
@@ -1004,6 +1063,8 @@ void RockOutcrop::on_runBtn_clicked()
             emit runBtnClicked(dinoView);
         }
     }
+
+
 
 }
 

@@ -992,23 +992,52 @@ QString TabManager::loadPWPResponse()
 
     if(v.size()>0)
     {
-    stream << "time = ['x'";
-    for (int i=0; i<v[0].size(); i++)
-        stream << ", "<<v[0][i];
-    stream <<"];" <<endl;
 
-
-    int eleID = elementModel->getSize();
-    for (int j=4;j<v.size();j+=2)
-    {
-        eleID -= 1;
-        //stream << "n1 = ['Node 1'";
-        stream << "pwp"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
-        //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
-        for (int i=0; i<v[j].size(); i++)
-            stream << ", "<<v[j][i];
+/*
+        stream << "xnew = ['x'";
+        for (int i=0; i<v.size(); i++)
+            stream << ", "<<v.at(i);
         stream <<"];" <<endl;
-    }
+
+        stream << "ynew = ['Rock motion'";
+        for (int i=0; i<v.size(); i++)
+            stream << ", "<<v.at(i);
+        stream <<"];" <<endl;
+
+
+
+        stream << "xSurfaceVel = ['x'";
+        for (int i=0; i<v.size(); i++)
+            stream << ", "<<v.at(i);
+        stream <<"];" <<endl;
+
+        stream << "ySurfaceVel = ['Surface motion'";
+        for (int i=0; i<v.size(); i++)
+            stream << ", "<<v.at(i).toDouble();
+        stream <<"];" <<endl;
+*/
+
+
+
+
+
+        stream << "time = ['x'";
+        for (int i=0; i<v[0].size(); i++)
+            stream << ", "<<v[0][i];
+        stream <<"];" <<endl;
+
+
+        int eleID = elementModel->getSize();
+        for (int j=4;j<v.size();j+=2)
+        {
+            eleID -= 1;
+            //stream << "n1 = ['Node 1'";
+            stream << "pwp"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+            //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+            for (int i=0; i<v[j].size(); i++)
+                stream << ", "<<v[j][i];
+            stream <<"];" <<endl;
+        }
     }
 
 
