@@ -1,8 +1,8 @@
-#---------------------------------------------------------#
-#                                                         #
-#               Site Response Tool                        #
-#                                                         #
-#---------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#             Site-specific Seismic Hazard Analysis & Research Kit             #
+#                              Site Response Tool                              #
+#                                                                              #
+#------------------------------------------------------------------------------#
 
 QT       += core gui sql quick qml webenginewidgets uitools webengine webchannel
 
@@ -42,7 +42,7 @@ win32: {
 LIBS += -L"$$_PRO_FILE_PWD_/lib"
 }
 
-
+include(../SimCenterCommon/Common/Common.pri)
 
 SOURCES += main.cpp\
         UI/MainWindow.cpp \

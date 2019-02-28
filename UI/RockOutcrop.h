@@ -10,6 +10,7 @@
 #include "TabManager.h"
 #include "ProfileManager.h"
 #include "PostProcessor.h"
+#include "SimCenterAppWidget.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -18,7 +19,7 @@ class RockOutcrop;
 }
 
 
-class RockOutcrop : public QWidget
+class RockOutcrop : public SimCenterAppWidget
 {
     Q_OBJECT
 
@@ -27,6 +28,13 @@ public:
     ~RockOutcrop();
     void updateCtrl();
     void loadFromJson();
+
+    // SimCenterWidget interface
+    bool outputToJSON(QJsonObject &rvObject);
+    bool inputFromJSON(QJsonObject &rvObject);
+    //bool outputAppDataToJSON(QJsonObject &rvObject);
+    //bool inputAppDataFromJSON(QJsonObject &rvObject);
+
 
 
 public slots:

@@ -15,8 +15,7 @@ public:
 	~SiteResponse();
 
     void run();
-
-
+    void buildTcl();
 
 	
 private:

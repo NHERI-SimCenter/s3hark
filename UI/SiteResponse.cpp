@@ -12,7 +12,6 @@
 #include "FileStream.h"
 #include "OPS_Stream.h"
 
-#include <QDebug>
 
 // these must be defined here!!
 StandardStream sserr;
@@ -67,15 +66,23 @@ SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::str
         model->setTclOutputDir(outDir);
         model->setConfigFile(configureFile);
 
+        //buildTcl();
+
     }
 
 
 
 }
 
-void SiteResponse::run()
+void SiteResponse::buildTcl()
 {
     bool runAnalysis = false;
+    model->buildEffectiveStressModel2D(runAnalysis);
+}
+
+void SiteResponse::run()
+{
+    bool runAnalysis = true;
     model->buildEffectiveStressModel2D(runAnalysis);
 }
 
