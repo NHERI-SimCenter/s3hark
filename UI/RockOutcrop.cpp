@@ -340,7 +340,7 @@ void RockOutcrop::onConfigTabUpdated()
 
 bool  RockOutcrop::copyFiles(QString &destDir)
 {
-    QString fileName = "evt.j";
+    QString fileName = "EVENT.json";
     QFile::copy(evtjFileName, destDir + "/" + fileName);
     return true;
 }

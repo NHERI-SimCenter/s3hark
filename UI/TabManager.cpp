@@ -381,6 +381,154 @@ void TabManager::onConfigTabEdtFinished()
 void TabManager::writeGM()
 {
 
+
+
+    /*
+     * Get rock motion from file
+     */
+    /*
+    QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    QFile file(newGmPathStr);
+    QStringList xd, yd;
+    if(file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            xd.append(thisLine[0].trimmed());
+            yd.append(thisLine[1].trimmed());
+        }
+        file.close();
+    }
+    */
+
+
+
+    QString newGmPathStr = FEMWidget->findChild<QLineEdit*>("GMPath")->text();
+    QString in;
+    QFile inputFile(newGmPathStr);
+    if(inputFile.open(QFile::ReadOnly)) {
+    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    in = inputFile.readAll();
+    inputFile.close();
+    }
+
+    QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
+    //qWarning() << indoc.isNull();
+    QJsonObject inobj = indoc.object();
+
+    QJsonArray events = inobj["Events"].toArray();
+    if (events.size()>0)
+    {
+        QJsonArray patterns = events[0].toObject()["pattern"].toArray();
+        QJsonArray timeseries = events[0].toObject()["timeSeries"].toArray();
+        QString type = patterns[0].toObject()["type"].toString();
+        QString tsname = patterns[0].toObject()["timeSeries"].toString();
+        if(type=="Time-Velocity")
+        {
+            for(int i=0;i<timeseries.size();i++)
+            {
+                QJsonObject tstmp = timeseries[i].toObject();
+                if(tstmp["name"]==tsname)
+                {
+                    QFile outFile(analysisDir+"/Rock.vel");
+                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream stream(&outFile);
+
+                    QFile outFileTime(analysisDir+"/Rock.time");
+                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream streamTime(&outFileTime);
+
+                    QJsonArray tV = tstmp["time"].toArray();
+                    QJsonArray data = tstmp["data"].toArray();
+                    for(int j=0;j<tV.size();j++)
+                        streamTime << QString::number(tV[j].toDouble())+"\n";
+                    for(int j=0;j<data.size();j++)
+                        stream << QString::number(data[j].toDouble())+"\n";
+
+                    outFile.close();
+                    outFileTime.close();
+
+                    break;
+                }
+            }
+        }else if(type=="Time-Acceleration") // unit in g
+        {
+            for(int i=0;i<timeseries.size();i++)
+            {
+                QJsonObject tstmp = timeseries[i].toObject();
+                if(tstmp["name"]==tsname)
+                {
+                    QFile outFile(analysisDir+"/Rock.acc");
+                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream stream(&outFile);
+
+                    QFile outFileTime(analysisDir+"/Rock.time");
+                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream streamTime(&outFileTime);
+
+                    QJsonArray tV = tstmp["time"].toArray();
+                    QJsonArray data = tstmp["data"].toArray();
+                    for(int j=0;j<tV.size();j++)
+                        streamTime << QString::number(tV[j].toDouble())+"\n";
+                    for(int j=0;j<data.size();j++)
+                        stream << QString::number(data[j].toDouble())+"\n";
+
+                    outFile.close();
+                    outFileTime.close();
+
+                    break;
+                }
+            }
+        }else if(type=="Time-Displacement") // unit in g
+        {
+            for(int i=0;i<timeseries.size();i++)
+            {
+                QJsonObject tstmp = timeseries[i].toObject();
+                if(tstmp["name"]==tsname)
+                {
+                    QFile outFile(analysisDir+"/Rock.disp");
+                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream stream(&outFile);
+
+                    QFile outFileTime(analysisDir+"/Rock.time");
+                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream streamTime(&outFileTime);
+
+                    QJsonArray tV = tstmp["time"].toArray();
+                    QJsonArray data = tstmp["data"].toArray();
+                    for(int j=0;j<tV.size();j++)
+                        streamTime << QString::number(tV[j].toDouble())+"\n";
+                    for(int j=0;j<data.size();j++)
+                        stream << QString::number(data[j].toDouble())+"\n";
+
+                    outFile.close();
+                    outFileTime.close();
+
+                    break;
+                }
+            }
+        }
+
+
+    }else{
+        qWarning() << "No events found in the input file.";
+    }
+
+
+
+
+
+
+
+
+}
+
+void TabManager::writeGMVintage()
+{
+
     QFile outFile(analysisDir+"/Rock.vel");
     outFile.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream stream(&outFile);
