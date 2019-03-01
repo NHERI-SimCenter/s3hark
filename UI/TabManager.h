@@ -37,6 +37,7 @@ public:
     void initFEMTab();
     void reFreshGMTab();
     void writeGM();
+    void writeGMVintage();
     bool writeSurfaceMotion();
     QString loadGMtoString();
     QString loadMotions2String(QString);
