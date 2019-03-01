@@ -34,6 +34,7 @@ public:
     bool inputFromJSON(QJsonObject &rvObject);
     bool outputAppDataToJSON(QJsonObject &rvObject);
     bool inputAppDataFromJSON(QJsonObject &rvObject);
+    bool copyFiles(QString &destDir);
 
     void cleanTable();
 
@@ -124,6 +125,8 @@ private:// some of them were public
     QString outputDir = QDir(analysisDir).filePath("out_tcl");
     QString dinoHtmlName = QDir(rootDir).filePath("resources/ui/DinoRun/index.html");
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
+    QString evtjFileName =  QDir(analysisDir).filePath("EVENT-SRT.json");
+
 
 
 };
