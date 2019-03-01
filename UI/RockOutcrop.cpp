@@ -337,6 +337,15 @@ void RockOutcrop::onConfigTabUpdated()
 }
 
 
+
+bool  RockOutcrop::copyFiles(QString &destDir)
+{
+    QString fileName = "evt.j";
+    QFile::copy(evtjFileName, destDir + "/" + fileName);
+    return true;
+}
+
+
 void RockOutcrop::loadFromJson()
 {
 
