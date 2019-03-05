@@ -5,8 +5,7 @@ import QtQuick.Shapes 1.0
 
 Rectangle {
     id: container
-    width: parent.width //plotViewCanvas.size().width()// designTableModel.getGraphicWidth()//200//parent.width
-    height: parent.height //plotViewCanvas.size().height() //designTableModel.getGraphicHeight()//500
+    anchors.fill: parent
     color: "#ffffff" //"#e2e2e2"
     border.color: "black"
     border.width: 1

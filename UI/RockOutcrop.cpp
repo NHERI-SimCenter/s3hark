@@ -154,11 +154,10 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
     // add QQuickwidget for displaying mesh
     meshView = new QQuickView();
-    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
+
     meshView->rootContext()->setContextProperty("elements", elementModel);
-    //meshView->rootContext()->setContextProperty("GWT", ui->gwtEdit->text().toDouble());
-    //meshView->rootContext()->setContextProperty("totalHeightEdt", ui->totalHeight);
     meshView->rootContext()->setContextProperty("sqlModel", ui->tableView->m_sqlModel);
+    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
     QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
 
 
@@ -353,7 +352,7 @@ void RockOutcrop::loadFromJson()
     QString in;
     QFile inputFile(srtFileName);
     if(inputFile.open(QFile::ReadOnly)) {
-    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    //inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
     in = inputFile.readAll();
     inputFile.close();
     }else{
@@ -372,9 +371,11 @@ void RockOutcrop::loadFromJson()
     QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
     //qWarning() << indoc.isNull();
     QJsonObject inobj = indoc.object();
+    /*
     qWarning() << inobj.value(QString("author"));
     qWarning() << inobj["author"];
     qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();
+    */
 
     QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
     QJsonArray materials = inobj["materials"].toArray();
@@ -870,7 +871,7 @@ bool RockOutcrop::outputToJSON(QJsonObject &root)
     QString in;
     QFile inputFile(srtFileName);
     if(inputFile.open(QFile::ReadOnly)) {
-    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    //inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
     in = inputFile.readAll();
     inputFile.close();
     }else{

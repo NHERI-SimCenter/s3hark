@@ -410,7 +410,7 @@ void TabManager::writeGM()
     QString in;
     QFile inputFile(newGmPathStr);
     if(inputFile.open(QFile::ReadOnly)) {
-    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    //inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
     in = inputFile.readAll();
     inputFile.close();
     }
@@ -1734,7 +1734,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
             if(densityFromTable != densityFromForm)
             {
-                qDebug() << "Den here is different from the above table. ";
+                //qDebug() << "Den here is different from the above table. ";
                 if (densityFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), DENSITY), densityFromForm);
@@ -1762,7 +1762,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
             {
-                qDebug() << "esize here is different from the above table. ";
+                //qDebug() << "esize here is different from the above table. ";
                 if (esizeFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
@@ -1786,7 +1786,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
             if(densityFromTable != densityFromForm)
             {
-                qDebug() << "Den here is different from the above table. ";
+                //qDebug() << "Den here is different from the above table. ";
                 if (densityFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), DENSITY), densityFromForm);
@@ -1803,7 +1803,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
             {
-                qDebug() << "esize here is different from the above table. ";
+                //qDebug() << "esize here is different from the above table. ";
                 if (esizeFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
@@ -1819,7 +1819,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
     } else
     {
-        qDebug() << "FEMStringList.size() not == edts.size() !";
+        //qDebug() << "FEMStringList.size() not == edts.size() !";
     }
 
 
@@ -1828,7 +1828,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
 void TabManager::onDataEdited()
 {
-    qDebug() << "edited. I feel that.";
+    //qDebug() << "edited. I feel that.";
 
     if (thisMatType=="Elastic")
         currentEdts = edtsElasticIsotropicFEM;
