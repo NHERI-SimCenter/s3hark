@@ -61,7 +61,7 @@ public:
 
     void cleanTable(){
         m_nStartId = 0;
-         m_nPageSize=MAXLAYERS;
+         m_nPageSize=PAGESIZE;
          m_nCurPageSize=0;
          m_nLastPageSize=0;
          m_nTotal=0;
@@ -71,8 +71,6 @@ public:
 
          m_ntotalHeight=10;
          m_nGWT = 0;
-
-
     }
 
 

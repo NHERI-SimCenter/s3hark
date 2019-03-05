@@ -66,7 +66,7 @@ void PostProcessor::calcDepths()
     double maxDepth = depths.last();
     for(int i=0;i<depths.size();i++)
         depths[i] = maxDepth - depths[i];
-    std::sort( depths.begin(), depths.end() );
+    //std::sort( depths.begin(), depths.end() );
 
     if (!m_depths.isEmpty())
         m_depths.clear();
@@ -240,7 +240,7 @@ void PostProcessor::calcDisp()
                 QVector<double> thisv;
                 for (int i=1; i<thisLine.size();i+=4)// TODO: 3D?
                 {
-                    double tmp = fabs(thisLine[i].trimmed().toDouble());
+                    double tmp = (thisLine[i].trimmed().toDouble());
                     thisv << tmp;
                 }
                 if(v.size()!=thisv.size() && v.size()<1)
@@ -255,7 +255,7 @@ void PostProcessor::calcDisp()
                 {
                     for (int j=0;j<thisv.size();j++)
                     {
-                        thisDisp = thisv[j]-v1[j];
+                        thisDisp = fabs(thisv[j]-thisv[0]);
                         if (thisDisp>v[j])
                             v[j] = thisDisp;
                     }
@@ -268,7 +268,7 @@ void PostProcessor::calcDisp()
     if (m_disp.size()>0)
         m_disp.clear();
     for(int i=0;i<v.size();i++)
-        m_disp.append( v[i] * 100 );
+        m_disp.append( v[i] );
 
 
 

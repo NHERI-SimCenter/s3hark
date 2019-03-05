@@ -38,6 +38,7 @@ public:
     void reFreshGMTab();
     void writeGM();
     void writeGMVintage();
+    QString loadGMtoStringVintage();
     bool writeSurfaceMotion();
     QString loadGMtoString();
     QString loadMotions2String(QString);

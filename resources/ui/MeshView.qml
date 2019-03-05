@@ -58,7 +58,7 @@ Rectangle {
                     y: -5
                     width: 10
                     height: 10
-                    color: white
+                    color: "white"
                     radius: 10 / 2
                 }
 

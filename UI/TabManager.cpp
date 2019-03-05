@@ -482,7 +482,7 @@ void TabManager::writeGM()
                     break;
                 }
             }
-        }else if(type=="Time-Displacement") // unit in g
+        }else if(type=="Time-Displacement")
         {
             for(int i=0;i<timeseries.size();i++)
             {
@@ -787,6 +787,130 @@ QString TabManager::loadGMtoString()
     QString text;
     QTextStream stream(&text);
 
+    /*
+     * Get rock motion from file
+     */
+    writeGM();
+    QFile timeFile(analysisDir+"/Rock.time");
+    QFile velFile(analysisDir+"/Rock.vel");
+    //QFile accFile(analysisDir+"/Rock.acc");
+    //QFile dispFile(analysisDir+"/Rock.disp");
+
+    QStringList xd, yd;
+    if(timeFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&timeFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<1)
+                break;
+            xd.append(thisLine[0].trimmed());
+        }
+        timeFile.close();
+    }
+    if(velFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&velFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<1)
+                break;
+            yd.append(thisLine[0].trimmed());
+        }
+        velFile.close();
+    }
+
+
+    stream << "xnew = ['x'";
+    for (int i=0; i<xd.size(); i++)
+        stream << ", "<<xd.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ynew = ['Rock motion'";
+    for (int i=0; i<yd.size(); i++)
+        stream << ", "<<yd.at(i);
+    stream <<"];" <<endl;
+
+    /*
+     * Get surface motion from file
+     */
+    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
+    QString surfaceVelFileName = analysisDir+"/out_tcl/surface.vel";
+    QFile surfaceVelFile(surfaceVelFileName);
+    QStringList xdSurfaceVel, ydSurfaceVel;
+    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceVel.append(thisLine[0].trimmed());
+                ydSurfaceVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceVelFile.close();
+    }
+
+    stream << "xSurfaceVel = ['x'";
+    for (int i=0; i<xdSurfaceVel.size(); i++)
+        stream << ", "<<xdSurfaceVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ySurfaceVel = ['Surface motion'";
+    for (int i=0; i<ydSurfaceVel.size(); i++)
+        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    stream <<"];" <<endl;
+
+    QString nodeResponseStr = loadNodeResponse("vel");
+    stream << nodeResponseStr;
+
+    writeSurfaceMotion();
+
+
+
+
+    //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
+    //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    //stream << "       chart.unload();"<<endl;
+    stream << "       setTimeout(function () {"<<endl;
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xnew,"<<endl;
+    stream <<"           ynew"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xSurfaceVel,"<<endl;
+    stream <<"           ySurfaceVel"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 1'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 2'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       }, 1000);"<<endl;
+    return text;
+
+}
+
+
+QString TabManager::loadGMtoStringVintage()
+{
+
+    QString text;
+    QTextStream stream(&text);
+
 
 
     /*
@@ -890,6 +1014,7 @@ QString TabManager::loadGMtoString()
     return text;
 
 }
+
 
 QString TabManager::loadMotions2String(QString motion)
 {

@@ -273,7 +273,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     {
         elementModel->clear();
         elementModel->refresh();
-        //loadFromJson();
+        loadFromJson();
 
         if(ui->tableView->m_sqlModel->rowCount()<1)
         {
