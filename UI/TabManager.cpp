@@ -1617,6 +1617,7 @@ bool TabManager::writeSurfaceMotion()
     saveFile.write(saveDoc.toJson());
     saveFile.close();
 
+    return 0;
 }
 
 

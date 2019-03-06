@@ -717,8 +717,10 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	double colArea = sElemX * colThickness; 
 	double vis_C = dashpotCoeff * colArea;
 	double cFactor = colArea * dashpotCoeff;
-    const int numberTheViscousMats = 1; // for 3D it's 2
-    UniaxialMaterial* theViscousMats[numberTheViscousMats];
+
+  const int numberTheViscousMats = 1; // for 3D it's 2
+  UniaxialMaterial* theViscousMats[numberTheViscousMats];
+
 	theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
 	OPS_addUniaxialMaterial(theViscousMats[0]);
 	
@@ -1315,5 +1317,5 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, int success, int r
 
 int SiteResponseModel::runEffectiveStressModel2D()
 {
-
+    return 0;
 }
