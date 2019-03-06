@@ -98,8 +98,10 @@ int main(int argc, char** argv)
         model->setTclOutputDir(outDir);
         model->setConfigFile(configureFile);
 
-        bool runAnalysis = false;
+        bool runAnalysis = true;
     	model->buildEffectiveStressModel2D(runAnalysis);
+
+
 
     }
 

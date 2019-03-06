@@ -146,14 +146,6 @@
                 function () {
                     chart.load({
                         columns: [
-                            xnew,
-                            ynew
-                        ]
-                    });
-                },
-                function () {
-                    chart.load({
-                        columns: [
                             time,
                             eval("Stress" + elementID.toString())
                         ]
@@ -205,6 +197,7 @@
         <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='stress.html';" value="Stress" />
         <input  class="btn" type="button" onclick="location.href='strain.html';"
             value="Strain" />
+        <input class="btn" type="button" onclick="location.href='stressstrainratio.html';" value="Ratio" />
         
 
         <div>

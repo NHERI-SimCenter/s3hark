@@ -20,6 +20,7 @@ public:
     void update();
     void calcDepths();
     void calcGamma();
+    void calcSigma();
     void calcDisp();
     void calcRu();
     void calcRuDepths();
@@ -29,6 +30,7 @@ public:
     QVector<double> getDepths(){return m_depths;}
     QVector<double> getRuDepths(){return m_ruDepths;}
     QVector<double> getGamma(){return m_gamma;}
+    QVector<double> getSigma(){return m_sigma;}
     QVector<double> getDisp(){return m_disp;}
     QVector<double> getRu(){return m_ru;}
 
@@ -50,6 +52,7 @@ private:
     QVector<double> m_depths;
     QVector<double> m_ruDepths;
     QVector<double> m_gamma;
+    QVector<double> m_sigma;
     QVector<double> m_disp;
     QVector<double> m_ru;
     double g=9.81;
@@ -70,6 +73,7 @@ private:
     QString pgaFileName = QDir(m_outputDir).filePath("pga.dat");
     QString ruFileName = QDir(m_outputDir).filePath("ru.dat");
     QString gammaMaxFileName = QDir(m_outputDir).filePath("gammaMax.dat");
+    QString sigmaMaxFileName = QDir(m_outputDir).filePath("sigmaMax.dat");
     QString dispMaxFileName = QDir(m_outputDir).filePath("dispMax.dat");
 
 

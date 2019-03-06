@@ -410,7 +410,7 @@ void TabManager::writeGM()
     QString in;
     QFile inputFile(newGmPathStr);
     if(inputFile.open(QFile::ReadOnly)) {
-    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    //inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
     in = inputFile.readAll();
     inputFile.close();
     }
@@ -482,7 +482,7 @@ void TabManager::writeGM()
                     break;
                 }
             }
-        }else if(type=="Time-Displacement") // unit in g
+        }else if(type=="Time-Displacement")
         {
             for(int i=0;i<timeseries.size();i++)
             {
@@ -610,10 +610,13 @@ void TabManager::reFreshGMTab()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadGMtoString();
@@ -621,15 +624,18 @@ void TabManager::reFreshGMTab()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 
     updateAccHtml();
     updateDispHtml();
     updatePWPHtml();
     updateStrainHtml();
     updateStressHtml();
+    updateStressStrainHtml();
 
     GMView->reload();
     //GMView->show();
@@ -646,11 +652,14 @@ void TabManager::updateAccHtml()
     QFile::remove(newPath);
 
     // read template file into string
+    QString text;
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
 
@@ -660,9 +669,11 @@ void TabManager::updateAccHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 void TabManager::updateDispHtml()
@@ -675,11 +686,14 @@ void TabManager::updateDispHtml()
     QFile::remove(newPath);
 
     // read template file into string
+    QString text;
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadMotions2String("disp");
@@ -688,9 +702,11 @@ void TabManager::updateDispHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 void TabManager::updateStrainHtml()
@@ -704,10 +720,13 @@ void TabManager::updateStrainHtml()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadEleResponse("strain");
@@ -716,9 +735,11 @@ void TabManager::updateStrainHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 
@@ -733,10 +754,13 @@ void TabManager::updateStressHtml()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadEleResponse("stress");
@@ -745,9 +769,44 @@ void TabManager::updateStressHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
+}
+
+void TabManager::updateStressStrainHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(strainHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrainratio-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrainratio.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
+
+
+    QString insertedString = loadEleResponse("stressstrainratio");
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 void TabManager::updatePWPHtml()
@@ -761,10 +820,13 @@ void TabManager::updatePWPHtml()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadPWPResponse();
@@ -773,15 +835,141 @@ void TabManager::updatePWPHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 
 
 
 QString TabManager::loadGMtoString()
+{
+
+    QString text;
+    QTextStream stream(&text);
+
+    /*
+     * Get rock motion from file
+     */
+    writeGM();
+    QFile timeFile(analysisDir+"/Rock.time");
+    QFile velFile(analysisDir+"/Rock.vel");
+    //QFile accFile(analysisDir+"/Rock.acc");
+    //QFile dispFile(analysisDir+"/Rock.disp");
+
+    QStringList xd, yd;
+    if(timeFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&timeFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<1)
+                break;
+            xd.append(thisLine[0].trimmed());
+        }
+        timeFile.close();
+    }
+    if(velFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&velFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<1)
+                break;
+            yd.append(thisLine[0].trimmed());
+        }
+        velFile.close();
+    }
+
+
+    stream << "xnew = ['x'";
+    for (int i=0; i<xd.size(); i++)
+        stream << ", "<<xd.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ynew = ['Rock motion'";
+    for (int i=0; i<yd.size(); i++)
+        stream << ", "<<yd.at(i);
+    stream <<"];" <<endl;
+
+    /*
+     * Get surface motion from file
+     */
+    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
+    QString surfaceVelFileName = analysisDir+"/out_tcl/surface.vel";
+    QFile surfaceVelFile(surfaceVelFileName);
+    QStringList xdSurfaceVel, ydSurfaceVel;
+    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&surfaceVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                xdSurfaceVel.append(thisLine[0].trimmed());
+                ydSurfaceVel.append(thisLine[1].trimmed());
+
+            }
+
+        }
+        surfaceVelFile.close();
+    }
+
+    stream << "xSurfaceVel = ['x'";
+    for (int i=0; i<xdSurfaceVel.size(); i++)
+        stream << ", "<<xdSurfaceVel.at(i);
+    stream <<"];" <<endl;
+
+    stream << "ySurfaceVel = ['Surface motion'";
+    for (int i=0; i<ydSurfaceVel.size(); i++)
+        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    stream <<"];" <<endl;
+
+    QString nodeResponseStr = loadNodeResponse("vel");
+    stream << nodeResponseStr;
+
+    writeSurfaceMotion();
+
+
+
+
+    //stream << "       xnew = ['x', 1, 2, 3, 4, 5, 6];" <<endl;
+    //stream << "       ynew = ['Ground motion', 70, 180, 190, 180, 80, 250];"<<endl;
+    //stream << "       chart.unload();"<<endl;
+    stream << "       setTimeout(function () {"<<endl;
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xnew,"<<endl;
+    stream <<"           ynew"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream << "       chart.load({"<<endl;
+    stream << "           columns: ["<<endl;
+    stream << "           xSurfaceVel,"<<endl;
+    stream <<"           ySurfaceVel"<<endl;
+    stream <<"           ]"<<endl;
+    stream <<"       });"<<endl;
+
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 1'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       chart.unload({"<<endl;
+    stream <<"           ids: 'Demo motion 2'"<<endl;
+    stream <<"       });"<<endl;
+    stream <<"       }, 1000);"<<endl;
+    return text;
+
+}
+
+
+QString TabManager::loadGMtoStringVintage()
 {
 
     QString text;
@@ -890,6 +1078,7 @@ QString TabManager::loadGMtoString()
     return text;
 
 }
+
 
 QString TabManager::loadMotions2String(QString motion)
 {
@@ -1195,15 +1384,8 @@ QString TabManager::loadPWPResponse()
 
 }
 
-QString TabManager::loadEleResponse(QString motion)
+QVector<QVector<double>> TabManager::getElemResVec(QString fileName)
 {
-
-    QString fileName;
-    if (motion=="strain")
-        fileName = postProcessor->getStrainFileName();
-    else if (motion=="stress")
-        fileName = postProcessor->getStressFileName();
-
     QFile File(fileName);
 
     QVector<QVector<double>> v;
@@ -1240,34 +1422,96 @@ QString TabManager::loadEleResponse(QString motion)
         }
         File.close();
     }
+    return v;
+}
+
+QString TabManager::loadEleResponse(QString motion)
+{
+
+    QString fileName;
+    QString stressFileName = postProcessor->getStressFileName();
+    QString strainFileName = postProcessor->getStrainFileName();
+    QVector<QVector<double>> vStress = getElemResVec(stressFileName);
+    QVector<QVector<double>> vStrain = getElemResVec(strainFileName);
+
+    if (motion=="strain")
+    {
+        fileName = postProcessor->getStrainFileName();
+        vStrain = getElemResVec(fileName);
+    }
+    else if (motion=="stress")
+    {
+        fileName = postProcessor->getStressFileName();
+        vStress = getElemResVec(fileName);
+    }
+    else if (motion=="stressstrainratio")
+    {
+        QString stressFileName = postProcessor->getStressFileName();
+        QString strainFileName = postProcessor->getStrainFileName();
+        vStress = getElemResVec(stressFileName);
+        vStrain = getElemResVec(strainFileName);
+    }
+
+    QVector<QVector<double>> v;
+
+
 
     QString text;
     QTextStream stream(&text);
 
-    if(v.size()>0)
+    if(vStress.size()>0)
     {
-    stream << "time = ['x'";
-    for (int i=0; i<v[0].size(); i++)
-        stream << ", "<<v[0][i];
-    stream <<"];" <<endl;
-
-    QString outTitle;
-    if(motion=="strain")
-        outTitle = "Strain";
-    else if(motion=="stress")
-        outTitle="Stress";
-
-    int eleID = elementModel->getSize();
-    for (int j=3;j<v.size();j+=3)
-    {
-        eleID -= 1;
-        //stream << "n1 = ['Node 1'";
-        stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
-        //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
-        for (int i=0; i<v[j].size(); i++)
-            stream << ", "<<v[j][i];
+        stream << "time = ['x'";
+        for (int i=0; i<vStress[0].size(); i++)
+            stream << ", "<<vStress[0][i];
         stream <<"];" <<endl;
-    }
+
+        QString outTitle;
+        if(motion=="strain")
+        {
+            outTitle = "Strain";
+            v = vStrain;
+        }
+        else if(motion=="stress")
+        {
+            outTitle="Stress";
+            v = vStress;
+        }
+        else if(motion=="stressstrainratio")
+            outTitle="StressStrainRatio";
+
+        if(motion!="stressstrainratio")
+        {
+            int eleID = elementModel->getSize();
+            for (int j=3;j<v.size();j+=3)
+            {
+                eleID -= 1;
+                //stream << "n1 = ['Node 1'";
+                stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+                //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                for (int i=0; i<v[j].size(); i++)
+                    stream << ", "<<v[j][i];
+                stream <<"];" <<endl;
+            }
+        }else{
+            int eleID = elementModel->getSize();
+            double tol = 1.0e-7;
+            for (int j=3;j<vStress.size();j+=3)
+            {
+                eleID -= 1;
+                //stream << "n1 = ['Node 1'";
+                stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+                //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                for (int i=0; i<vStress[j].size(); i++)
+                {
+                    if(abs(vStrain[j][i])<tol)
+                        stream << ", "<<vStress[j][i] / tol;
+                    else
+                        stream << ", "<<vStress[j][i] / vStrain[j][i] ;
+                }
+                stream <<"];" <<endl;
+            }
+        }
     }
 
 
@@ -1609,7 +1853,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
             if(densityFromTable != densityFromForm)
             {
-                qDebug() << "Den here is different from the above table. ";
+                //qDebug() << "Den here is different from the above table. ";
                 if (densityFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), DENSITY), densityFromForm);
@@ -1637,7 +1881,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
             {
-                qDebug() << "esize here is different from the above table. ";
+                //qDebug() << "esize here is different from the above table. ";
                 if (esizeFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
@@ -1661,7 +1905,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
             if(densityFromTable != densityFromForm)
             {
-                qDebug() << "Den here is different from the above table. ";
+                //qDebug() << "Den here is different from the above table. ";
                 if (densityFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), DENSITY), densityFromForm);
@@ -1678,7 +1922,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
             {
-                qDebug() << "esize here is different from the above table. ";
+                //qDebug() << "esize here is different from the above table. ";
                 if (esizeFromTable == "")
                 {
                     tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
@@ -1694,7 +1938,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
     } else
     {
-        qDebug() << "FEMStringList.size() not == edts.size() !";
+        //qDebug() << "FEMStringList.size() not == edts.size() !";
     }
 
 
@@ -1703,7 +1947,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
 void TabManager::onDataEdited()
 {
-    qDebug() << "edited. I feel that.";
+    //qDebug() << "edited. I feel that.";
 
     if (thisMatType=="Elastic")
         currentEdts = edtsElasticIsotropicFEM;

@@ -19,6 +19,7 @@ public:
     ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWidget *parent = nullptr);
     void updatePGAHtml();
     void updateGammaHtml();
+    void updateStressStrainHtml();
     void updateDispHtml();
     void updateRuHtml();
     void updatePostProcessor(PostProcessor *);
@@ -32,11 +33,13 @@ private:
     QTabWidget *m_tab;
     QWebEngineView *pgaHtmlView;
     QWebEngineView *gammaHtmlView;
+    QWebEngineView *stressStrainHtmlView;
     QWebEngineView *dispHtmlView;
     QWebEngineView *ruHtmlView;
     PostProcessor *postProcessor;
     QString pgaHtmlName = QDir(rootDir).filePath("resources/ui/Profile/pga.html");
     QString gammaHtmlName = QDir(rootDir).filePath("resources/ui/Profile/gamma.html");
+    QString stressStrainHtmlName = QDir(rootDir).filePath("resources/ui/Profile/stressstrain.html");
     QString dispHtmlName = QDir(rootDir).filePath("resources/ui/Profile/disp.html");
     QString ruHtmlName = QDir(rootDir).filePath("resources/ui/Profile/ru.html");
 };

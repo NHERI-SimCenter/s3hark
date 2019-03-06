@@ -18,6 +18,7 @@
 #include <QWebChannel>
 #include "ElementModel.h"
 #include "PostProcessor.h"
+#include <math.h>
 
 
 
@@ -38,6 +39,7 @@ public:
     void reFreshGMTab();
     void writeGM();
     void writeGMVintage();
+    QString loadGMtoStringVintage();
     bool writeSurfaceMotion();
     QString loadGMtoString();
     QString loadMotions2String(QString);
@@ -53,10 +55,12 @@ public:
     void updatePWPHtml();
     void updateStrainHtml();
     void updateStressHtml();
+    void updateStressStrainHtml();
     void reFreshGMView(){GMView->show();}
     void setPM4SandToolTps();
     void updatePostProcessor(PostProcessor *postProcessort);
     void setGMViewLoaded(){GMViewLoaded = true;}
+    QVector<QVector<double>> getElemResVec(QString);
 
 signals:
     void configTabUpdated();

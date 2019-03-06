@@ -6,8 +6,7 @@ import QtQuick.Shapes 1.0
 Rectangle {
     anchors.centerIn: parent
     id: container
-    width: parent.width //200//parent.width
-    height: parent.height //500//320
+    anchors.fill: parent
     color: "#ffffff" //"#e2e2e2"
 
     //border.color: "black"
@@ -58,7 +57,7 @@ Rectangle {
                     y: -5
                     width: 10
                     height: 10
-                    color: white
+                    color: "white"
                     radius: 10 / 2
                 }
 
