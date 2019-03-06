@@ -610,10 +610,13 @@ void TabManager::reFreshGMTab()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadGMtoString();
@@ -621,9 +624,11 @@ void TabManager::reFreshGMTab()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 
     updateAccHtml();
     updateDispHtml();
@@ -646,11 +651,14 @@ void TabManager::updateAccHtml()
     QFile::remove(newPath);
 
     // read template file into string
+    QString text;
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
 
@@ -660,9 +668,11 @@ void TabManager::updateAccHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 void TabManager::updateDispHtml()
@@ -675,11 +685,14 @@ void TabManager::updateDispHtml()
     QFile::remove(newPath);
 
     // read template file into string
+    QString text;
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadMotions2String("disp");
@@ -688,9 +701,11 @@ void TabManager::updateDispHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 void TabManager::updateStrainHtml()
@@ -704,10 +719,13 @@ void TabManager::updateStrainHtml()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadEleResponse("strain");
@@ -716,9 +734,11 @@ void TabManager::updateStrainHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 
@@ -733,10 +753,13 @@ void TabManager::updateStressHtml()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadEleResponse("stress");
@@ -745,9 +768,11 @@ void TabManager::updateStressHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 void TabManager::updatePWPHtml()
@@ -761,10 +786,13 @@ void TabManager::updatePWPHtml()
 
     // read template file into string
     QFile file(tmpPath);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QByteArray t = file.readAll();
-    QString text = QString(t);
-    file.close();
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
 
 
     QString insertedString = loadPWPResponse();
@@ -773,9 +801,11 @@ void TabManager::updatePWPHtml()
 
     // write to index.html
     QFile newfile(newPath);
-    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfile.write(text.toUtf8());
-    newfile.close();
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
 }
 
 
