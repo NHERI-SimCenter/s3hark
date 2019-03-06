@@ -45,6 +45,7 @@ public slots:
     void on_thickness_edited();
     void onConfigTabUpdated();
 
+
 private slots:
 
     void insert();
@@ -92,6 +93,7 @@ signals:
     void gwtChanged(const QString &newGWT);
     void tableMoved();
     void runBtnClicked(QWebEngineView*);
+    void signalProgress(int);
 
 private:
     Ui::RockOutcrop *ui;

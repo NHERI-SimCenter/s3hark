@@ -117,7 +117,7 @@ bool Mesher::mesh2DColumn(){
             }
             }
 
-            std::cout << "eleTag: " << eTag << std::endl;
+            //std::cout << "eleTag: " << eTag << std::endl;
             m_numLayers += 1;
         }
         m_totalHeight = ycrd;

@@ -1,8 +1,8 @@
 source = $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 FF  = gfortran
-CC  = clang
-CXX = clang++
+CC  = /usr/local/bin/gcc
+CXX = /usr/local/bin/g++
 
 CXXOPTFLAG = -Wall -D_LINUX -D_UNIX -Wno-reorder -O3 -ffloat-store -g -O0 -mmacosx-version-min=10.11 -std=c++11
 FFNOPTFLAG = -Wall -O
@@ -12,13 +12,14 @@ LINCLUDE = -I$(source) \
 		-I$(source)/Include \
 	   -I$(source)/FEM \
 	   -I$(source)/SiteResponse \
-	   -I$(source)/UI
+	   -I$(source)/UI \
+	   -I/usr/local/include/c++/8.1.0
 	   
 	   
 
 NUMLIBS = -L/usr/local/lib -L/usr/local/opt/lapack/lib -lblas -llapack -llapacke -L/usr/lib  -lm -ldl -lgfortran
 
-MINCLUDE = -I/usr/include -I/usr/local/opt/lapack/include 
+MINCLUDE = -I/usr/include -I/usr/local/opt/lapack/include -I/usr/local/include/c++/8.1.0
 
 FEMlib  = $(source)/lib/libFEM.a
 SRTlib  = $(source)/lib/libSRT.a

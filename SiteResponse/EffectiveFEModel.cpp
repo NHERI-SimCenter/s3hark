@@ -717,8 +717,10 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	double colArea = sElemX * colThickness; 
 	double vis_C = dashpotCoeff * colArea;
 	double cFactor = colArea * dashpotCoeff;
-	int numberTheViscousMats = 1; // for 3D it's 2
-    UniaxialMaterial *theViscousMats[1];
+
+  const int numberTheViscousMats = 1; // for 3D it's 2
+  UniaxialMaterial* theViscousMats[numberTheViscousMats];
+
 	theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
 	OPS_addUniaxialMaterial(theViscousMats[0]);
 	
@@ -1084,7 +1086,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	// Record the response of all nodes
 	nodesToRecord.resize(numNodes);
 	for (int i=0;i<numNodes;i++)
-		nodesToRecord(i) = i;
+        nodesToRecord(i) = i+1;
 	dofToRecord.resize(2);
 	dofToRecord(0) = 0;
 	dofToRecord(1) = 1;
@@ -1302,11 +1304,11 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, int success, int r
 {
 	if (subStep > 10)
 		return -10;
-	for (int i; i < 3; i++)
+    for (int i=0; i < 3; i++)
 	{
 		opserr << "Try dT = " << dT << endln;
-		success = theTransientAnalysis->analyze(remStep, dT);// 0 means success
-		//success = subStepAnalyze(int(dT/2), subStep +1, success);
+        success = theTransientAnalysis->analyze(remStep, dT);// 0 means success
+        //success = subStepAnalyze(dT/2, subStep +1,);
 	}
 	
 	return 0;

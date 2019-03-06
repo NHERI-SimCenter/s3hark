@@ -16,7 +16,7 @@
 
 BonzaTableView::BonzaTableView(QWidget *parent) :
     QTableView(parent),
-    m_nStartId(0), m_nPageSize(MAXLAYERS), m_nCurPageSize(0), m_nTotal(0),
+    m_nStartId(0), m_nPageSize(PAGESIZE), m_nCurPageSize(0), m_nTotal(0),
     m_nCurPage(1), m_nTotalPage(0), m_ntotalHeight(10), m_nGWT(0)
 {
 
@@ -228,6 +228,7 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
         //int insertPosition = 1;
         this->model()->insertRow(m_nTotal);// actually added to the end of the table, stupid qt.
 
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -239,12 +240,14 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
         // really put the data on the inserted row
         m_sqlModel->setData(m_sqlModel->index(m_nTotal, CHECKED), 0);
         m_sqlModel->setData(m_sqlModel->index(m_nTotal, LAYERNAME), "Layer "+QString::number(insertPosition+1));
         m_sqlModel->setData(m_sqlModel->index(m_nTotal, THICKNESS), "3");
 
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -256,6 +259,7 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
 
         if(m_nTotal>=1)
@@ -282,6 +286,7 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
             m_sqlModel->setData(m_sqlModel->index(m_nTotal, COLOR), "Black");
         }
 
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -293,6 +298,7 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
 
         bool b;
@@ -313,7 +319,7 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
 
 
 
-
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -325,6 +331,7 @@ void BonzaTableView::insertAt(const QList<QVariant> &valueList, int insertPositi
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
 
         bool inse = m_sqlModel->submitAll();
@@ -358,6 +365,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
         //int insertPosition = 1;
         this->model()->insertRow(m_nTotal);// actually added to the end of the table, stupid qt.
 
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -369,12 +377,14 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
         // really put the data on the inserted row
         m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, CHECKED), 0);
         m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, LAYERNAME), "Layer "+QString::number(insertPosition+1));
         m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, THICKNESS), "3");
 
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -386,6 +396,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
 
         if(m_nTotal>=1)
@@ -412,6 +423,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
             m_sqlModel->setDataSilent(m_sqlModel->index(m_nTotal, COLOR), "Black");
         }
 
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -423,6 +435,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
 
         bool b;
@@ -443,7 +456,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
 
 
 
-
+        /*
         // print table for debug
         for( int i = m_nTotal+1; i > -1; --i)
         {
@@ -455,6 +468,7 @@ void BonzaTableView::insertAtSilent(const QList<QVariant> &valueList, int insert
             QString thickness = myrecord.value("THICKNESS").toString();
             qDebug() <<"ID: " <<id << "; name: " << name << " ; color:" << color << " ; checked: " << checked << " ;thickness " << thickness;
         }
+        */
 
 
         bool inse = m_sqlModel->submitAll();
