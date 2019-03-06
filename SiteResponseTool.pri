@@ -14,6 +14,15 @@ INCLUDEPATH +=
 }
 
 win32: {
+
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/release/lapack.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/release/blas.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/libifcoremt.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/libirc.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/ifconsol.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/libifport.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/libmmt.lib"
+LIBS += "C:/Adam/OpenSEES source/Win64/lib/svml_dispmt.lib"
 # You must append your lapack include path if it is not in a standard place.
 
 }
