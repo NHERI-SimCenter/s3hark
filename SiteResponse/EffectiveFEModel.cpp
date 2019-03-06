@@ -1315,5 +1315,5 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, int success, int r
 
 int SiteResponseModel::runEffectiveStressModel2D()
 {
-
+    return 0;
 }
