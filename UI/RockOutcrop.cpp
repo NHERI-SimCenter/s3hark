@@ -317,6 +317,12 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     //connect(openseesProcess, SIGNAL(readyReadStandardOutput()),this,SLOT(onOpenSeesFinished()));
     connect(openseesProcess, SIGNAL(readyReadStandardError()),this,SLOT(onOpenSeesFinished()));
 
+    ui->rightLayout->setContentsMargins(0,0,0,0);
+    ui->rightLayout->setSpacing(0);
+
+    ui->progressBar->hide();
+    connect( this, SIGNAL( signalProgress(int) ), ui->progressBar, SLOT( setValue(int) ) );
+
     if(!QDir(outputDir).exists())
         QDir().mkdir(outputDir);
 
@@ -1063,6 +1069,9 @@ void RockOutcrop::on_runBtn_clicked()
             if(!QDir(outputDir).exists())
                 QDir().mkdir(outputDir);
 
+            ui->progressBar->show();
+            emit signalProgress(10);
+
             //
             // Calling Opensee to do the work
             //
@@ -1070,6 +1079,7 @@ void RockOutcrop::on_runBtn_clicked()
             //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
             openseesProcess->start(openseespath,QStringList()<<tclName);
             openseesErrCount = 1;
+
             emit runBtnClicked(dinoView);
         }
     }
@@ -1104,6 +1114,11 @@ void RockOutcrop::onOpenSeesFinished()
             connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
             postProcessor->update();
 
+            emit signalProgress(100);
+            ui->progressBar->hide();
+
+        }else{
+            //ui->progressBar->setValue(0);
         }
     }
 

@@ -42,6 +42,21 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     gammaHtmlView->show();
     m_tab->addTab(gammaHtmlView,"\u03B3max(%)");
 
+    // stress-strain ratio max view
+    stressStrainHtmlView = new QWebEngineView(this);
+    if(!QFileInfo(stressStrainHtmlName).exists())
+    {
+        // get file paths
+        QFileInfo htmlInfo(stressStrainHtmlName);
+        //QString dir = htmlInfo.path();
+        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain-template.html");
+        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain.html");
+        QFile::copy(tmpPath, newPath);
+    }
+    stressStrainHtmlView->load(QUrl::fromLocalFile(QFileInfo(stressStrainHtmlName).absoluteFilePath()));
+    stressStrainHtmlView->show();
+    m_tab->addTab(stressStrainHtmlView,"(σ/\u03B3)max");
+
     // disp max view
     dispHtmlView = new QWebEngineView(this);
     if(!QFileInfo(dispHtmlName).exists())
@@ -95,6 +110,7 @@ void ProfileManager::onPostProcessorUpdated()
 {
     updatePGAHtml();
     updateGammaHtml();
+    updateStressStrainHtml();
     updateDispHtml();
     updateRuHtml();
 
@@ -104,6 +120,8 @@ void ProfileManager::onPostProcessorUpdated()
     pgaHtmlView->show();
     gammaHtmlView->reload();
     gammaHtmlView->show();
+    stressStrainHtmlView->reload();
+    stressStrainHtmlView->reload();
     dispHtmlView->reload();
     dispHtmlView->show();
     ruHtmlView->reload();
@@ -185,6 +203,50 @@ void ProfileManager::updateGammaHtml()
     stream << "yd = ['&gamma;',NaN";
     for (int i=0;i<gamma.size();i++)
         stream << ", " << gamma[i];
+    stream << ",NaN]; \n";
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+
+
+}
+
+
+void ProfileManager::updateStressStrainHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(stressStrainHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    //QString insertedString = loadGMtoString();
+    QString insertedString;
+    QTextStream stream(&insertedString);
+    QVector<double> depths =  postProcessor->getRuDepths();
+    QVector<double> gamma =  postProcessor->getGamma();
+    QVector<double> sigma =  postProcessor->getSigma();
+
+    stream << "xd = ['Depth'";
+    for (int i=0;i<depths.size();i++)
+        stream << ", " << depths[i];
+    stream << "]; \n";
+    stream << "yd = ['&sigma;/&gamma;',NaN";
+    for (int i=0;i<gamma.size();i++)
+        stream << ", " << gamma[i]/100.0/sigma[i];
     stream << ",NaN]; \n";
     text.replace(QString("//UPDATEPOINT"), insertedString);
 

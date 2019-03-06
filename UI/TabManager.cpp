@@ -635,6 +635,7 @@ void TabManager::reFreshGMTab()
     updatePWPHtml();
     updateStrainHtml();
     updateStressHtml();
+    updateStressStrainHtml();
 
     GMView->reload();
     //GMView->show();
@@ -763,6 +764,39 @@ void TabManager::updateStressHtml()
 
 
     QString insertedString = loadEleResponse("stress");
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
+}
+
+void TabManager::updateStressStrainHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(strainHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrainratio-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrainratio.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
+
+
+    QString insertedString = loadEleResponse("stressstrainratio");
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
 
@@ -1350,15 +1384,8 @@ QString TabManager::loadPWPResponse()
 
 }
 
-QString TabManager::loadEleResponse(QString motion)
+QVector<QVector<double>> TabManager::getElemResVec(QString fileName)
 {
-
-    QString fileName;
-    if (motion=="strain")
-        fileName = postProcessor->getStrainFileName();
-    else if (motion=="stress")
-        fileName = postProcessor->getStressFileName();
-
     QFile File(fileName);
 
     QVector<QVector<double>> v;
@@ -1395,34 +1422,96 @@ QString TabManager::loadEleResponse(QString motion)
         }
         File.close();
     }
+    return v;
+}
+
+QString TabManager::loadEleResponse(QString motion)
+{
+
+    QString fileName;
+    QString stressFileName = postProcessor->getStressFileName();
+    QString strainFileName = postProcessor->getStrainFileName();
+    QVector<QVector<double>> vStress = getElemResVec(stressFileName);
+    QVector<QVector<double>> vStrain = getElemResVec(strainFileName);
+
+    if (motion=="strain")
+    {
+        fileName = postProcessor->getStrainFileName();
+        vStrain = getElemResVec(fileName);
+    }
+    else if (motion=="stress")
+    {
+        fileName = postProcessor->getStressFileName();
+        vStress = getElemResVec(fileName);
+    }
+    else if (motion=="stressstrainratio")
+    {
+        QString stressFileName = postProcessor->getStressFileName();
+        QString strainFileName = postProcessor->getStrainFileName();
+        vStress = getElemResVec(stressFileName);
+        vStrain = getElemResVec(strainFileName);
+    }
+
+    QVector<QVector<double>> v;
+
+
 
     QString text;
     QTextStream stream(&text);
 
-    if(v.size()>0)
+    if(vStress.size()>0)
     {
-    stream << "time = ['x'";
-    for (int i=0; i<v[0].size(); i++)
-        stream << ", "<<v[0][i];
-    stream <<"];" <<endl;
-
-    QString outTitle;
-    if(motion=="strain")
-        outTitle = "Strain";
-    else if(motion=="stress")
-        outTitle="Stress";
-
-    int eleID = elementModel->getSize();
-    for (int j=3;j<v.size();j+=3)
-    {
-        eleID -= 1;
-        //stream << "n1 = ['Node 1'";
-        stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
-        //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
-        for (int i=0; i<v[j].size(); i++)
-            stream << ", "<<v[j][i];
+        stream << "time = ['x'";
+        for (int i=0; i<vStress[0].size(); i++)
+            stream << ", "<<vStress[0][i];
         stream <<"];" <<endl;
-    }
+
+        QString outTitle;
+        if(motion=="strain")
+        {
+            outTitle = "Strain";
+            v = vStrain;
+        }
+        else if(motion=="stress")
+        {
+            outTitle="Stress";
+            v = vStress;
+        }
+        else if(motion=="stressstrainratio")
+            outTitle="StressStrainRatio";
+
+        if(motion!="stressstrainratio")
+        {
+            int eleID = elementModel->getSize();
+            for (int j=3;j<v.size();j+=3)
+            {
+                eleID -= 1;
+                //stream << "n1 = ['Node 1'";
+                stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+                //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                for (int i=0; i<v[j].size(); i++)
+                    stream << ", "<<v[j][i];
+                stream <<"];" <<endl;
+            }
+        }else{
+            int eleID = elementModel->getSize();
+            double tol = 1.0e-7;
+            for (int j=3;j<vStress.size();j+=3)
+            {
+                eleID -= 1;
+                //stream << "n1 = ['Node 1'";
+                stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+                //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                for (int i=0; i<vStress[j].size(); i++)
+                {
+                    if(abs(vStrain[j][i])<tol)
+                        stream << ", "<<vStress[j][i] / tol;
+                    else
+                        stream << ", "<<vStress[j][i] / vStrain[j][i] ;
+                }
+                stream <<"];" <<endl;
+            }
+        }
     }
 
 
