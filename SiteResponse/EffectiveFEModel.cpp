@@ -718,7 +718,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	double vis_C = dashpotCoeff * colArea;
 	double cFactor = colArea * dashpotCoeff;
 	int numberTheViscousMats = 1; // for 3D it's 2
-	UniaxialMaterial *theViscousMats[numberTheViscousMats];
+    UniaxialMaterial *theViscousMats[1];
 	theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
 	OPS_addUniaxialMaterial(theViscousMats[0]);
 	
