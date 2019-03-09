@@ -77,7 +77,7 @@ public slots:
     void onOpenseesBtnClicked();
     void onFEMTabEdited();
     double getGWTFromConfig();
-    void onRunBtnClicked(QWebEngineView*);
+    void onRunBtnClicked();
     void onOpenseesTextChanged(const QString&);
     void onGMTextChanged(const QString&);
     void onSecondaryBtnClicked(bool);

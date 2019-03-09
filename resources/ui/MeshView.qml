@@ -65,6 +65,8 @@ Rectangle {
 
                 property real startXGWT: (width - soilWidth) / 2
                 property real startYGWT: 0.0//(theGWT + 0.15 * elements.getTotalHeight(
+
+                // right arrow
                 Shape {
 
                     // water table
@@ -82,6 +84,31 @@ Rectangle {
                         }
                         PathLine {
                             x: soilWidth+1 +5
+                            y: 5
+                        }
+
+
+                    }
+                }
+
+                // left arrow
+                Shape {
+
+                    // water table
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: active ? "blue" : "white"
+                        strokeStyle: ShapePath.SolidLine
+                        dashPattern: [1, 2]
+
+                        startX: -1 - 5
+                        startY: -5
+                        PathLine {
+                            x: -1
+                            y: 0
+                        }
+                        PathLine {
+                            x: -1 -5
                             y: 5
                         }
 

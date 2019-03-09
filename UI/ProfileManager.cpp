@@ -42,6 +42,7 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     gammaHtmlView->show();
     m_tab->addTab(gammaHtmlView,"\u03B3max(%)");
 
+    /*
     // stress-strain ratio max view
     stressStrainHtmlView = new QWebEngineView(this);
     if(!QFileInfo(stressStrainHtmlName).exists())
@@ -56,6 +57,7 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     stressStrainHtmlView->load(QUrl::fromLocalFile(QFileInfo(stressStrainHtmlName).absoluteFilePath()));
     stressStrainHtmlView->show();
     m_tab->addTab(stressStrainHtmlView,"(σ/\u03B3)max");
+    */
 
     // disp max view
     dispHtmlView = new QWebEngineView(this);
@@ -110,7 +112,7 @@ void ProfileManager::onPostProcessorUpdated()
 {
     updatePGAHtml();
     updateGammaHtml();
-    updateStressStrainHtml();
+    //updateStressStrainHtml();
     updateDispHtml();
     updateRuHtml();
 
@@ -120,8 +122,8 @@ void ProfileManager::onPostProcessorUpdated()
     pgaHtmlView->show();
     gammaHtmlView->reload();
     gammaHtmlView->show();
-    stressStrainHtmlView->reload();
-    stressStrainHtmlView->reload();
+    //stressStrainHtmlView->reload();
+    //stressStrainHtmlView->reload();
     dispHtmlView->reload();
     dispHtmlView->show();
     ruHtmlView->reload();

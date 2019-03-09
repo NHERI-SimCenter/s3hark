@@ -136,17 +136,35 @@ SiteResponseModel::SiteResponseModel(SiteLayering layering, std::string modelTyp
 	}
 }
 
-SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX) : theModelType(modelType),
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX, std::function<void(double)> callbackFunction) : theModelType(modelType),
 																											 theMotionX(motionX),
-																											 theOutputDir(".")
+                                                                                                             theOutputDir(".")
 {
 	if (theMotionX->isInitialized())
-		theDomain = new Domain();
+    {
+        theDomain = new Domain();
+        m_callbackFunction = callbackFunction;
+    }
 	else
 	{
         opserr << "No motion is specified. Program exited." << endln;
 		exit(-1);
 	}
+}
+
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX) : theModelType(modelType),
+                                                                                                             theMotionX(motionX),
+                                                                                                             theOutputDir(".")
+{
+    if (theMotionX->isInitialized())
+    {
+        theDomain = new Domain();
+    }
+    else
+    {
+        opserr << "No motion is specified. Program exited." << endln;
+        exit(-1);
+    }
 }
 
 SiteResponseModel::~SiteResponseModel()
@@ -718,8 +736,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	double vis_C = dashpotCoeff * colArea;
 	double cFactor = colArea * dashpotCoeff;
 
-  const int numberTheViscousMats = 1; // for 3D it's 2
-  UniaxialMaterial* theViscousMats[numberTheViscousMats];
+    const int numberTheViscousMats = 1; // for 3D it's 2
+    UniaxialMaterial* theViscousMats[numberTheViscousMats];
 
 	theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
 	OPS_addUniaxialMaterial(theViscousMats[0]);
@@ -1197,7 +1215,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	*/
 	
 
-	
+    /*
 	s << "puts \"Start analysis\"" << endln;
 	s << "set startT [clock seconds]" << endln;
 	s << "while {$success != -10} {" << endln;
@@ -1215,6 +1233,32 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "		puts \"Current step: $curStep , Remaining steps: $remStep\"" << endln;
 	s << "	}" << endln;
 	s << "}" << endln << endln;
+    */
+
+
+    s << "puts \"Start analysis\"" << endln;
+    s << "set startT [clock seconds]" << endln;
+    s << "set finalTime [expr $remStep * $dT]" << endln;
+    s << "set success 0" << endln;
+    s << "set currentTime 0." << endln;
+    s << "while {$success == 0 && $currentTime < $finalTime} {" << endln;
+    s << "	set subStep 0" << endln;
+    s << "	set success [analyze 1  $dT]" << endln;
+    s << "	if {$success != 0} {" << endln;
+
+    s << "	set curTime  [getTime]" << endln;
+    s << "  puts \"Analysis failed at $curTime . Try substepping.\"" << endln;
+    s << "  set success  [subStepAnalyze [expr $dT/2.0] [incr subStep]]" << endln;
+    s << "	set curStep  [expr int($curTime/$dT + 1)]" << endln;
+    s << "	set remStep  [expr int($nSteps-$curStep)]" << endln;
+    s << "	puts \"Current step: $curStep , Remaining steps: $remStep\"" << endln;
+    s << "    } else {" << endln;
+    s << "	puts \"[expr $currentTime/$finalTime * 100.]%\"" << endln;
+    s << "	set currentTime [getTime]" << endln;
+    s << "	}" << endln;
+    s << "}" << endln << endln;
+
+
 	s << "set endT [clock seconds]" << endln << endln;
 	s << "puts \"loading analysis execution time: [expr $endT-$startT] seconds.\"" << endln << endln;
 	s << "puts \"Finished with dynamic analysis...\"" << endln << endln;
@@ -1229,8 +1273,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s.close();
 	ns.close();
 	es.close();
-	
-	
+
 
 
 	/*
@@ -1272,6 +1315,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				progressBar << "]  " << (int)(100 * analysisCount / remStep) << "%";
 				opsout << progressBar.str().c_str();
 				opsout.flush();
+
+                m_callbackFunction(100.0 * analysisCount / remStep);
 			}
 		}
 		else
@@ -1281,6 +1326,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 		}
 	}
 	opserr << "Site response analysis done..." << endln;
+    m_callbackFunction(100.0);
 	progressBar << "\r[";
 	for (int ii = 0; ii < 20; ii++)
 		progressBar << "-";

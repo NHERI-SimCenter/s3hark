@@ -220,7 +220,7 @@ void TabManager::init(QTabWidget* theTab){
     QLabel *vPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("vPermLabel");
     vPermLabel->setToolTip("");
     QLabel *uBulkLabel= ElasticIsotropicWidget->findChild<QLabel*>("uBulkLabel");
-    uBulkLabel->setToolTip("");
+    uBulkLabel->setToolTip("kPa");
 
 
 
@@ -230,24 +230,28 @@ void TabManager::init(QTabWidget* theTab){
     connect(tab,SIGNAL(tabBarClicked(int)), this, SLOT(onTabBarClicked(int)));
     connect(GMView,SIGNAL(loadFinished(bool)), this, SLOT(onGMLoadFinished(bool)));
 
+    setPM4SandToolTps();
+
 
 }
 
 void TabManager::setPM4SandToolTps()
 {
-    /*
+
     // adding tooltips
-    QLabel *ELabel= ElasticIsotropicWidget->findChild<QLabel*>("ELabel");
+    /*
+    QLabel *ELabel= PM4SandWidget->findChild<QLabel*>("ELabel");
     ELabel->setToolTip("Pa");
-    QLabel *vLabel= ElasticIsotropicWidget->findChild<QLabel*>("vLabel");
+    QLabel *vLabel= PM4SandWidget->findChild<QLabel*>("vLabel");
     vLabel->setToolTip("Poisson's ratio");
-    QLabel *hPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("hPermLabel");
-    hPermLabel->setToolTip("");
-    QLabel *vPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("vPermLabel");
-    vPermLabel->setToolTip("");
-    QLabel *uBulkLabel= ElasticIsotropicWidget->findChild<QLabel*>("uBulkLabel");
-    uBulkLabel->setToolTip("");
     */
+    QLabel *hPermLabel= PM4SandWidget->findChild<QLabel*>("hPerm_2");
+    hPermLabel->setToolTip("");
+    QLabel *vPermLabel= PM4SandWidget->findChild<QLabel*>("vPerm_2");
+    vPermLabel->setToolTip("");
+    QLabel *uBulkLabel= PM4SandWidget->findChild<QLabel*>("uBulk_2");
+    uBulkLabel->setToolTip("kPa");
+
 }
 
 void TabManager::onSecondaryBtnClicked(bool checked)
@@ -781,8 +785,8 @@ void TabManager::updateStressStrainHtml()
     // get file paths
     QFileInfo htmlInfo(strainHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrainratio-template.html");
-    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrainratio.html");
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrain-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrain.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -796,7 +800,7 @@ void TabManager::updateStressStrainHtml()
     }
 
 
-    QString insertedString = loadEleResponse("stressstrainratio");
+    QString insertedString = loadEleResponse("stressstrain");
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
 
@@ -1444,7 +1448,7 @@ QString TabManager::loadEleResponse(QString motion)
         fileName = postProcessor->getStressFileName();
         vStress = getElemResVec(fileName);
     }
-    else if (motion=="stressstrainratio")
+    else if (motion=="stressstrain")
     {
         QString stressFileName = postProcessor->getStressFileName();
         QString strainFileName = postProcessor->getStrainFileName();
@@ -1477,10 +1481,10 @@ QString TabManager::loadEleResponse(QString motion)
             outTitle="Stress";
             v = vStress;
         }
-        else if(motion=="stressstrainratio")
-            outTitle="StressStrainRatio";
+        else if(motion=="stressstrain")
+            outTitle="StressStrain";
 
-        if(motion!="stressstrainratio")
+        if(motion!="stressstrain")
         {
             int eleID = elementModel->getSize();
             for (int j=3;j<v.size();j+=3)
@@ -1494,20 +1498,23 @@ QString TabManager::loadEleResponse(QString motion)
                 stream <<"];" <<endl;
             }
         }else{
+
             int eleID = elementModel->getSize();
-            double tol = 1.0e-7;
             for (int j=3;j<vStress.size();j+=3)
             {
                 eleID -= 1;
-                //stream << "n1 = ['Node 1'";
-                stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
-                //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+
+                stream << "Stress"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
                 for (int i=0; i<vStress[j].size(); i++)
                 {
-                    if(abs(vStrain[j][i])<tol)
-                        stream << ", "<<vStress[j][i] / tol;
-                    else
-                        stream << ", "<<vStress[j][i] / vStrain[j][i] ;
+                    stream << ", "<<vStress[j][i] ;
+                }
+                stream <<"];" <<endl;
+
+                stream << "Strain"+QString::number(eleID)+" = ['x'";
+                for (int i=0; i<vStrain[j].size(); i++)
+                {
+                    stream << ", "<<vStrain[j][i] ;
                 }
                 stream <<"];" <<endl;
             }
@@ -1569,7 +1576,7 @@ bool TabManager::writeSurfaceMotion()
 
     for (int i=0; i<ydSurfaceAcc.size(); i++)
     {
-        tx.append(ydSurfaceAcc.at(i).toDouble());
+        tx.append(ydSurfaceAcc.at(i).toDouble()/9.81);
         ty.append(0.0);
     }
 
@@ -2059,11 +2066,17 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
 
 }
 
-void TabManager::onRunBtnClicked(QWebEngineView* view)
+void TabManager::onRunBtnClicked()
 {
     if (tab->count()<4)
     {
-        tab->addTab(view,"Run");
+        // init the dino view
+        QWebEngineView *dinoView = new QWebEngineView(this);
+        QString dinoHtmlName = QDir(rootDir).filePath("resources/ui/DinoRun/index.html");
+        dinoView->load(QUrl::fromLocalFile(dinoHtmlName));
+        dinoView->setVisible(false);
+
+        tab->addTab(dinoView,"Run");
         tab->setCurrentIndex(3);
     }
     else

@@ -4,10 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
-
-
-
 #include "StandardStream.h"
 #include "FileStream.h"
 #include "OPS_Stream.h"
@@ -20,12 +16,14 @@ OPS_Stream *opserrPtr = &ferr;
 OPS_Stream *opsoutPtr = &sserr;
 
 
-SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::string outDir) :
+SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::string outDir, std::function<void(double)> callbackFunction ) :
     m_configureFile(configureFile),
     m_analysisDir(anaDir),
     m_outputDir(outDir)
 
 {
+
+    m_callbackFunction = callbackFunction;
 
     //./siteresponse ../test/siteLayering.loc -bbp ../test/9130326.nwhp.vel.bbp out thisLog
     // read the layering file
@@ -34,10 +32,6 @@ SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::str
     SiteLayering siteLayers(layersFN.c_str());
     int t = siteLayers.getNumLayers();
 
-
-    // read the motion
-    //OutcropMotion motionX;
-    //OutcropMotion motionZ;
 
     int inputStyle = 2; // bbp=1 opensees=2
 
@@ -60,17 +54,15 @@ SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::str
         std::string motionXFN(anaDir+"/Rock");//TODO: may not work on windows
         motionX.setMotion(motionXFN.c_str());
         bbpOName = "out";
-        model = new SiteResponseModel("2D", &motionX);
-        model->setOutputDir(bbpOName);
+        model = new SiteResponseModel("2D", &motionX, m_callbackFunction);
+        //model = new SiteResponseModel("2D", &motionX);
+        model->setOutputDir(outDir);
         model->setAnalysisDir(anaDir);
         model->setTclOutputDir(outDir);
         model->setConfigFile(configureFile);
 
         //buildTcl();
-
     }
-
-
 
 }
 

@@ -132,7 +132,7 @@ void BonzaTableView::onCellSingleClicked(const QModelIndex &index)
     // if this row is alrady selected, regard the current single click as a double click
     bool cellDoubleClicked = m_sqlModel->isActive(ir);
 
-    qDebug() << "view says: I feel row " << index.row() << " column " << index.column() << " activated" ;
+    //qDebug() << "view says: I feel row " << index.row() << " column " << index.column() << " activated" ;
 
     if(index.column()==MATERIAL)
         qDebug() << "material clicked";

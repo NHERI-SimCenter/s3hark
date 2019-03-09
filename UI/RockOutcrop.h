@@ -11,9 +11,14 @@
 #include "ProfileManager.h"
 #include "PostProcessor.h"
 #include "SimCenterAppWidget.h"
+#include "SiteResponse.h"
+#include "SSSharkThread.h"
+
+using namespace std::placeholders;
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+
 namespace Ui {
 class RockOutcrop;
 }
@@ -36,15 +41,18 @@ public:
     bool inputAppDataFromJSON(QJsonObject &rvObject);
     bool copyFiles(QString &destDir);
 
+    // callback setups
+    void refreshRun(double step);
+    std::function<void(double)> m_callbackptr = std::bind(&RockOutcrop::refreshRun,this, _1);
+
     void cleanTable();
-
-
 
 public slots:
 
     void on_thickness_edited();
     void onConfigTabUpdated();
-
+    void onInternalFEAInvoked();
+    void onInternalFEAUpdated(double step){refreshRun(step);}
 
 private slots:
 
@@ -92,8 +100,10 @@ private slots:
 signals:
     void gwtChanged(const QString &newGWT);
     void tableMoved();
-    void runBtnClicked(QWebEngineView*);
+    void runBtnClicked();
     void signalProgress(int);
+    void signalInvokeInternalFEA();
+    void releaseShark();
 
 private:
     Ui::RockOutcrop *ui;
@@ -107,7 +117,6 @@ private:
 private:// some of them were public
     QWidget *plotContainer;
     QWidget *matContainer;
-    QWebEngineView *dinoView;
     Mesher* mesher;
     QQuickView *meshView;
     //QQuickView *pgaView;
@@ -120,12 +129,13 @@ private:// some of them were public
 
     double maxPGA;
 
+    QThread *workerThread;
+
  public:
     QString rootDir = qApp->applicationDirPath();
     QString analysisDir = QDir(rootDir).filePath("analysis");
     QString tclName = QDir(analysisDir).filePath("model.tcl");
     QString outputDir = QDir(analysisDir).filePath("out_tcl");
-    QString dinoHtmlName = QDir(rootDir).filePath("resources/ui/DinoRun/index.html");
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
     QString evtjFileName =  QDir(analysisDir).filePath("EVENT-SRT.json");
 
