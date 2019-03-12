@@ -1084,7 +1084,8 @@ void RockOutcrop::on_runBtn_clicked()
                 openseesErrCount = 1;
 
             } else {// internal FEA
-                emit signalInvokeInternalFEA();
+                QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
+                //emit signalInvokeInternalFEA();
             }
 
             emit runBtnClicked();

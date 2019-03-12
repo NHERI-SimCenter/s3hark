@@ -44,6 +44,7 @@ public:
     QString loadGMtoString();
     QString loadMotions2String(QString);
     QString loadPWPResponse();
+    QString loadNodeSa();
     QString loadEleResponse(QString);
     QString loadNodeResponse(QString);
     QTabWidget* getTab(){return tab;}
@@ -53,6 +54,7 @@ public:
     void updateDispHtml();
     void updateAccHtml();
     void updatePWPHtml();
+    void updateSaHtml();
     void updateStrainHtml();
     void updateStressHtml();
     void updateStressStrainHtml();
@@ -61,6 +63,7 @@ public:
     void updatePostProcessor(PostProcessor *postProcessort);
     void setGMViewLoaded(){GMViewLoaded = true;}
     QVector<QVector<double>> getElemResVec(QString);
+    double newmark(double mass,double damping, double k, double disp_init, double vel_init, double gamma, double beta, double dt, QVector<double> f );
 
 signals:
     void configTabUpdated();

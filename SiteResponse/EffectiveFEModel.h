@@ -44,7 +44,7 @@ public:
     void setConfigFile(std::string configFile) { theConfigFile = configFile; }
     void  setTclOutputDir(std::string outDir) { theTclOutputDir = outDir; }
     void  setAnalysisDir(std::string anaDir) { theAnalysisDir = anaDir; }
-	int subStepAnalyze(double dT, int subStep, int success, int remStep, DirectIntegrationAnalysis* theTransientAnalysis);
+    int subStepAnalyze(double dT, int subStep, DirectIntegrationAnalysis* theTransientAnalysis);
 
 
     std::function<void(double)> m_callbackFunction;
