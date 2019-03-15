@@ -1466,7 +1466,7 @@ QString TabManager::loadNodeSa()
                 stream << ", "<< Periods[i];
             stream <<"];" <<endl;
 
-            stream << "ynew = ['Rock motion'";
+            stream << "ynew = ['Rock'";
             for (int i=0; i<saVec[0].size(); i++)
                 stream << ", "<<saVec[0][i];
             stream <<"];" <<endl;
@@ -1598,7 +1598,7 @@ QString TabManager::loadPWPResponse()
             stream << ", "<<v[0][i];
         stream <<"];" <<endl;
 
-        stream << "ynew = ['Rock motion'";
+        stream << "ynew = ['Rock'";
         for (int i=0; i<v[2].size(); i++)
             stream << ", "<<v[2][i];
         stream <<"];" <<endl;
