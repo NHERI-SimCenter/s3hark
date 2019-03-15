@@ -1159,10 +1159,12 @@ void RockOutcrop::onOpenSeesFinished()
             theTabManager->setGMViewLoaded();
             theTabManager->reFreshGMTab();
 
-            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("I know."));
             theTabManager->reFreshGMView();
             theTabManager->getTab()->setCurrentIndex(2);
             resultsTab->setCurrentIndex(1);
+
+            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("I know."));
+
 
             postProcessor = new PostProcessor(outputDir);
             profiler->updatePostProcessor(postProcessor);
