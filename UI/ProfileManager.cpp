@@ -42,20 +42,9 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     gammaHtmlView->show();
     m_tab->addTab(gammaHtmlView,"\u03B3max(%)");
 
-    // stress-strain ratio max view
-    stressStrainHtmlView = new QWebEngineView(this);
-    if(!QFileInfo(stressStrainHtmlName).exists())
-    {
-        // get file paths
-        QFileInfo htmlInfo(stressStrainHtmlName);
-        //QString dir = htmlInfo.path();
-        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain-template.html");
-        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain.html");
-        QFile::copy(tmpPath, newPath);
-    }
-    stressStrainHtmlView->load(QUrl::fromLocalFile(QFileInfo(stressStrainHtmlName).absoluteFilePath()));
-    stressStrainHtmlView->show();
-    m_tab->addTab(stressStrainHtmlView,"(σ/\u03B3)max");
+
+
+
 
     // disp max view
     dispHtmlView = new QWebEngineView(this);
@@ -87,6 +76,23 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     ruHtmlView->show();
     m_tab->addTab(ruHtmlView,"maxRu");
 
+
+    // rupwp max view
+    rupwpHtmlView = new QWebEngineView(this);
+    if(!QFileInfo(rupwpHtmlName).exists())
+    {
+        // get file paths
+        QFileInfo htmlInfo(rupwpHtmlName);
+        //QString dir = htmlInfo.path();
+        QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/rupwp-template.html");
+        QString newPath = QDir(rootDir).filePath("resources/ui/Profile/rupwp.html");
+        QFile::copy(tmpPath, newPath);
+    }
+    rupwpHtmlView->load(QUrl::fromLocalFile(QFileInfo(rupwpHtmlName).absoluteFilePath()));
+    rupwpHtmlView->show();
+    m_tab->addTab(rupwpHtmlView,"maxRupwp");
+
+
     m_tab->setTabPosition(QTabWidget::East);
 
 }
@@ -109,10 +115,11 @@ void ProfileManager::onTabBarClicked(int ind)
 void ProfileManager::onPostProcessorUpdated()
 {
     updatePGAHtml();
-    updateGammaHtml();
-    updateStressStrainHtml();
-    updateDispHtml();
     updateRuHtml();
+    updateGammaHtml();
+    updaterupwpHtml();
+    updateDispHtml();
+
 
 
     // reload all views in tab
@@ -120,8 +127,8 @@ void ProfileManager::onPostProcessorUpdated()
     pgaHtmlView->show();
     gammaHtmlView->reload();
     gammaHtmlView->show();
-    stressStrainHtmlView->reload();
-    stressStrainHtmlView->reload();
+    rupwpHtmlView->reload();
+    rupwpHtmlView->show();
     dispHtmlView->reload();
     dispHtmlView->show();
     ruHtmlView->reload();
@@ -216,13 +223,13 @@ void ProfileManager::updateGammaHtml()
 }
 
 
-void ProfileManager::updateStressStrainHtml()
+void ProfileManager::updaterupwpHtml()
 {
     // get file paths
-    QFileInfo htmlInfo(stressStrainHtmlName);
+    QFileInfo htmlInfo(rupwpHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain-template.html");
-    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/stressstrain.html");
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/rupwp-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/rupwp.html");
     QFile::remove(newPath);
 
     // read template file into string
@@ -237,16 +244,15 @@ void ProfileManager::updateStressStrainHtml()
     QString insertedString;
     QTextStream stream(&insertedString);
     QVector<double> depths =  postProcessor->getRuDepths();
-    QVector<double> gamma =  postProcessor->getGamma();
-    QVector<double> sigma =  postProcessor->getSigma();
+    QVector<double> rupwp =  postProcessor->getRupwp();
 
     stream << "xd = ['Depth'";
     for (int i=0;i<depths.size();i++)
         stream << ", " << depths[i];
     stream << "]; \n";
-    stream << "yd = ['&sigma;/&gamma;',NaN";
-    for (int i=0;i<gamma.size();i++)
-        stream << ", " << gamma[i]/100.0/sigma[i];
+    stream << "yd = ['Rupwp',NaN";
+    for (int i=0;i<rupwp.size();i++)
+        stream << ", " << rupwp[i]/100.0;
     stream << ",NaN]; \n";
     text.replace(QString("//UPDATEPOINT"), insertedString);
 

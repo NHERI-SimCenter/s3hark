@@ -11,17 +11,11 @@
 #include <QtQuick/qquickview.h>
 
 #include <QStringList>
-
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QThread>
-
 #include <QTabWidget>
-
-#include "SiteResponse.h"
-
 #include <QUiLoader>
-
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSizePolicy>
@@ -243,10 +237,11 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
     connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
     connect(ui->gwtEdit, SIGNAL(editingFinished()), theTabManager, SLOT(onFEMTabEdited()));
-    connect(this, SIGNAL(runBtnClicked(QWebEngineView*)), theTabManager, SLOT(onRunBtnClicked(QWebEngineView*)));
+    connect(this, SIGNAL(runBtnClicked()), theTabManager, SLOT(onRunBtnClicked()));
     // if configure tab changed, update SRT.json
     connect(theTabManager, SIGNAL(configTabUpdated()), this, SLOT(onConfigTabUpdated()));
 
+    /*
     // init the dino view
     dinoView = new QWebEngineView(this);
 
@@ -255,6 +250,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     //dinoView->setMinimumSize(layerTableWidth,300);
     //dinoView->setMaximumSize(1e5,1e5);
     //dinoView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    */
 
     // init GWT
     ui->gwtEdit->setText(QString::number(theTabManager->getGWTFromConfig()));
@@ -323,8 +319,12 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui->progressBar->hide();
     connect( this, SIGNAL( signalProgress(int) ), ui->progressBar, SLOT( setValue(int) ) );
 
+    connect( this, SIGNAL( signalInvokeInternalFEA() ), this, SLOT( onInternalFEAInvoked() ) );
+
+
     if(!QDir(outputDir).exists())
         QDir().mkdir(outputDir);
+
 
 
 }
@@ -539,6 +539,7 @@ bool RockOutcrop::inputFromJSON(QJsonObject& inobj) {
 RockOutcrop::~RockOutcrop()
 {
     delete ui;
+
 }
 
 ElementModel* RockOutcrop::getElementModel() const
@@ -1040,6 +1041,8 @@ void RockOutcrop::on_reBtn_clicked()
 
 }
 
+
+
 void RockOutcrop::on_runBtn_clicked()
 {
     //cleanTable();cleanTable();
@@ -1055,38 +1058,89 @@ void RockOutcrop::on_runBtn_clicked()
         QString rockmotionpath =  theTabManager->rockmotionpath();
         bool openseesEmpty = openseespath=="" || openseespath=="Input the full path of OpenSees excutable.";
         bool rockEmpty = rockmotionpath=="" || rockmotionpath=="Input the path of a ground motion file.";
-        if (openseesEmpty || rockEmpty)
+
+        QFile srtjsonFile(rockmotionpath);
+
+        if(rockEmpty || !srtjsonFile.exists())
         {
-            QMessageBox::information(this,tr("Path error"), "You need to specify OpenSees' path and rock motion file's path in the configure tab.", tr("OK."));
+            QMessageBox::information(this,tr("Path error"), "You need to specify rock motion file's path in the configure tab.", tr("OK."));
+            theTabManager->getTab()->setCurrentIndex(0);
+
         }else{
+
+            QFile openseesExefile(openseespath);
             // build tcl file
             ui->reBtn->click();
-            SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                                 analysisDir.toStdString(),outputDir.toStdString());
-            //QMessageBox::information(this,tr("Alert"), "Are you sure you have soil layers. If not, I'll quit.", tr("OK."));
-            srt->buildTcl();
 
             if(!QDir(outputDir).exists())
                 QDir().mkdir(outputDir);
 
             ui->progressBar->show();
-            emit signalProgress(10);
 
-            //
-            // Calling Opensee to do the work
-            //
-            //"/Users/simcenter/Codes/OpenSees/bin/opensees"
-            //openseesProcess->start("/Users/simcenter/Codes/OpenSees/bin/opensees",QStringList()<<"/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/model.tcl");
-            openseesProcess->start(openseespath,QStringList()<<tclName);
-            openseesErrCount = 1;
+            if(openseesExefile.exists())
+            {   // do FEA in opensees
+                SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
+                                                     analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
+                srt->buildTcl();
 
-            emit runBtnClicked(dinoView);
+                openseesProcess->start(openseespath,QStringList()<<tclName);
+                openseesErrCount = 1;
+                emit runBtnClicked();
+
+            } else {// internal FEA
+                //emit signalInvokeInternalFEA();
+                //emit runBtnClicked();
+
+                QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
+                ui->progressBar->hide();
+                theTabManager->getTab()->setCurrentIndex(0);
+
+            }
+
+
         }
+
     }
-
-
-
 }
+
+
+// callback setups
+void RockOutcrop::refreshRun(double step) {
+    int p = int(floor(step));
+    qDebug() << step;
+    if(step<100.)
+    {
+        emit signalProgress(p);
+    }
+    else
+    {
+        QMessageBox::information(this,tr("SRT Information"), "Analysis is done.", tr("OK."));
+        theTabManager->getTab()->setCurrentIndex(2);
+        theTabManager->setGMViewLoaded();
+        theTabManager->reFreshGMTab();
+        theTabManager->reFreshGMView();
+
+        resultsTab->setCurrentIndex(1);
+
+        postProcessor = new PostProcessor(outputDir);
+        profiler->updatePostProcessor(postProcessor);
+        theTabManager->updatePostProcessor(postProcessor);
+        connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
+        postProcessor->update();
+
+        emit signalProgress(100);
+        ui->progressBar->hide();
+    }
+}
+
+void RockOutcrop::onInternalFEAInvoked()
+{
+
+    SSSharkThread *shark = new SSSharkThread(srtFileName,analysisDir,outputDir, this);
+    connect(shark,SIGNAL(updateProgress(double)), this, SLOT(onInternalFEAUpdated(double)));
+    shark->start();
+}
+
 
 void RockOutcrop::onOpenSeesFinished()
 {
@@ -1098,14 +1152,16 @@ void RockOutcrop::onOpenSeesFinished()
     {
         if(str_err.contains("Site response analysis is finished."))
         {
-            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("OK."));
-            qDebug() << "opensees says:" << str_err;
+
+            //qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
-            theTabManager->getTab()->setCurrentIndex(2);
+
             theTabManager->setGMViewLoaded();
             theTabManager->reFreshGMTab();
-            theTabManager->reFreshGMView();
 
+            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("I know."));
+            theTabManager->reFreshGMView();
+            theTabManager->getTab()->setCurrentIndex(2);
             resultsTab->setCurrentIndex(1);
 
             postProcessor = new PostProcessor(outputDir);
@@ -1118,7 +1174,16 @@ void RockOutcrop::onOpenSeesFinished()
             ui->progressBar->hide();
 
         }else{
-            //ui->progressBar->setValue(0);
+            QRegExp rxlen("(.+)(%)");
+            int pos = rxlen.indexIn(str_err);
+            if (pos > -1) {
+                QString value = rxlen.cap(1);
+                int step = int(ceil(value.toDouble()));
+                if(step>0)
+                    emit signalProgress(step);
+            }
+
+
         }
     }
 

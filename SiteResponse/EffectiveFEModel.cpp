@@ -136,17 +136,35 @@ SiteResponseModel::SiteResponseModel(SiteLayering layering, std::string modelTyp
 	}
 }
 
-SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX) : theModelType(modelType),
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX, std::function<void(double)> callbackFunction) : theModelType(modelType),
 																											 theMotionX(motionX),
-																											 theOutputDir(".")
+                                                                                                             theOutputDir(".")
 {
 	if (theMotionX->isInitialized())
-		theDomain = new Domain();
+    {
+        theDomain = new Domain();
+        m_callbackFunction = callbackFunction;
+    }
 	else
 	{
         opserr << "No motion is specified. Program exited." << endln;
 		exit(-1);
 	}
+}
+
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX) : theModelType(modelType),
+                                                                                                             theMotionX(motionX),
+                                                                                                             theOutputDir(".")
+{
+    if (theMotionX->isInitialized())
+    {
+        theDomain = new Domain();
+    }
+    else
+    {
+        opserr << "No motion is specified. Program exited." << endln;
+        exit(-1);
+    }
 }
 
 SiteResponseModel::~SiteResponseModel()
@@ -534,30 +552,37 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	// create analysis objects - I use static analysis for gravity
 	AnalysisModel *theModel = new AnalysisModel();
-	CTestNormDispIncr *theTest = new CTestNormDispIncr(1.0e-4, 35, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
-	EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton) 
-	//StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
-	//ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
-	TransientIntegrator* theIntegrator = new Newmark(5./6., 4./9.);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
-	ConstraintHandler* theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
+    CTestNormDispIncr *theTest = new CTestNormDispIncr(1.0e-4, 35, 1);
+    EquiSolnAlgo *theSolnAlgo = new NewtonRaphson();
+    // 2. test NormDispIncr 1.0e-7 30 1
+    //EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton)
+    //StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
+    TransientIntegrator* theIntegrator = new Newmark(gamma, beta);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+    ConstraintHandler* theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
+    //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
+    //theHandler = new TransformationConstraintHandler(); // *
 	RCM *theRCM = new RCM();
 	DOF_Numberer *theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
 	BandGenLinSolver *theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
 	LinearSOE *theSOE = new BandGenLinSOE(*theSolver);
 
-	DirectIntegrationAnalysis* theAnalysis;												   // 7. analysis    Transient
-	theAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator, theTest);
+    DirectIntegrationAnalysis* theAnalysis;												   // 7. analysis    Transient
+    theAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator, theTest);
 
 	//VariableTimeStepDirectIntegrationAnalysis* theAnalysis;
 	//theAnalysis = new VariableTimeStepDirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator, theTest);
 
-	//StaticAnalysis *theAnalysis; // *
-	//theAnalysis = new StaticAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator); // *
-	theAnalysis->setConvergenceTest(*theTest);
+    //StaticAnalysis *theAnalysis; // *
+    //theAnalysis = new StaticAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator); // *
+
+    theAnalysis->setConvergenceTest(*theTest);
 
 	int converged;
 	if(doAnalysis)
 	{
+
+
+    // transient
 	converged = theAnalysis->analyze(10,1.0); 
 	if (!converged)
 	{
@@ -567,7 +592,25 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 		opserr << "Didn't converge at time " << theDomain->getCurrentTime() << endln;
 	}
 	opserr << "Finished with elastic gravity analysis..." << endln << endln;
+
+
+        /*
+    // static
+    for (int analysisCount = 0; analysisCount < 2; ++analysisCount) {
+            //int converged = theAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
+            int converged = theAnalysis->analyze(1);
+            if (!converged) {
+                opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
+            }
+        }
+        */
+
+
+
 	}
+
+
+
 
 
 
@@ -718,8 +761,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	double vis_C = dashpotCoeff * colArea;
 	double cFactor = colArea * dashpotCoeff;
 
-  const int numberTheViscousMats = 1; // for 3D it's 2
-  UniaxialMaterial* theViscousMats[numberTheViscousMats];
+    const int numberTheViscousMats = 1; // for 3D it's 2
+    UniaxialMaterial* theViscousMats[numberTheViscousMats];
 
 	theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
 	OPS_addUniaxialMaterial(theViscousMats[0]);
@@ -935,9 +978,12 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theTest = new CTestNormDispIncr(1.0e-4, 35, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
 	theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton) 
 	//StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
-	//ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
+    //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
+    // *
 	//TransientIntegrator* theIntegrator = new Newmark(5./6., 4./9.);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
-	theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
+    //theIntegrator = new Newmark(0.5, 0.25);// * Newmark(0.5, 0.25)
+    theHandler = new TransformationConstraintHandler();
+    //theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
 	theRCM = new RCM();
 	theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
 	theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
@@ -1197,7 +1243,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	*/
 	
 
-	
+    /*
 	s << "puts \"Start analysis\"" << endln;
 	s << "set startT [clock seconds]" << endln;
 	s << "while {$success != -10} {" << endln;
@@ -1215,6 +1261,32 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "		puts \"Current step: $curStep , Remaining steps: $remStep\"" << endln;
 	s << "	}" << endln;
 	s << "}" << endln << endln;
+    */
+
+
+    s << "puts \"Start analysis\"" << endln;
+    s << "set startT [clock seconds]" << endln;
+    s << "set finalTime [expr $remStep * $dT]" << endln;
+    s << "set success 0" << endln;
+    s << "set currentTime 0." << endln;
+    s << "while {$success == 0 && $currentTime < $finalTime} {" << endln;
+    s << "	set subStep 0" << endln;
+    s << "	set success [analyze 1  $dT]" << endln;
+    s << "	if {$success != 0} {" << endln;
+
+    s << "	set curTime  [getTime]" << endln;
+    s << "  puts \"Analysis failed at $curTime . Try substepping.\"" << endln;
+    s << "  set success  [subStepAnalyze [expr $dT/2.0] [incr subStep]]" << endln;
+    s << "	set curStep  [expr int($curTime/$dT + 1)]" << endln;
+    s << "	set remStep  [expr int($nSteps-$curStep)]" << endln;
+    s << "	puts \"Current step: $curStep , Remaining steps: $remStep\"" << endln;
+    s << "    } else {" << endln;
+    s << "	puts \"[expr $currentTime/$finalTime * 100.]%\"" << endln;
+    s << "	set currentTime [getTime]" << endln;
+    s << "	}" << endln;
+    s << "}" << endln << endln;
+
+
 	s << "set endT [clock seconds]" << endln << endln;
 	s << "puts \"loading analysis execution time: [expr $endT-$startT] seconds.\"" << endln << endln;
 	s << "puts \"Finished with dynamic analysis...\"" << endln << endln;
@@ -1229,8 +1301,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s.close();
 	ns.close();
 	es.close();
-	
-	
+
 
 
 	/*
@@ -1241,57 +1312,114 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	delete theOutputStreamAll;
 	*/
 
-	if(doAnalysis)
-	{
+    if(doAnalysis)
+    {
 
-	double totalTime = dT * nSteps;
-	int success = 0;
+        bool useSubstep = false;
 
-	opserr << "Analysis started:" << endln;
-	std::stringstream progressBar;
-	for (int analysisCount = 0; analysisCount < remStep; ++analysisCount)
-	{
-		//int converged = theAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
-		double stepDT = dt[analysisCount];
-		//int converged = theTransientAnalysis->analyze(1, stepDT, stepDT / 2.0, stepDT * 2.0, 1); // *
-		//int converged = theTransientAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
-		int converged = theTransientAnalysis->analyze(1, dT);
-		if (!converged)
-		{
-			opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
+        if(!useSubstep)
+        {
+            double totalTime = dT * nSteps;
+            int success = 0;
 
-			if (analysisCount % (int)(remStep / 20) == 0)
-			{
-				progressBar << "\r[";
-				for (int ii = 0; ii < ((int)(20 * analysisCount / remStep)-1); ii++)
-					progressBar << "-";
-				progressBar << " 🚌  ";
-				for (int ii = (int)(20 * analysisCount / remStep)+1; ii < 20; ii++)
-					progressBar << ".";
+            opserr << "Analysis started:" << endln;
+            std::stringstream progressBar;
+            for (int analysisCount = 0; analysisCount < remStep; ++analysisCount)
+            {
+                //int converged = theAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
+                double stepDT = dt[analysisCount];
+                //int converged = theTransientAnalysis->analyze(1, stepDT, stepDT / 2.0, stepDT * 2.0, 1); // *
+                //int converged = theTransientAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
+                int converged = theTransientAnalysis->analyze(1, dT);
+                if (!converged)
+                {
+                    opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
 
-				progressBar << "]  " << (int)(100 * analysisCount / remStep) << "%";
-				opsout << progressBar.str().c_str();
-				opsout.flush();
-			}
-		}
-		else
-		{
-			opserr << "Site response analysis did not converge." << endln;
-			exit(-1);
-		}
-	}
-	opserr << "Site response analysis done..." << endln;
-	progressBar << "\r[";
-	for (int ii = 0; ii < 20; ii++)
-		progressBar << "-";
+                    if (analysisCount % (int)(remStep / 20) == 0)
+                    {
+                        progressBar << "\r[";
+                        for (int ii = 0; ii < ((int)(20 * analysisCount / remStep)-1); ii++)
+                            progressBar << "-";
+                        progressBar << " 🚌  ";
+                        for (int ii = (int)(20 * analysisCount / remStep)+1; ii < 20; ii++)
+                            progressBar << ".";
 
-	progressBar << "]  🚌   100%\n";
-	opsout << progressBar.str().c_str();
-	opsout.flush();
-	opsout << endln;
-	} else{
+                        progressBar << "]  " << (int)(100 * analysisCount / remStep) << "%";
+                        opsout << progressBar.str().c_str();
+                        opsout.flush();
+
+                        m_callbackFunction(100.0 * analysisCount / remStep);
+                    }
+                }
+                else
+                {
+                    opserr << "Site response analysis did not converge." << endln;
+                    exit(-1);
+                }
+            }
+            opserr << "Site response analysis done..." << endln;
+            m_callbackFunction(100.0);
+            progressBar << "\r[";
+            for (int ii = 0; ii < 20; ii++)
+                progressBar << "-";
+
+            progressBar << "]  🚌   100%\n";
+            opsout << progressBar.str().c_str();
+            opsout.flush();
+            opsout << endln;
+        } else { // substep
+            opserr << "Analysis started:" << endln;
+            double finalTime = dT * remStep;
+            int success = 0;
+            double currentTime = 0.;
+            std::stringstream progressBar;
+            while(fabs(success)<1 && currentTime < finalTime )
+            {
+                int subStep = 0;
+                success = theTransientAnalysis->analyze(1, dT);
+                if(fabs(success)>0)
+                {
+                    success = subStepAnalyze(dT/2., subStep, theTransientAnalysis);
+                } else {
+                    int currentProgress = int(currentTime/finalTime *100.);
+                    int remStept = 100-currentProgress;
+                    if (currentProgress % 5 == 0 && currentProgress > 5)
+                    {
+                        progressBar << "\r[";
+                        for (int ii = 0; ii < currentProgress/5; ii++)
+                            progressBar << "-";
+                        progressBar << " 🚌  ";
+                        for (int ii = 0; ii < remStept/5; ii++)
+                            progressBar << ".";
+
+                        progressBar << "]  " << currentProgress << "%";
+                        opsout << progressBar.str().c_str();
+                        opsout.flush();
+
+                        m_callbackFunction(currentTime/finalTime *100.);
+                    }
+
+                    currentTime = theDomain->getCurrentTime();
+                }
+            }
+
+
+            opserr << "Site response analysis done..." << endln;
+            m_callbackFunction(100.0);
+            progressBar << "\r[";
+            for (int ii = 0; ii < 20; ii++)
+                progressBar << "-";
+
+            progressBar << "]  🚌   100%\n";
+            opsout << progressBar.str().c_str();
+            opsout.flush();
+            opsout << endln;
+
+        }
+
+    } else{
         std::cout << "tcl file built." << std::endl;
-	}
+    }
 
 
 	return 0;
@@ -1300,15 +1428,27 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
 
-int SiteResponseModel::subStepAnalyze(double dT, int subStep, int success, int remStep, DirectIntegrationAnalysis* theTransientAnalysis)
+int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationAnalysis* theTransientAnalysis)
 {
 	if (subStep > 10)
 		return -10;
+    int success;
     for (int i=0; i < 3; i++)
 	{
 		opserr << "Try dT = " << dT << endln;
-        success = theTransientAnalysis->analyze(remStep, dT);// 0 means success
+        success = theTransientAnalysis->analyze(1, dT);// 0 means success
         //success = subStepAnalyze(dT/2, subStep +1,);
+        if(fabs(success) > 0.0 )
+        {
+            success = subStepAnalyze(dT/2.0, subStep+1,theTransientAnalysis);
+            if(success == -10)
+                return success;
+        } else {
+            if (i==1)
+                opserr << "Substep " << subStep << " : Left side converged with dT = " << dT;
+            else
+                opserr << "Substep " << subStep << " : Right side converged with dT = " << dT;
+        }
 	}
 	
 	return 0;

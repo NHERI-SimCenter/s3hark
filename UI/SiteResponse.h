@@ -11,11 +11,14 @@
 class SiteResponse {
 
 public:
+    SiteResponse(std::string configureFile,std::string anaDir,std::string outDir, std::function<void(double)> callbackFunction);
     SiteResponse(std::string configureFile,std::string anaDir,std::string outDir);
 	~SiteResponse();
 
     void run();
     void buildTcl();
+
+    std::function<void(double)> m_callbackFunction;
 
 	
 private:

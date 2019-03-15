@@ -44,6 +44,8 @@ public:
     QString loadGMtoString();
     QString loadMotions2String(QString);
     QString loadPWPResponse();
+    QString loadruPWPResponse();
+    QString loadNodeSa();
     QString loadEleResponse(QString);
     QString loadNodeResponse(QString);
     QTabWidget* getTab(){return tab;}
@@ -53,6 +55,8 @@ public:
     void updateDispHtml();
     void updateAccHtml();
     void updatePWPHtml();
+    void updateRupwpHtml();
+    void updateSaHtml();
     void updateStrainHtml();
     void updateStressHtml();
     void updateStressStrainHtml();
@@ -61,6 +65,7 @@ public:
     void updatePostProcessor(PostProcessor *postProcessort);
     void setGMViewLoaded(){GMViewLoaded = true;}
     QVector<QVector<double>> getElemResVec(QString);
+    double newmark(double mass,double damping, double k, double disp_init, double vel_init, double gamma, double beta, double dt, QVector<double> f );
 
 signals:
     void configTabUpdated();
@@ -77,7 +82,7 @@ public slots:
     void onOpenseesBtnClicked();
     void onFEMTabEdited();
     double getGWTFromConfig();
-    void onRunBtnClicked(QWebEngineView*);
+    void onRunBtnClicked();
     void onOpenseesTextChanged(const QString&);
     void onGMTextChanged(const QString&);
     void onSecondaryBtnClicked(bool);
@@ -136,6 +141,7 @@ private:
     QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
     QString pwpHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/pwp.html");
+    QString rupwpHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp.html");
     QString strainHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/strain.html");
     QString stressHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/stress.html");
 
@@ -148,6 +154,8 @@ private:
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
 
     bool GMViewLoaded = false;
+
+    QVector<QVector<double>> m_vStress;
 
 
 };

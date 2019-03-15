@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------#
 #             Site-specific Seismic Hazard Analysis & Research Kit             #
-#                              Site Response Tool                              #
+#                      A Site Response Analysis Tool                           #
 #                                                                              #
 #------------------------------------------------------------------------------#
 
@@ -218,7 +218,8 @@ SOURCES += main.cpp\
     SiteResponse/outcropMotion.cpp \
     #SiteResponse/FEModel3D.cpp
     UI/ProfileManager.cpp \
-    UI/PostProcessor.cpp
+    UI/PostProcessor.cpp \
+    UI/SSSharkThread.cpp
 
 HEADERS  += UI/MainWindow.h \
     UI/RockOutcrop.h \
@@ -408,7 +409,8 @@ HEADERS  += UI/MainWindow.h \
     SiteResponse/outcropMotion.h \
     SiteResponse/siteLayering.h \
     UI/ProfileManager.h \
-    UI/PostProcessor.h
+    UI/PostProcessor.h \
+    UI/SSSharkThread.h
 
 
 FORMS    += UI/MainWindow.ui \
