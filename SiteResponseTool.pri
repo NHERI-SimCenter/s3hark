@@ -13,6 +13,7 @@ INCLUDEPATH +=
  #           /usr/local/include
 }
 
+unix: {LIBS += -llapack -lblas}
 win32: {
 
 LIBS += "C:/Adam/OpenSEES source/Win64/lib/release/lapack.lib"
@@ -200,7 +201,8 @@ SOURCES += \
     $$PWD/SiteResponse/outcropMotion.cpp \
     #$$PWD/SiteResponse/FEModel3D.cpp
     $$PWD/UI/ProfileManager.cpp \
-    $$PWD/UI/PostProcessor.cpp
+    $$PWD/UI/PostProcessor.cpp \
+    $$PWD/UI/SSSharkThread.cpp
 
 HEADERS  += \
     $$PWD/UI/RockOutcrop.h \
@@ -390,7 +392,8 @@ HEADERS  += \
     $$PWD/SiteResponse/outcropMotion.h \
     $$PWD/SiteResponse/siteLayering.h \
     $$PWD/UI/ProfileManager.h \
-    $$PWD/UI/PostProcessor.h
+    $$PWD/UI/PostProcessor.h \
+    $$PWD/UI/SSSharkThread.h
 
 
 FORMS    += \
