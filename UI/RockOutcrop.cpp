@@ -1059,9 +1059,12 @@ void RockOutcrop::on_runBtn_clicked()
         bool openseesEmpty = openseespath=="" || openseespath=="Input the full path of OpenSees excutable.";
         bool rockEmpty = rockmotionpath=="" || rockmotionpath=="Input the path of a ground motion file.";
 
-        if(rockEmpty)
+        QFile srtjsonFile(rockmotionpath);
+
+        if(rockEmpty || !srtjsonFile.exists())
         {
             QMessageBox::information(this,tr("Path error"), "You need to specify rock motion file's path in the configure tab.", tr("OK."));
+            theTabManager->getTab()->setCurrentIndex(0);
 
         }else{
 
@@ -1082,13 +1085,19 @@ void RockOutcrop::on_runBtn_clicked()
 
                 openseesProcess->start(openseespath,QStringList()<<tclName);
                 openseesErrCount = 1;
+                emit runBtnClicked();
 
             } else {// internal FEA
-                QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
                 //emit signalInvokeInternalFEA();
+                //emit runBtnClicked();
+
+                QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
+                ui->progressBar->hide();
+                theTabManager->getTab()->setCurrentIndex(0);
+
             }
 
-            emit runBtnClicked();
+
         }
 
     }
@@ -1143,14 +1152,16 @@ void RockOutcrop::onOpenSeesFinished()
     {
         if(str_err.contains("Site response analysis is finished."))
         {
-            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("OK."));
+
             //qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
-            theTabManager->getTab()->setCurrentIndex(2);
+
             theTabManager->setGMViewLoaded();
             theTabManager->reFreshGMTab();
-            theTabManager->reFreshGMView();
 
+            QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("I know."));
+            theTabManager->reFreshGMView();
+            theTabManager->getTab()->setCurrentIndex(2);
             resultsTab->setCurrentIndex(1);
 
             postProcessor = new PostProcessor(outputDir);

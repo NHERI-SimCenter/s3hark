@@ -44,6 +44,7 @@ public:
     QString loadGMtoString();
     QString loadMotions2String(QString);
     QString loadPWPResponse();
+    QString loadruPWPResponse();
     QString loadNodeSa();
     QString loadEleResponse(QString);
     QString loadNodeResponse(QString);
@@ -54,6 +55,7 @@ public:
     void updateDispHtml();
     void updateAccHtml();
     void updatePWPHtml();
+    void updateRupwpHtml();
     void updateSaHtml();
     void updateStrainHtml();
     void updateStressHtml();
@@ -139,6 +141,7 @@ private:
     QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
     QString pwpHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/pwp.html");
+    QString rupwpHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp.html");
     QString strainHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/strain.html");
     QString stressHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/stress.html");
 
@@ -151,6 +154,8 @@ private:
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
 
     bool GMViewLoaded = false;
+
+    QVector<QVector<double>> m_vStress;
 
 
 };

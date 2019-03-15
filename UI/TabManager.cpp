@@ -641,6 +641,7 @@ void TabManager::reFreshGMTab()
     updateStrainHtml();
     updateStressHtml();
     updateStressStrainHtml();
+    updateRupwpHtml();
 
     GMView->reload();
     //GMView->show();
@@ -846,6 +847,41 @@ void TabManager::updatePWPHtml()
         newfile.close();
     }
 }
+
+
+void TabManager::updateRupwpHtml()
+{
+    // get file paths
+    QFileInfo htmlInfo(rupwpHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    QString text;
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QByteArray t = file.readAll();
+        text = QString(t);
+        file.close();
+    }
+
+
+    QString insertedString = loadruPWPResponse();
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+
+    // write to index.html
+    QFile newfile(newPath);
+    if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        newfile.write(text.toUtf8());
+        newfile.close();
+    }
+}
+
 
 void TabManager::updateSaHtml()
 {
@@ -1378,71 +1414,90 @@ QString TabManager::loadNodeSa()
         File.close();
     }
 
-    double disp_init = 0.0;
-    double vel_init = 0.0;
-    double dt = v[0][1] - v[0][0];
-    double mass = 1.0;
-    double damping = 0.05;
-    QVector<double> Periods;
-    int numT = 100;
-    QVector<QVector<double>> saVec((v.size()-1)/4,QVector<double>(numT));
-    double pi = M_PI;
-    int ind = -1;
-    for(int i=1;i<v.size();i+=4)// for each node
-    {
-        ind += 1;
-        QVector<double> acc = v[i];
-        QVector<double> f = acc; // because mass=1.
-
-        QVector<double> thisSa(numT);
-        for(int n=0;n<numT;n++)
-        {
-            double T = 0.04+n*0.02;
-            if(i==1)
-                Periods.append(T);
-            double k = (2.*pi/T)*(2.*pi/T)*mass;
-            double natural_freq = 2*pi/T;
-
-            double gamma = 0.5;
-            double beta = 0.25;
-
-            double maxDisp = newmark(mass,damping, k, disp_init, vel_init, gamma, beta, dt, f);
-            thisSa[n]=(maxDisp*natural_freq*natural_freq/9.81);
-        }
-        saVec[ind]=(thisSa);
-    }
-
-
-    QString text;
-    QTextStream stream(&text);
-
     if(v.size()>0)
     {
-    stream << "time = ['x'";
-    for (int i=0; i<Periods.size(); i++)
-        stream << ", "<<Periods[i];
-    stream <<"];" <<endl;
+        double disp_init = 0.0;
+        double vel_init = 0.0;
+        double dt = v[0][1] - v[0][0];
+        double mass = 1.0;
+        double dampingRatio = 0.05;
+        QVector<double> Periods;
+        int numT = 100;
+        QVector<QVector<double>> saVec((v.size()-1)/4,QVector<double>(numT));
+        double pi = M_PI;
+        int ind = -1;
+        for(int i=1;i<v.size();i+=4)// for each node
+        {
+            ind += 1;
+            QVector<double> acc = v[i];
+            QVector<double> f = acc; // because mass=1.
+
+            QVector<double> thisSa(numT);
+            for(int n=0;n<numT;n++)
+            {
+                double T = 0.04+n*0.02;
+                if(i==1)
+                    Periods.append(T);
+                double k = (2.*pi/T)*(2.*pi/T)*mass;
+                double natural_freq = 2*pi/T;
+                double damping = 2.*mass*natural_freq*dampingRatio;
+
+                double gamma = 0.5;
+                double beta = 0.25;
+
+                double maxDisp = newmark(mass,damping, k, disp_init, vel_init, gamma, beta, dt, f);
+                thisSa[n]=(maxDisp*natural_freq*natural_freq/9.81);
+            }
+            saVec[ind]=(thisSa);
+        }
 
 
-    int eleID = elementModel->getSize()+1;
-    for (int j=0;j<saVec.size();j++)
-    {
-        eleID -= 1;
-        //stream << "n1 = ['Node 1'";
-        stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
-        //stream << "n"+QString::number(eleID)+" = ['Node marked by <'";
-        for (int i=0; i<saVec[j].size(); i++)
-            stream << ", "<<saVec[j][i];
-        stream <<"];" <<endl;
-    }
+        QString text;
+        QTextStream stream(&text);
+
+
+
+        if(v.size()>0)
+        {
+
+
+            stream << "xnew = ['x'";
+            for (int i=0; i<Periods.size(); i++)
+                stream << ", "<< Periods[i];
+            stream <<"];" <<endl;
+
+            stream << "ynew = ['Rock motion'";
+            for (int i=0; i<saVec[0].size(); i++)
+                stream << ", "<<saVec[0][i];
+            stream <<"];" <<endl;
+
+            stream << "time = ['x'";
+            for (int i=0; i<Periods.size(); i++)
+                stream << ", "<<Periods[i];
+            stream <<"];" <<endl;
+
+
+            int eleID = elementModel->getSize()+1;
+            for (int j=0;j<saVec.size();j++)
+            {
+                eleID -= 1;
+                //stream << "n1 = ['Node 1'";
+                stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+                //stream << "n"+QString::number(eleID)+" = ['Node marked by <'";
+                for (int i=0; i<saVec[j].size(); i++)
+                    stream << ", "<<saVec[j][i];
+                stream <<"];" <<endl;
+            }
 
 
 
 
-    }
+        }
 
 
-    return text;
+        return text;
+    }else
+        return "";
 
 
 
@@ -1537,19 +1592,19 @@ QString TabManager::loadPWPResponse()
     if(v.size()>0)
     {
 
-/*
+
         stream << "xnew = ['x'";
-        for (int i=0; i<v.size(); i++)
-            stream << ", "<<v.at(i);
+        for (int i=0; i<v[0].size(); i++)
+            stream << ", "<<v[0][i];
         stream <<"];" <<endl;
 
         stream << "ynew = ['Rock motion'";
-        for (int i=0; i<v.size(); i++)
-            stream << ", "<<v.at(i);
+        for (int i=0; i<v[2].size(); i++)
+            stream << ", "<<v[2][i];
         stream <<"];" <<endl;
 
 
-
+        /*
         stream << "xSurfaceVel = ['x'";
         for (int i=0; i<v.size(); i++)
             stream << ", "<<v.at(i);
@@ -1559,7 +1614,7 @@ QString TabManager::loadPWPResponse()
         for (int i=0; i<v.size(); i++)
             stream << ", "<<v.at(i).toDouble();
         stream <<"];" <<endl;
-*/
+        */
 
 
 
@@ -1587,9 +1642,99 @@ QString TabManager::loadPWPResponse()
 
     return text;
 
+}
 
+QString TabManager::loadruPWPResponse()
+{
+
+    QFile File(postProcessor->getPWPFileName());
+
+    QVector<QVector<double>> v;
+    if(File.open(QIODevice::ReadOnly)) {
+        QTextStream in(&File);
+        int lineCount = 0;
+        int numCols = 0;
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            thisLine.removeAll("");
+            int sizeThisLine = thisLine.size();
+            lineCount += 1;
+            if (lineCount==1)
+                numCols = sizeThisLine;
+            if (sizeThisLine != numCols && lineCount>1)
+            {
+                lineCount -= 1;
+                break;
+            }
+            else
+            {
+                //thisLine.removeAll("");
+                for (int i=0; i<thisLine.size();i++)// TODO: 3D?
+                {
+                    if (lineCount==1)
+                    {
+                        QVector<double> tmpV;
+                        v.append(tmpV);
+                    }
+                    v[i].append((thisLine[i].trimmed().toDouble()));
+                }
+            }
+        }
+        File.close();
+    }
+
+    QString text;
+    QTextStream stream(&text);
+
+    if(v.size()>0)
+    {
+
+
+        stream << "time = ['x'";
+        for (int i=0; i<v[0].size(); i++)
+            stream << ", "<<v[0][i];
+        stream <<"];" <<endl;
+
+
+        int eleID = elementModel->getSize();
+        int eleInd = -1;
+        for (int j=4;j<v.size();j+=2)
+        {
+            eleID -= 1;
+            //stream << "n1 = ['Node 1'";
+            stream << "rupwp"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+            eleInd += 1;
+
+            for (int i=0; i<v[j].size(); i++)
+            {
+                /*
+                double thisepwp = (v[j][i]-v[j][0]);
+                double thissigma = m_vStress[eleInd*3+1+2][i];
+                if(fabs(thisepwp)<1.e-16)
+                    stream << ", "<<0;
+                else{
+                    if(fabs(thissigma)<1e-16)
+                    {
+                        thissigma = 1e-16;
+                        stream << ", "<<thisepwp/thissigma;
+                    }else
+                        stream << ", "<<thisepwp/thissigma;
+                }
+                */
+
+                double thisepwp = (v[j][i]-v[j][0]);
+                stream << ", "<<thisepwp;
+            }
+            stream <<"];" <<endl;
+        }
+    }
+
+
+    return text;
 
 }
+
 
 QVector<QVector<double>> TabManager::getElemResVec(QString fileName)
 {
@@ -1650,6 +1795,8 @@ QString TabManager::loadEleResponse(QString motion)
     {
         fileName = postProcessor->getStressFileName();
         vStress = getElemResVec(fileName);
+        m_vStress.clear();
+        m_vStress = vStress;
     }
     else if (motion=="stressstrain")
     {

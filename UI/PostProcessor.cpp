@@ -34,6 +34,7 @@ void PostProcessor::update()
     calcSigma();
     calcDisp();
     calcRu();
+    calcRupwp();
     emit updateFinished();
 }
 
@@ -411,6 +412,111 @@ void PostProcessor::calcRu()
 
     for (int i=0;i<m_ru.size();i++)
         out << QString::number(m_ru[i]) << "\n";
+    saveFile.close();
+
+}
+
+
+
+void PostProcessor::calcRupwp()
+{
+    QVector<QVector<double>> pwp;
+    QFile pwpFile(pwpFileName);
+    if(pwpFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&pwpFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                QVector<double> thisv;
+                for (int i=1; i<thisLine.size();i+=2)// TODO: 3D?
+                {
+                    double tmp = (thisLine[i].trimmed().toDouble());
+                    thisv << tmp;
+                }
+                pwp.append(thisv);
+            }
+        }
+        pwpFile.close();
+    }
+
+    QString FileName = stressFileName;
+    QFile File(FileName);
+    QVector<double> v;
+    QVector<double> v1;
+    double thisValue;
+
+    eleCount = getEleCount();
+
+    if(File.open(QIODevice::ReadOnly)) {
+        QTextStream in(&File);
+        int timestep = -1;
+        QVector<double> pwp1 = pwp[0];
+        while(!in.atEnd()) {
+            timestep += 1;
+            QVector<double> pwpthis = pwp[timestep];
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                QVector<double> thisv;
+                for (int i=2; i<thisLine.size();i+=3)// TODO: 3D?
+                {
+                    double tmp = (thisLine[i].trimmed().toDouble());
+                    thisv << tmp;
+                }
+                if(v.size()!=thisv.size() && v.size()<1)// first time
+                {
+                    for (int j=0;j<thisv.size();j++)
+                    {
+                        v1 << thisv[j];
+                        v << 0.0;
+                    }
+                }
+                if (v.size()==thisv.size())
+                {
+                    for (int j=0;j<thisv.size();j++)
+                    {
+                        //thisValue = -(thisv[j]-v1[j]) / v1[j];
+                        int topNode = j+1;
+                        int bottomnode = j;
+                        thisValue = -0.5*(pwpthis[topNode]-pwp1[topNode]+pwpthis[bottomnode]-pwp1[bottomnode]) / v1[j];
+
+                        //thisValue = -(pwpthis[topNode]-pwp1[topNode]) / v1[j];
+                        if (thisValue>v[j])
+                            v[j] = thisValue;
+
+
+                    }
+                }
+            }
+        }
+        File.close();
+    }
+
+    if (m_rupwp.size()>0)
+        m_rupwp.clear();
+    for(int i=0;i<v.size();i++)
+        m_rupwp.append( v[i] * 100 );
+
+
+
+    QFile saveFile(rupwpFileName);
+    if (!saveFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+        qWarning("Couldn't open save file.");
+    }
+    QTextStream out(&saveFile);
+
+
+    for (int i=0;i<m_rupwp.size();i++)
+        out << QString::number(m_rupwp[i]) << "\n";
     saveFile.close();
 
 }

@@ -48,7 +48,7 @@
             color: #ffffff;
             padding: 5px 10px;
         }
-        
+
         #nodeBtn {
             border: 1px solid #062e4e;
             background-color: #5f64ac;
@@ -99,6 +99,14 @@
                     label: {
                         text: 'Click on one element to see results here.'
                     }
+                }
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
                 }
             },
             axis: {
@@ -197,9 +205,11 @@
     </script>
 
     <div class="box">
-        <input class="btn" id="nodeBtn" style="border: 1px solid #fc0404; " type="button" onclick="location.href='index.html';" value="Node" />
-        <input class="btn" id="eleBtn"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
-        &nbsp;&nbsp;&nbsp; 
+        <input class="btn" id="nodeBtn" style="border: 1px solid #fc0404; " type="button"
+            onclick="location.href='index.html';" value="Node" />
+        <input class="btn" id="eleBtn" type="button" style="width: 60px;" onclick="location.href='strain.html';"
+            value="Element" />
+        &nbsp;&nbsp;&nbsp;
 
         <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
         <input class="btn" type="button" onclick="location.href='index.html';" value="Vel" />

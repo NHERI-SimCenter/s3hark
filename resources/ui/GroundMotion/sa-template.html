@@ -101,9 +101,17 @@
                     }
                 }
             },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
             axis: {
                 x: {
-                    label: { text: 'Tn (s)', position: 'outer-center' },
+                    label: { text: 'Peroid Tn (s)', position: 'outer-center' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -111,7 +119,7 @@
 
                 },
                 y: {
-                    label: { text: 'Sa (g)', position: 'outer-middle' },
+                    label: { text: 'ζ=0.05, Sa (g)', position: 'outer-middle' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }

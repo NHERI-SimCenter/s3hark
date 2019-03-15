@@ -23,6 +23,7 @@ public:
     void calcSigma();
     void calcDisp();
     void calcRu();
+    void calcRupwp();
     void calcRuDepths();
     int getEleCount();
 
@@ -33,6 +34,7 @@ public:
     QVector<double> getSigma(){return m_sigma;}
     QVector<double> getDisp(){return m_disp;}
     QVector<double> getRu(){return m_ru;}
+    QVector<double> getRupwp(){return m_rupwp;}
 
     QString getElementFileName(){return elementFileName;}
     QString getNodesFileName(){return nodesFileName;}
@@ -55,6 +57,7 @@ private:
     QVector<double> m_sigma;
     QVector<double> m_disp;
     QVector<double> m_ru;
+    QVector<double> m_rupwp;
     double g=9.81;
     int eleCount;
     QString m_outputDir;
@@ -72,6 +75,7 @@ private:
     // processed dat
     QString pgaFileName = QDir(m_outputDir).filePath("pga.dat");
     QString ruFileName = QDir(m_outputDir).filePath("ru.dat");
+    QString rupwpFileName = QDir(m_outputDir).filePath("rupwp.dat");
     QString gammaMaxFileName = QDir(m_outputDir).filePath("gammaMax.dat");
     QString sigmaMaxFileName = QDir(m_outputDir).filePath("sigmaMax.dat");
     QString dispMaxFileName = QDir(m_outputDir).filePath("dispMax.dat");

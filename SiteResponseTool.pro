@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------#
 #             Site-specific Seismic Hazard Analysis & Research Kit             #
-#                              Site Response Tool                              #
+#                      A Site Response Analysis Tool                           #
 #                                                                              #
 #------------------------------------------------------------------------------#
 
