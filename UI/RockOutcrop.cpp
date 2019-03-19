@@ -264,11 +264,13 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui->tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
+
     if (useJSONasInput)
     {
         elementModel->clear();
         elementModel->refresh();
-        loadFromJson();
+        //loadFromJson(); // commenting this for frank,
+                          //because he doesn't like previous analysis loaded by default
 
         if(ui->tableView->m_sqlModel->rowCount()<1)
         {
@@ -285,7 +287,6 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
             valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
             ui->tableView->insertAt(valueList,0);
             ui->totalLayerLineEdit->setText("2");
-
         }
 
     }else{
@@ -295,16 +296,12 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
             QList<QVariant> valueListRock;
             valueListRock << "Rock" << "-" << DefaultDensity << DefaultVs << DefaultEType << "-";
             ui->tableView->insertAt(valueListRock,0);
-            /*
-        QList<QVariant> valueList;
-        valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
-        ui->tableView->insertAt(valueList,0);
-        */
             ui->tableView->setTotalHeight(0);
             ui->totalHeight->setText("0");
             ui->totalLayerLineEdit->setText("1");
         }
     }
+
 
 
     // init the opensess process
@@ -362,7 +359,7 @@ void RockOutcrop::loadFromJson()
     in = inputFile.readAll();
     inputFile.close();
     }else{
-        // if not input file provided add a default layer
+        // if no input file provided add a default layer
         if(ui->tableView->m_sqlModel->rowCount()<1)
         {
             QList<QVariant> valueListRock;
@@ -375,13 +372,7 @@ void RockOutcrop::loadFromJson()
     }
 
     QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
-    //qWarning() << indoc.isNull();
     QJsonObject inobj = indoc.object();
-    /*
-    qWarning() << inobj.value(QString("author"));
-    qWarning() << inobj["author"];
-    qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();
-    */
 
     QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
     QJsonArray materials = inobj["materials"].toArray();
@@ -478,9 +469,11 @@ bool RockOutcrop::inputFromJSON(QJsonObject& inobj) {
     cleanTable();
     cleanTable();
 
+    /*
     qWarning() << inobj.value(QString("author"));
     qWarning() << inobj["author"];
     qWarning() << inobj["soilProfile"].toObject()["soilLayers"].toArray();
+    */
 
     QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
     QJsonArray materials = inobj["materials"].toArray();
