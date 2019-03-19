@@ -16,6 +16,7 @@
 #ifndef EFFECTIVEFEMODEL_H
 #define EFFECTIVEFEMODEL_H
 
+#include <functional>
 #include "Domain.h"
 #include "Matrix.h"
 

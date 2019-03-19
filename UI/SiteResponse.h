@@ -1,7 +1,7 @@
 #ifndef SITERESPONSE_H
 #define SITERESPONSE_H
 
-
+#include <functional>
 #include "EffectiveFEModel.h"
 #include "siteLayering.h"
 #include "soillayer.h"
