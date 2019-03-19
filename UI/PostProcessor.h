@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QTextStream>
 #include <math.h>
+#include <QApplication>
 
 class PostProcessor : public QDialog
 {
@@ -25,6 +26,16 @@ public:
     void calcRu();
     void calcRupwp();
     void calcRuDepths();
+
+    double newmark(double mass,double damping, double k, double disp_init, double vel_init, double gamma, double beta, double dt, QVector<double> f );
+
+
+    void loadMotions();
+    void calcMotion(QString, QString);
+    void calcAllMotion(QString motion);
+    void calcSa();
+
+    void calcSurfaceMotions();
     int getEleCount();
 
     QVector<double> getPga(){return m_pga;}
@@ -46,10 +57,37 @@ public:
     QString getStressFileName(){return stressFileName;}
     QString getPWPFileName(){return pwpFileName;}
 
+    QStringList * getxdBaseVel(){return xdBaseVel;}
+    QStringList * getydBaseVel(){return ydBaseVel;}
+    QStringList * getxdSurfaceVel(){return xdSurfaceVel;}
+    QStringList * getydSurfaceVel(){return ydSurfaceVel;}
+
+    QStringList * getxdBaseDisp(){return xdBaseDisp;}
+    QStringList * getydBaseDisp(){return ydBaseDisp;}
+    QStringList * getxdSurfaceDisp(){return xdSurfaceDisp;}
+    QStringList * getydSurfaceDisp(){return ydSurfaceDisp;}
+
+    QStringList * getxdBaseAcc(){return xdBaseAcc;}
+    QStringList * getydBaseAcc(){return ydBaseAcc;}
+    QStringList * getxdSurfaceAcc(){return xdSurfaceAcc;}
+    QStringList * getydSurfaceAcc(){return ydSurfaceAcc;}
+
+    QVector<QVector<double>> *getvelAll(){return velAll;}
+    QVector<QVector<double>> *getaccAll(){return accAll;}
+    QVector<QVector<double>> *getdispAll(){return dispAll;}
+
+    QVector<QVector<double>> *getSa(){return saVec;}
+    QVector<double> *getPeriods(){return Periods;}
+
+
 
 signals:
     void updateFinished();
 private:
+    QString rootDir = qApp->applicationDirPath();
+    QString analysisName = "analysis";
+    QString analysisDir = QDir(rootDir).filePath(analysisName);
+
     QVector<double> m_pga;
     QVector<double> m_depths;
     QVector<double> m_ruDepths;
@@ -79,6 +117,27 @@ private:
     QString gammaMaxFileName = QDir(m_outputDir).filePath("gammaMax.dat");
     QString sigmaMaxFileName = QDir(m_outputDir).filePath("sigmaMax.dat");
     QString dispMaxFileName = QDir(m_outputDir).filePath("dispMax.dat");
+
+    QStringList *xdBaseVel = new QStringList();
+    QStringList *ydBaseVel = new QStringList();
+    QStringList *xdBaseDisp = new QStringList();
+    QStringList *ydBaseDisp = new QStringList();
+    QStringList *xdBaseAcc = new QStringList();
+    QStringList *ydBaseAcc = new QStringList();
+    QStringList *xdSurfaceVel = new QStringList();
+    QStringList *ydSurfaceVel = new QStringList();
+    QStringList *xdSurfaceDisp = new QStringList();
+    QStringList *ydSurfaceDisp = new QStringList();
+    QStringList *xdSurfaceAcc = new QStringList();
+    QStringList *ydSurfaceAcc = new QStringList();
+
+    QVector<QVector<double>> *velAll = new QVector<QVector<double>>;
+    QVector<QVector<double>> *accAll = new QVector<QVector<double>>;
+    QVector<QVector<double>> *dispAll = new QVector<QVector<double>>;
+
+    QVector<double> *Periods = new QVector<double>;
+    QVector<QVector<double>> *saVec = new QVector<QVector<double>>;
+
 
 
 

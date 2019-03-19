@@ -30,6 +30,7 @@ public:
     explicit TabManager(QWidget *parent = nullptr);
     TabManager(BonzaTableView *tableView,ElementModel *emodel,QWidget *parent = nullptr);
     void init(QTabWidget* theTab);
+    void initGMTab();
     void fillMatTab(QString ,const QModelIndex &index);
     void cleanForm(QVector<QLineEdit*> currentEdts);
     void checkDefaultFEM(QString thisMatType,const QModelIndex &index);
@@ -52,6 +53,7 @@ public:
     void hideConfigure();
     QString openseespath(){return openseesPathStr;}
     QString rockmotionpath(){return GMPathStr;}
+    void updateVelHtml();
     void updateDispHtml();
     void updateAccHtml();
     void updatePWPHtml();
@@ -65,7 +67,6 @@ public:
     void updatePostProcessor(PostProcessor *postProcessort);
     void setGMViewLoaded(){GMViewLoaded = true;}
     QVector<QVector<double>> getElemResVec(QString);
-    double newmark(double mass,double damping, double k, double disp_init, double vel_init, double gamma, double beta, double dt, QVector<double> f );
 
 signals:
     void configTabUpdated();
@@ -145,6 +146,14 @@ private:
     QString strainHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/strain.html");
     QString stressHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/stress.html");
 
+    QString GMTabHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/index-template.html");
+    QString accHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/acc-template.html");
+    QString dispHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/disp-template.html");
+    QString pwpHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/pwp-template.html");
+    QString rupwpHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp-template.html");
+    QString strainHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/strain-template.html");
+    QString stressHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/stress-template.html");
+
 
     QString openseesPathStr;
     //QString rockmotionpathStr;
@@ -154,6 +163,8 @@ private:
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
 
     bool GMViewLoaded = false;
+
+    int maxStepToShow = 200;
 
     QVector<QVector<double>> m_vStress;
 

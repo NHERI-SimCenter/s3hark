@@ -35,7 +35,7 @@ int readDT(const char* fileName, int& numSteps, std::vector<double>& dt)
 {
 	int res = -1;
 	numSteps = 0;
-	std::ifstream file(fileName);
+    std::ifstream file(fileName);
 	if (file)
 	{
 		std::string line;
@@ -66,6 +66,7 @@ int readDT(const char* fileName, int& numSteps, std::vector<double>& dt)
 			++numSteps;
 		}
 	}
+    numSteps += 1;
 	return res;
 }
 
