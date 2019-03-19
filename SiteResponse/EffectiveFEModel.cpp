@@ -11,6 +11,7 @@
 **   Update: December 2018   Charles Wang                                **
 ** ********************************************************************* */
 
+#include <functional>
 #include <vector>
 #include <iostream>
 #include <sstream>

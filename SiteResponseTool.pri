@@ -1,9 +1,9 @@
 
 INCLUDEPATH += $$PWD/ \
-	     += $$PWD/Include \
-	     += $$PWD/FEM \
-	     += $$PWD/SiteResponse \
-	     += $$PWD/UI
+	       $$PWD/Include \
+      	       $$PWD/FEM \
+	       $$PWD/SiteResponse \
+	       $$PWD/UI
 
 unix: {
 # You need to modify this section if your blas and lapack is in a different place
