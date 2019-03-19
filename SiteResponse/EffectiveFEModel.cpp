@@ -14,6 +14,7 @@
 #include <functional>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 #include "EffectiveFEModel.h"
@@ -210,6 +211,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	ofstream es ("out_tcl/elementInfo.dat", std::ofstream::out);
     */
     ofstream s (theAnalysisDir + "/model.tcl", std::ofstream::out);//TODO: may not work on windows
+    s.precision(16);
     ofstream ns (theTclOutputDir+"/nodesInfo.dat", std::ofstream::out);
     ofstream es (theTclOutputDir+"/elementInfo.dat", std::ofstream::out);
 	//ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
@@ -266,6 +268,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	sprintf(paramArgs[0], "materialState");
 	std::map<int, int> matNumDict;
 	std::vector<int> soilMatTags;
+    std::vector<double> vPermVec;
+    std::vector<double> hPermVec;
 
 	theNode = new Node(numNodes + 1, 3, 0.0, yCoord); theDomain->addNode(theNode);
 	theNode = new Node(numNodes + 2, 3, sElemX, yCoord); theDomain->addNode(theNode);
@@ -403,12 +407,14 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				ns << numNodes + 1 << " 0.0 " << yCoord << endln;
 				ns << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
 
+                double alpha = 1.0e-8;
 				theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
-									   *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, 0.0, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
-				
+                                       *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, alpha, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
+                hPermVec.push_back(hPerm);
+                vPermVec.push_back(vPerm);
 				s << "element SSPquadUP "<<numElems + 1<<" " 
 					<<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
-					<< theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " 0.0 0.0 "<< g * 1.0 << endln;
+                    << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " 0.0 "<< g * 1.0 << endln;
 				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << endln;
 
@@ -541,7 +547,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "test NormDispIncr 1.0e-4 35 1" << endln;
 	s << "algorithm   Newton" << endln;
 	s << "numberer RCM" << endln;
-	s << "system BandGeneral" << endln;
+    s << "system SparseGeneral" << endln;//BandGeneral
 	s << "set gamma " << gamma << endln;
 	s << "set beta " << beta << endln;
 	s << "integrator  Newmark $gamma $beta" << endln;
@@ -678,20 +684,22 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	}
 	s << endln;
 
-	if(doAnalysis)
-	{
-	converged = theAnalysis->analyze(10,1.0); 
-	s << "analyze     10 1.0" << endln;
-	if (!converged)
-	{
-		opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
-	} else
-	{
-		opserr << "Didn't converge at time " << theDomain->getCurrentTime() << endln;
-	}
-	opserr << "Finished with plastic gravity analysis..." endln;
-	s << "puts \"Finished with plastic gravity analysis...\"" << endln << endln;
-	}
+
+    if(doAnalysis)
+    {
+        converged = theAnalysis->analyze(10,1.0);
+
+        if (!converged)
+        {
+            opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
+        } else
+        {
+            opserr << "Didn't converge at time " << theDomain->getCurrentTime() << endln;
+        }
+        opserr << "Finished with plastic gravity analysis..." endln;
+    }
+    s << "analyze     10 1.0" << endln;
+    s << "puts \"Finished with plastic gravity analysis...\"" << endln << endln;
 	
 
 
@@ -725,8 +733,10 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	// update hPerm and vPerm 
 	theParamIter = theDomain->getParameters();
-	while ((theParameter = theParamIter()) != 0)
+    int tmpcounter=0;
+    while ((theParameter = theParamIter()) != 0) // /*TODO: This may be a problem.*/
 	{
+        tmpcounter+=1;
 		int paraTag = theParameter->getTag();
 		if (paraTag>(numElems+nParaPlus/2.) & paraTag<=(numElems+3.*nParaPlus/4.))
 		{// hperm
@@ -742,8 +752,10 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	{
 		int theEleTag = theEle->getTag();
 		//setParameter -value 1 -ele $elementTag hPerm $matTag
-		s << "setParameter -value "<<1.0e-7/9.81/*TODO*/<<" -ele "<< theEleTag<<" hPerm "<<endln;
-		s << "setParameter -value "<<1.0e-7/9.81/*TODO*/<<" -ele "<< theEleTag<<" vPerm "<<endln;
+        double thishPerm = hPermVec[theEleTag-1];
+        double thisvPerm = vPermVec[theEleTag-1];
+        s << "setParameter -value "<<thishPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" hPerm "<<endln;
+        s << "setParameter -value "<<thisvPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" vPerm "<<endln;
 	}
 	s << endln << endln << endln;
 
@@ -911,10 +923,11 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	std::vector<double> dt;
 
 
-    double dT = 0.001; // This is the time step in solution
+    double dT = 0.0005; // This is the time step in solution
     double motionDT = theMotionX->getDt();//  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
-    int nSteps = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
-	int remStep = nSteps * motionDT / dT;
+    int nStepsMotion = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
+    int nSteps = int(nStepsMotion * motionDT / dT + 1);
+    int remStep = nSteps;
 	s << "set dT " << dT << endln;
 	s << "set motionDT " << motionDT << endln;
     //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
@@ -968,7 +981,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "test NormDispIncr 1.0e-4 35 0" << endln; // TODO
 	s << "algorithm   Newton" << endln;
 	s << "numberer    RCM" << endln;
-	s << "system BandGeneral" << endln;
+    s << "system SparseGeneral" << endln;//BandGeneral
 
 
 
@@ -1084,9 +1097,11 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-	s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $motionDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out_tcl/surface.acc -time -dT $motionDT -node "<<numNodes<<" -dof 1 2 3  accel\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out_tcl/surface.vel -time -dT $motionDT -node "<<numNodes<<" -dof 1 2 3 vel\""<<endln;// 3
+    double recDT = 0.005;
+    s << "set recDT 0.001" << endln;
+    s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
+    s<< "eval \"recorder Node -file out_tcl/surface.acc -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  accel\""<<endln;// 1 2
+    s<< "eval \"recorder Node -file out_tcl/surface.vel -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3 vel\""<<endln;// 3
 
 
 	
@@ -1112,9 +1127,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-	s<< "eval \"recorder Node -file out_tcl/base.disp -time -dT $motionDT -node 1 -dof 1 2 3  disp\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out_tcl/base.acc -time -dT $motionDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
-	s<< "eval \"recorder Node -file out_tcl/base.vel -time -dT $motionDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
+    s<< "eval \"recorder Node -file out_tcl/base.disp -time -dT $recDT -node 1 -dof 1 2 3  disp\""<<endln;// 1 2
+    s<< "eval \"recorder Node -file out_tcl/base.acc -time -dT $recDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
+    s<< "eval \"recorder Node -file out_tcl/base.vel -time -dT $recDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
 
 
 	// Record pwp at node 17
@@ -1127,7 +1142,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theRecorder = new NodeRecorder(dofToRecord, &pwpNodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-	s<< "eval \"recorder Node -file out_tcl/pwpLiq.out -time -dT $motionDT -node 17 -dof 3 vel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/pwpLiq.out -time -dT $recDT -node 17 -dof 3 vel\""<<endln;
 
 
 	// Record the response of all nodes
@@ -1160,10 +1175,10 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-	s<< "eval \"recorder Node -file out_tcl/displacement.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 1 2  disp\""<<endln;
-	s<< "eval \"recorder Node -file out_tcl/velocity.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 1 2  vel\""<<endln;
-	s<< "eval \"recorder Node -file out_tcl/acceleration.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 1 2  accel\""<<endln;
-	s<< "eval \"recorder Node -file out_tcl/porePressure.out -time -dT $motionDT -nodeRange 1 "<<numNodes<<" -dof 3 vel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/displacement.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  disp\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/velocity.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  vel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/acceleration.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  accel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/porePressure.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 3 vel\""<<endln;
 
 	
 	// Record element results
@@ -1183,8 +1198,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, motionDT, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-	s<< "recorder Element -file out_tcl/stress.out -time -dT $motionDT  -eleRange 1 "<<numQuadEles<<"  stress 3"<<endln;
-	s<< "recorder Element -file out_tcl/strain.out -time -dT $motionDT  -eleRange 1 "<<numQuadEles<<"  strain"<<endln;
+    s<< "recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  stress 3"<<endln;
+    s<< "recorder Element -file out_tcl/strain.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  strain"<<endln;
 	s<< endln << endln;
 
 
@@ -1267,25 +1282,53 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
     s << "puts \"Start analysis\"" << endln;
     s << "set startT [clock seconds]" << endln;
+    //s << "if {1} {" << endln;
     s << "set finalTime [expr $remStep * $dT]" << endln;
     s << "set success 0" << endln;
     s << "set currentTime 0." << endln;
+    s << "set timeMarker 0." << endln;
     s << "while {$success == 0 && $currentTime < $finalTime} {" << endln;
     s << "	set subStep 0" << endln;
     s << "	set success [analyze 1  $dT]" << endln;
     s << "	if {$success != 0} {" << endln;
-
     s << "	set curTime  [getTime]" << endln;
-    s << "  puts \"Analysis failed at $curTime . Try substepping.\"" << endln;
-    s << "  set success  [subStepAnalyze [expr $dT/2.0] [incr subStep]]" << endln;
+    s << "	puts \"Analysis failed at $curTime . Try substepping.\"" << endln;
+    s << "	set success  [subStepAnalyze [expr $dT/2.0] [incr subStep]]" << endln;
     s << "	set curStep  [expr int($curTime/$dT + 1)]" << endln;
     s << "	set remStep  [expr int($nSteps-$curStep)]" << endln;
     s << "	puts \"Current step: $curStep , Remaining steps: $remStep\"" << endln;
     s << "    } else {" << endln;
-    s << "	puts \"[expr $currentTime/$finalTime * 100.]%\"" << endln;
-    s << "	set currentTime [getTime]" << endln;
+    s << "          set progress [expr $currentTime/$finalTime * 100.]" << endln;
+    s << "          if { $progress > $timeMarker} {" << endln;
+    s << "              set timeMarker [expr $timeMarker+2]" << endln;
+    s << "              puts \"$progress%\"" << endln;
+    s << "              }" << endln;
+    s << "              set currentTime [getTime]" << endln;
     s << "	}" << endln;
     s << "}" << endln << endln;
+    //s << "}" << endln << endln;
+
+
+    /*
+    s << "if {0} {" << endln;
+    s << "while {$success != -10} {" << endln;
+    s << "    set subStep 0" << endln;
+    s << "    set success [analyze $remStep  $dT]" << endln;
+    s << "    if {$success == 0} {" << endln;
+    s << "        puts \"Analysis Finished\"" << endln;
+    s << "        break" << endln;
+    s << "    } else {" << endln;
+    s << "        set curTime  [getTime]" << endln;
+    s << "        puts \"Analysis failed at $curTime . Try substepping.\"" << endln;
+    s << "        set success  [subStepAnalyze [expr $dT/2.0] [incr subStep]]" << endln;
+    s << "        set curStep  [expr int($curTime/$dT + 1)]" << endln;
+    s << "       set remStep  [expr int($nSteps-$curStep)]" << endln;
+    s << "        puts \"Current step: $curStep , Remaining steps: $remStep\"" << endln;
+    s << "    }" << endln;
+    s << "}" << endln;
+    s << "}" << endln;
+    */
+
 
 
 	s << "set endT [clock seconds]" << endln << endln;

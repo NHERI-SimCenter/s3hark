@@ -1082,7 +1082,6 @@ void RockOutcrop::on_runBtn_clicked()
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
                 srt->buildTcl();
-
                 openseesProcess->start(openseespath,QStringList()<<tclName);
                 openseesErrCount = 1;
                 emit runBtnClicked();
@@ -1091,6 +1090,9 @@ void RockOutcrop::on_runBtn_clicked()
                 //emit signalInvokeInternalFEA();
                 //emit runBtnClicked();
 
+                SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
+                                                     analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
+                srt->buildTcl();
                 QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
                 ui->progressBar->hide();
                 theTabManager->getTab()->setCurrentIndex(0);
@@ -1156,6 +1158,12 @@ void RockOutcrop::onOpenSeesFinished()
             //qDebug() << "opensees says:" << str_err;
             openseesErrCount = 2;
 
+            postProcessor = new PostProcessor(outputDir);
+            profiler->updatePostProcessor(postProcessor);
+            theTabManager->updatePostProcessor(postProcessor);
+            connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
+            postProcessor->update();
+
             theTabManager->setGMViewLoaded();
             theTabManager->reFreshGMTab();
 
@@ -1166,11 +1174,7 @@ void RockOutcrop::onOpenSeesFinished()
             QMessageBox::information(this,tr("OpenSees Information"), "Analysis is done.", tr("I know."));
 
 
-            postProcessor = new PostProcessor(outputDir);
-            profiler->updatePostProcessor(postProcessor);
-            theTabManager->updatePostProcessor(postProcessor);
-            connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
-            postProcessor->update();
+
 
             emit signalProgress(100);
             ui->progressBar->hide();

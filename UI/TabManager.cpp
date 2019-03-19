@@ -22,32 +22,8 @@ TabManager::TabManager(BonzaTableView *tableViewIn, ElementModel *emodel,QWidget
 
     tableModel = tableView->m_sqlModel;
 
-
     if(!QDir(analysisDir).exists())
         QDir().mkdir(analysisDir);
-
-    /*
-    QString dirname = QDir::currentPath();
-    QString femfilename = "Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_12_0_clang_64bit2-Debug/FEM.dat";
-    QString fillfullpath = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_12_0_clang_64bit2-Debug/FEM.dat";
-            //QDir(dirname).filePath(femfilename);
-
-    QString logname = "/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_12_0_clang_64bit2-Debug/log";
-    QFile newfilex(logname);
-    newfilex.open(QIODevice::WriteOnly | QIODevice::Text);
-    newfilex.write("not quit here.\n");
-
-    newfilex.write(("femFilename folder: "+femFilename.toUtf8()+"   !\n"));
-    newfilex.write(("analysis folder: "+analysisDir.toUtf8()+"   !\n"));
-    newfilex.write(("current folder: "+dirname.toUtf8()+"   !\n"));
-    newfilex.write((fillfullpath+"\n").toUtf8());
-    if (QFile::exists(analysisDir))
-        newfilex.write("analysisDir:" +analysisDir.toUtf8() +" exist.\n");
-    else
-        newfilex.write("analysisDir doesn't exist.\n");
-
-    newfilex.close();
-    */
 
 }
 
@@ -60,11 +36,8 @@ void TabManager::onTabBarClicked(int tabinx)
         GMViewLoaded = true;
     }
     //emit onTabBarClickedFinished();
-
     //elementModel->reSetActive();
-
     //emit GMView->loadFinished(true);
-
 }
 void TabManager::onGMLoadFinished(bool ok)
 {
@@ -127,18 +100,12 @@ void TabManager::init(QTabWidget* theTab){
     tab->addTab(GMView,"Response");
 
 
-
-
-
-
-
     /*
     QFile uiFileGM(":/UI/GroundMotion.ui");
     uiFileGM.open(QIODevice::ReadOnly);
     GMWidget = uiLoader.load(&uiFileGM,this);
     tab->insertTab(1,GMWidget,"Ground motion");
     */
-
 
 
     QFile uiFilePM4Sand(":/UI/PM4Sand.ui");
@@ -160,12 +127,6 @@ void TabManager::init(QTabWidget* theTab){
     secondaryBtn->setCheckable(true);
     secondaryBtn->hide();
     connect(secondaryBtn, SIGNAL(clicked(bool)), this, SLOT(onSecondaryBtnClicked(bool)));
-
-
-
-
-
-
 
 
 
@@ -224,7 +185,9 @@ void TabManager::init(QTabWidget* theTab){
 
 
 
-    reFreshGMTab();
+    //reFreshGMTab();
+    initGMTab();
+
 
     //connect(elementModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onElementDataChanged(QModelIndex,QModelIndex)));
     connect(tab,SIGNAL(tabBarClicked(int)), this, SLOT(onTabBarClicked(int)));
@@ -450,7 +413,7 @@ void TabManager::writeGM()
                     for(int j=0;j<tV.size();j++)
                         streamTime << QString::number(tV[j].toDouble())+"\n";
                     for(int j=0;j<data.size();j++)
-                        stream << QString::number(data[j].toDouble())+"\n";
+                        stream << QString::number(data[j].toDouble(),'g',16)+"\n";
 
                     outFile.close();
                     outFileTime.close();
@@ -602,11 +565,59 @@ void TabManager::onFEMTabEdited()
 void TabManager::reFreshGMTab()
 {
 
+
+    updateVelHtml();
+    updateAccHtml();
+    updateDispHtml();
+    updatePWPHtml();
+    updateSaHtml();
+    updateStrainHtml();
+    updateStressHtml();
+    updateStressStrainHtml();
+    updateRupwpHtml();
+
+    GMView->reload();
+    //GMView->show();
+
+}
+
+void TabManager::initGMTab()
+{
+    QString GMTabHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/index-template.html");
+    QString accHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/acc-template.html");
+    QString dispHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/disp-template.html");
+    QString pwpHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/pwp-template.html");
+    QString rupwpHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp-template.html");
+    QString strainHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/strain-template.html");
+    QString stressHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/stress-template.html");
+    QFile file1(GMTabHtmlName);
+    if(!file1.exists())
+        QFile::copy(GMTabHtmlNameTmp, GMTabHtmlName);
+    QFile file2(accHtmlName);
+    if(!file2.exists())
+        QFile::copy(accHtmlNameTmp, accHtmlName);
+    QFile file3(dispHtmlName);
+    if(!file3.exists())
+        QFile::copy(dispHtmlNameTmp, dispHtmlName);
+    QFile file4(pwpHtmlName);
+    if(!file4.exists())
+        QFile::copy(pwpHtmlNameTmp, pwpHtmlName);
+    QFile file5(rupwpHtmlName);
+    if(!file5.exists())
+        QFile::copy(rupwpHtmlNameTmp, rupwpHtmlName);
+    QFile file6(strainHtmlName);
+    if(!file6.exists())
+        QFile::copy(strainHtmlNameTmp, strainHtmlName);
+    QFile file7(stressHtmlName);
+    if(!file7.exists())
+        QFile::copy(stressHtmlNameTmp, stressHtmlName);
+    GMView->reload();
+}
+
+void TabManager::updateVelHtml()
+{
     // get file paths
     QFileInfo indexHtmlInfo(GMTabHtmlName);
-    //QString dir = indexHtmlInfo.path();
-    //QString tmpPath = QDir(dir).filePath("index-template.html");
-    //QString newPath = QDir(dir).filePath("index.html");
     QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
     QFile::remove(newPath);
@@ -633,20 +644,8 @@ void TabManager::reFreshGMTab()
         newfile.write(text.toUtf8());
         newfile.close();
     }
-
-    updateAccHtml();
-    updateDispHtml();
-    updatePWPHtml();
-    updateSaHtml();
-    updateStrainHtml();
-    updateStressHtml();
-    updateStressStrainHtml();
-    updateRupwpHtml();
-
-    GMView->reload();
-    //GMView->show();
-
 }
+
 
 void TabManager::updateAccHtml()
 {
@@ -929,84 +928,37 @@ QString TabManager::loadGMtoString()
      * Get rock motion from file
      */
     writeGM();
-    QFile timeFile(analysisDir+"/Rock.time");
-    QFile velFile(analysisDir+"/Rock.vel");
-    //QFile accFile(analysisDir+"/Rock.acc");
-    //QFile dispFile(analysisDir+"/Rock.disp");
 
-    QStringList xd, yd;
-    if(timeFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&timeFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            if (thisLine.size()<1)
-                break;
-            xd.append(thisLine[0].trimmed());
-        }
-        timeFile.close();
-    }
-    if(velFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&velFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            if (thisLine.size()<1)
-                break;
-            yd.append(thisLine[0].trimmed());
-        }
-        velFile.close();
-    }
+    QStringList *xd = postProcessor->getxdBaseVel();
+    QStringList *yd = postProcessor->getydBaseVel();
 
 
     stream << "xnew = ['x'";
-    for (int i=0; i<xd.size(); i++)
-        stream << ", "<<xd.at(i);
+    for (int i=0; i<xd->size(); i++)
+        stream << ", "<<xd->at(i);
     stream <<"];" <<endl;
 
     stream << "ynew = ['Rock motion'";
-    for (int i=0; i<yd.size(); i++)
-        stream << ", "<<yd.at(i);
+    for (int i=0; i<yd->size(); i++)
+        stream << ", "<<yd->at(i);
     stream <<"];" <<endl;
 
     /*
      * Get surface motion from file
      */
     //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
-    QString surfaceVelFileName = analysisDir+"/out_tcl/surface.vel";
-    QFile surfaceVelFile(surfaceVelFileName);
-    QStringList xdSurfaceVel, ydSurfaceVel;
-    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&surfaceVelFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            if (thisLine.size()<2)
-                break;
-            else
-            {
-                thisLine.removeAll("");
-                if(thisLine.size()>1)
-                {
-                xdSurfaceVel.append(thisLine[0].trimmed());
-                ydSurfaceVel.append(thisLine[1].trimmed());
-                }else
-                    break;
 
-            }
-
-        }
-        surfaceVelFile.close();
-    }
+    QStringList *xdSurfaceVel = postProcessor->getxdSurfaceVel();
+    QStringList *ydSurfaceVel = postProcessor->getydSurfaceVel();
 
     stream << "xSurfaceVel = ['x'";
-    for (int i=0; i<xdSurfaceVel.size(); i++)
-        stream << ", "<<xdSurfaceVel.at(i);
+    for (int i=0; i<xdSurfaceVel->size(); i++)
+        stream << ", "<<xdSurfaceVel->at(i);
     stream <<"];" <<endl;
 
     stream << "ySurfaceVel = ['Surface motion'";
-    for (int i=0; i<ydSurfaceVel.size(); i++)
-        stream << ", "<<ydSurfaceVel.at(i).toDouble();
+    for (int i=0; i<ydSurfaceVel->size(); i++)
+        stream << ", "<<ydSurfaceVel->at(i).toDouble();
     stream <<"];" <<endl;
 
     QString nodeResponseStr = loadNodeResponse("vel");
@@ -1168,41 +1120,45 @@ QString TabManager::loadMotions2String(QString motion)
     QString text;
     QTextStream stream(&text);
 
-    QString vaseVelFileName = analysisDir+"/out_tcl/base."+motion;
-    QFile baseVelFile(vaseVelFileName);
-    QStringList xdBaseVel, ydBaseVel;
-    if(baseVelFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&baseVelFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            if (thisLine.size()<2)
-                break;
-            else
-            {
-                thisLine.removeAll("");
-                if(thisLine.size()>1)
-                {
-                    xdBaseVel.append(thisLine[0].trimmed());
-                    ydBaseVel.append(thisLine[1].trimmed());
-                }else
-                    break;
+    QStringList *xdBase;
+    QStringList *xdSurface;
+    QStringList *ydBase;
+    QStringList *ydSurface;
 
-            }
-
-        }
-        baseVelFile.close();
+    if (motion=="vel")
+    {
+        xdBase = postProcessor->getxdBaseVel();
+        ydBase = postProcessor->getydBaseVel();
+        xdSurface = postProcessor->getxdSurfaceVel();
+        ydSurface = postProcessor->getydSurfaceVel();
+    } else if (motion=="acc")
+    {
+        xdBase = postProcessor->getxdBaseAcc();
+        ydBase = postProcessor->getydBaseAcc();
+        xdSurface = postProcessor->getxdSurfaceAcc();
+        ydSurface = postProcessor->getydSurfaceAcc();
+    } else {
+        xdBase = postProcessor->getxdBaseDisp();
+        ydBase = postProcessor->getydBaseDisp();
+        xdSurface = postProcessor->getxdSurfaceDisp();
+        ydSurface = postProcessor->getydSurfaceDisp();
     }
 
-    stream << "xnew = ['x'";
-    for (int i=0; i<xdBaseVel.size(); i++)
-        stream << ", "<<xdBaseVel.at(i);
-    stream <<"];" <<endl;
 
-    stream << "ynew = ['Rock motion'";
-    for (int i=0; i<ydBaseVel.size(); i++)
-        stream << ", "<<ydBaseVel.at(i);
-    stream <<"];" <<endl;
+    int overStep;
+    if(xdBase && ydBase)
+    {
+        overStep = int(floor(xdBase->size()/maxStepToShow));
+        stream << "xnew = ['x'";
+        for (int i=0; i<xdBase->size(); i+=overStep)
+            stream << ", "<<xdBase->at(i);
+        stream <<"];" <<endl;
+
+        stream << "ynew = ['Rock motion'";
+        for (int i=0; i<ydBase->size(); i+=overStep)
+            stream << ", "<<ydBase->at(i);
+        stream <<"];" <<endl;
+    }
 
 
 
@@ -1214,40 +1170,20 @@ QString TabManager::loadMotions2String(QString motion)
     /*
      * Get surface motion from file
      */
-    //QString surfaceVelFileName = "/Users/simcenter/Codes/SimCenter/SiteResponseTool/bin/out_tcl/vel_surface.txt";
-    QString surfaceVelFileName = analysisDir+"/out_tcl/surface."+motion;
-    QFile surfaceVelFile(surfaceVelFileName);
-    QStringList xdSurfaceVel, ydSurfaceVel;
-    if(surfaceVelFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&surfaceVelFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            if (thisLine.size()<2)
-                break;
-            else
-            {
-                thisLine.removeAll("");
-                if (thisLine.size()<2)
-                    break;
-                xdSurfaceVel.append(thisLine[0].trimmed());
-                ydSurfaceVel.append(thisLine[1].trimmed());
 
-            }
 
-        }
-        surfaceVelFile.close();
+    if(xdSurface && ydSurface)
+    {
+        stream << "xSurfaceVel = ['x'";
+        for (int i=0; i<xdSurface->size(); i+=overStep)
+            stream << ", "<<xdSurface->at(i);
+        stream <<"];" <<endl;
+
+        stream << "ySurfaceVel = ['Surface motion'";
+        for (int i=0; i<ydSurface->size(); i+=overStep)
+            stream << ", "<<ydSurface->at(i).toDouble();
+        stream <<"];" <<endl;
     }
-
-    stream << "xSurfaceVel = ['x'";
-    for (int i=0; i<xdSurfaceVel.size(); i++)
-        stream << ", "<<xdSurfaceVel.at(i);
-    stream <<"];" <<endl;
-
-    stream << "ySurfaceVel = ['Surface motion'";
-    for (int i=0; i<ydSurfaceVel.size(); i++)
-        stream << ", "<<ydSurfaceVel.at(i).toDouble();
-    stream <<"];" <<endl;
 
     writeSurfaceMotion();
 
@@ -1290,261 +1226,105 @@ void TabManager::updatePostProcessor(PostProcessor *postProcessort)
 
 QString TabManager::loadNodeResponse(QString motion)
 {
-    QString motionFileName;
+
+    QVector<QVector<double>> *v;
     if(motion=="acc")
-            motionFileName = postProcessor->getAccFileName();
+    {
+        v = postProcessor->getaccAll();
+    }
     else if (motion=="vel")
-        motionFileName = postProcessor->getVelFileName();
+    {
+        v = postProcessor->getvelAll();
+    }
     else if (motion=="disp")
-        motionFileName = postProcessor->getDispFileName();
-    else if (motion=="strain")
-        motionFileName = postProcessor->getStrainFileName();
-    else if (motion=="stress")
-        motionFileName = postProcessor->getStressFileName();
+    {
+        v = postProcessor->getdispAll();
+    }
     else
         qWarning("motion must be acc, vel or disp!");
 
-    QFile File(motionFileName);
-
-    QVector<QVector<double>> v;
-    if(File.open(QIODevice::ReadOnly)) {
-        QTextStream in(&File);
-        int lineCount = 0;
-        int numCols = 0;
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            thisLine.removeAll("");
-            int sizeThisLine = thisLine.size();
-            lineCount += 1;
-            if (lineCount==1)
-                numCols = sizeThisLine;
-            if (sizeThisLine != numCols && lineCount>1)
-            {
-                lineCount -= 1;
-                break;
-            }
-            else
-            {
-                //thisLine.removeAll("");
-                for (int i=0; i<thisLine.size();i++)// TODO: 3D?
-                {
-                    if (lineCount==1)
-                    {
-                        QVector<double> tmpV;
-                        v.append(tmpV);
-                    }
-                    v[i].append((thisLine[i].trimmed().toDouble()));
-                }
-            }
-        }
-        File.close();
-    }
 
     QString text;
     QTextStream stream(&text);
 
-    if(v.size()>0)
-    {
-    stream << "time = ['x'";
-    for (int i=0; i<v[0].size(); i++)
-        stream << ", "<<v[0][i];
-    stream <<"];" <<endl;
 
 
-    int eleID = elementModel->getSize();
-    for (int j=7;j<v.size();j+=4)
+    if(v->size()>0)
     {
-        eleID -= 1;
-        //stream << "n1 = ['Node 1'";
-        stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
-        //stream << "n"+QString::number(eleID)+" = ['Node marked by <'";
-        for (int i=0; i<v[j].size(); i++)
-            stream << ", "<<v[j][i];
+        int overStep = int(floor((*v)[0].size()/maxStepToShow));
+
+        stream << "time = ['x'";
+        for (int i=0; i<(*v)[0].size(); i+=overStep)
+            stream << ", "<<(*v)[0][i];
         stream <<"];" <<endl;
-    }
+
+        int eleID = elementModel->getSize();
+        for (int j=7;j<v->size();j+=4)
+        {
+            eleID -= 1;
+            stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+            for (int i=0; i<(*v)[j].size(); i+=overStep)
+                stream << ", "<<(*v)[j][i];
+            stream <<"];" <<endl;
+        }
     }
 
 
     return text;
 
-
-
 }
 
 
 QString TabManager::loadNodeSa()
-{
+{   // TODO: this function is too spaghetti....
 
-    QString motionFileName = postProcessor->getAccFileName();
-    QFile File(motionFileName);
+    QVector<QVector<double>> *v = postProcessor->getaccAll();
+    QVector<QVector<double>> *saVec = postProcessor->getSa();
+    QVector<double> *Periods = postProcessor->getPeriods();
 
-    QVector<QVector<double>> v;
-    if(File.open(QIODevice::ReadOnly)) {
-        QTextStream in(&File);
-        int lineCount = 0;
-        int numCols = 0;
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList thisLine = line.split(" ");
-            thisLine.removeAll("");
-            int sizeThisLine = thisLine.size();
-            lineCount += 1;
-            if (lineCount==1)
-                numCols = sizeThisLine;
-            if (sizeThisLine != numCols && lineCount>1)
-            {
-                lineCount -= 1;
-                break;
-            }
-            else
-            {
-                //thisLine.removeAll("");
-                for (int i=0; i<thisLine.size();i++)// TODO: 3D?
-                {
-                    if (lineCount==1)
-                    {
-                        QVector<double> tmpV;
-                        v.append(tmpV);
-                    }
-                    v[i].append((thisLine[i].trimmed().toDouble()));
-                }
-            }
-        }
-        File.close();
-    }
 
-    if(v.size()>0)
+    QString text;
+    QTextStream stream(&text);
+
+    if(v->size()>0)
     {
-        double disp_init = 0.0;
-        double vel_init = 0.0;
-        double dt = v[0][1] - v[0][0];
-        double mass = 1.0;
-        double dampingRatio = 0.05;
-        QVector<double> Periods;
-        int numT = 100;
-        QVector<QVector<double>> saVec((v.size()-1)/4,QVector<double>(numT));
-        double pi = M_PI;
-        int ind = -1;
-        for(int i=1;i<v.size();i+=4)// for each node
+        stream << "xnew = ['x'";
+        for (int i=0; i<Periods->size(); i++)
+            stream << ", "<< (*Periods)[i];
+        stream <<"];" <<endl;
+
+        stream << "ynew = ['Rock'";
+        for (int i=0; i<(*saVec)[0].size(); i++)
+            stream << ", "<<(*saVec)[0][i];
+        stream <<"];" <<endl;
+
+        stream << "time = ['x'";
+        for (int i=0; i<Periods->size(); i++)
+            stream << ", "<<(*Periods)[i];
+        stream <<"];" <<endl;
+
+
+        int eleID = elementModel->getSize()+1;
+        for (int j=0;j<saVec->size();j++)
         {
-            ind += 1;
-            QVector<double> acc = v[i];
-            QVector<double> f = acc; // because mass=1.
-
-            QVector<double> thisSa(numT);
-            for(int n=0;n<numT;n++)
-            {
-                double T = 0.04+n*0.02;
-                if(i==1)
-                    Periods.append(T);
-                double k = (2.*pi/T)*(2.*pi/T)*mass;
-                double natural_freq = 2*pi/T;
-                double damping = 2.*mass*natural_freq*dampingRatio;
-
-                double gamma = 0.5;
-                double beta = 0.25;
-
-                double maxDisp = newmark(mass,damping, k, disp_init, vel_init, gamma, beta, dt, f);
-                thisSa[n]=(maxDisp*natural_freq*natural_freq/9.81);
-            }
-            saVec[ind]=(thisSa);
+            eleID -= 1;
+            //stream << "n1 = ['Node 1'";
+            stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+            //stream << "n"+QString::number(eleID)+" = ['Node marked by <'";
+            for (int i=0; i<(*saVec)[j].size(); i++)
+                stream << ", "<<(*saVec)[j][i];
+            stream <<"];" <<endl;
         }
 
-
-        QString text;
-        QTextStream stream(&text);
-
-
-
-        if(v.size()>0)
-        {
-
-
-            stream << "xnew = ['x'";
-            for (int i=0; i<Periods.size(); i++)
-                stream << ", "<< Periods[i];
-            stream <<"];" <<endl;
-
-            stream << "ynew = ['Rock'";
-            for (int i=0; i<saVec[0].size(); i++)
-                stream << ", "<<saVec[0][i];
-            stream <<"];" <<endl;
-
-            stream << "time = ['x'";
-            for (int i=0; i<Periods.size(); i++)
-                stream << ", "<<Periods[i];
-            stream <<"];" <<endl;
-
-
-            int eleID = elementModel->getSize()+1;
-            for (int j=0;j<saVec.size();j++)
-            {
-                eleID -= 1;
-                //stream << "n1 = ['Node 1'";
-                stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
-                //stream << "n"+QString::number(eleID)+" = ['Node marked by <'";
-                for (int i=0; i<saVec[j].size(); i++)
-                    stream << ", "<<saVec[j][i];
-                stream <<"];" <<endl;
-            }
-
-
-
-
-        }
-
-
-        return text;
     }else
         return "";
 
 
+    return text;
+
 
 }
 
-double TabManager::newmark(double mass,double damping, double stiffness, double disp_init, double vel_init, double gamma, double beta, double time_step, QVector<double> force_hist)
-{
-    QVector<double> disps(force_hist.size()+1);
-    QVector<double> vels(force_hist.size()+1);
-    QVector<double> accels(force_hist.size()+1);
-
-    // set initial values
-    disps[0]=(disp_init) ;
-    vels[0]=(vel_init);
-    accels[0]=((force_hist[0] - damping * vels[0] - stiffness * disps[0]) / mass);
-
-    // Constants
-    double k_hat = stiffness + gamma * damping / (beta * time_step) + mass / (beta * time_step*time_step);
-
-    for (int i=0;i<force_hist.size();i++)//index, force in enumerate(force_hist[1:], 1):
-    {
-        int index = i+1;
-        double force = force_hist[i];
-        // Prediction step
-        disps[index]=(disps[index - 1]);
-        vels[index]=((1.0 - gamma / beta) * vels[index - 1] + \
-                time_step * (1.0 - gamma / (2.0 * beta)) * accels[index - 1]);
-        accels[index]=((-1.0 / (beta * time_step)) * vels[index - 1] + \
-                (1.0 - 1.0/ (2.0 * beta)) * accels[index - 1]);
-
-        // Correction step
-        double d_disp = (force - mass * accels[index] - damping * vels[index] - stiffness * disps[index]) / k_hat;
-        disps[index]=(disps[index] + d_disp);
-        vels[index]=(vels[index] + gamma * d_disp / (beta * time_step));
-        accels[index]=(accels[index] + d_disp / (beta * time_step*time_step));
-    }
-    double maxDisp=0;
-    for(int i=0;i<disps.size();i++)
-    {
-        double thisDisp = fabs(disps[i]);
-        if (thisDisp>maxDisp)
-            maxDisp = thisDisp;
-    }
-    return maxDisp;
-
-    //return disps, vels, accels
-}
 
 QString TabManager::loadPWPResponse()
 {
@@ -1592,14 +1372,14 @@ QString TabManager::loadPWPResponse()
     if(v.size()>0)
     {
 
-
+        int overStep = int(floor(v[0].size()/maxStepToShow));
         stream << "xnew = ['x'";
-        for (int i=0; i<v[0].size(); i++)
+        for (int i=0; i<v[0].size(); i+=overStep)
             stream << ", "<<v[0][i];
         stream <<"];" <<endl;
 
         stream << "ynew = ['Rock'";
-        for (int i=0; i<v[2].size(); i++)
+        for (int i=0; i<v[2].size(); i+=overStep)
             stream << ", "<<v[2][i];
         stream <<"];" <<endl;
 
@@ -1621,7 +1401,7 @@ QString TabManager::loadPWPResponse()
 
 
         stream << "time = ['x'";
-        for (int i=0; i<v[0].size(); i++)
+        for (int i=0; i<v[0].size(); i+=overStep)
             stream << ", "<<v[0][i];
         stream <<"];" <<endl;
 
@@ -1633,7 +1413,7 @@ QString TabManager::loadPWPResponse()
             //stream << "n1 = ['Node 1'";
             stream << "pwp"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
             //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
-            for (int i=0; i<v[j].size(); i++)
+            for (int i=0; i<v[j].size(); i+=overStep)
                 stream << ", "<<v[j][i];
             stream <<"];" <<endl;
         }
@@ -1690,9 +1470,9 @@ QString TabManager::loadruPWPResponse()
     if(v.size()>0)
     {
 
-
+        int overStep = int(floor(v[0].size()/maxStepToShow));
         stream << "time = ['x'";
-        for (int i=0; i<v[0].size(); i++)
+        for (int i=0; i<v[0].size(); i+=overStep)
             stream << ", "<<v[0][i];
         stream <<"];" <<endl;
 
@@ -1706,7 +1486,7 @@ QString TabManager::loadruPWPResponse()
             stream << "rupwp"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
             eleInd += 1;
 
-            for (int i=0; i<v[j].size(); i++)
+            for (int i=0; i<v[j].size(); i+=overStep)
             {
                 /*
                 double thisepwp = (v[j][i]-v[j][0]);
@@ -1815,8 +1595,9 @@ QString TabManager::loadEleResponse(QString motion)
 
     if(vStress.size()>0)
     {
+        int overStep = int(floor(vStress[0].size()/maxStepToShow));
         stream << "time = ['x'";
-        for (int i=0; i<vStress[0].size(); i++)
+        for (int i=0; i<vStress[0].size(); i+=overStep)
             stream << ", "<<vStress[0][i];
         stream <<"];" <<endl;
 
@@ -1843,7 +1624,7 @@ QString TabManager::loadEleResponse(QString motion)
                 //stream << "n1 = ['Node 1'";
                 stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
                 //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
-                for (int i=0; i<v[j].size(); i++)
+                for (int i=0; i<v[j].size(); i+=overStep)
                     stream << ", "<<v[j][i];
                 stream <<"];" <<endl;
             }
@@ -1855,14 +1636,14 @@ QString TabManager::loadEleResponse(QString motion)
                 eleID -= 1;
 
                 stream << "Stress"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
-                for (int i=0; i<vStress[j].size(); i++)
+                for (int i=0; i<vStress[j].size(); i+=overStep)
                 {
                     stream << ", "<<vStress[j][i] ;
                 }
                 stream <<"];" <<endl;
 
                 stream << "Strain"+QString::number(eleID)+" = ['x'";
-                for (int i=0; i<vStrain[j].size(); i++)
+                for (int i=0; i<vStrain[j].size(); i+=overStep)
                 {
                     stream << ", "<<vStrain[j][i] ;
                 }
@@ -2151,29 +1932,29 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
 
         // update
         QLineEdit *EEdt= ElasticIsotropicWidget->findChild<QLineEdit*>("EEdt");
-        EEdt->setText(QString::number(E));
+        EEdt->setText(QString::number(E,'g',16));
         QLineEdit *vEdt= ElasticIsotropicWidget->findChild<QLineEdit*>("vEdt");
-        vEdt->setText(QString::number(poisson));
+        vEdt->setText(QString::number(poisson,'g',16));
         QLineEdit *hPerm= ElasticIsotropicWidget->findChild<QLineEdit*>("hPermEdt");
-        hPerm->setText(QString::number(hPermval));
+        hPerm->setText(QString::number(hPermval,'g',16));
         QLineEdit *vPerm= ElasticIsotropicWidget->findChild<QLineEdit*>("vPermEdt");
-        vPerm->setText(QString::number(vPermval));
+        vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= ElasticIsotropicWidget->findChild<QLineEdit*>("uBulkEdt");
-        uBulk->setText(QString::number(uBulkval));
+        uBulk->setText(QString::number(uBulkval,'g',16));
 
     } else if(matType=="PM4Sand")
     {
         for (int i = 0; i < listPM4SandFEM.size(); ++i) {
             QString edtName = listPM4SandFEM[i] ;
             if(!mat[edtName].isNull())
-                edtsPM4SandFEM[i]->setText(QString::number(mat[edtName].toDouble()));
+                edtsPM4SandFEM[i]->setText(QString::number(mat[edtName].toDouble(),'g',16));
         }
         QLineEdit *hPerm= PM4SandWidget->findChild<QLineEdit*>("hPerm");
-        hPerm->setText(QString::number(hPermval));
+        hPerm->setText(QString::number(hPermval,'g',16));
         QLineEdit *vPerm= PM4SandWidget->findChild<QLineEdit*>("vPerm");
-        vPerm->setText(QString::number(vPermval));
+        vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PM4SandWidget->findChild<QLineEdit*>("uBulk");
-        uBulk->setText(QString::number(uBulkval));
+        uBulk->setText(QString::number(uBulkval,'g',16));
     }
 
     // send the signal to update FEM cell
@@ -2231,7 +2012,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 double v = vEdt->text().toDouble();
                 QLineEdit* EEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("EEdt");
                 double E = 2.0 * densityFromTable.toDouble() * vsFromTable * vsFromTable * (1. + v);
-                EEdt->setText(QString::number(E));
+                EEdt->setText(QString::number(E,'g',16));
                 onDataEdited();// added
             }
 
@@ -2375,7 +2156,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         if (rho<1.0e-11 & rho>-1.0e-11) //
         {
             rho = 2.0; // set default Vs
-            tableModel->setData(tableModel->index(index.row(), DENSITY), QString::number(rho));
+            tableModel->setData(tableModel->index(index.row(), DENSITY), QString::number(rho,'g',16));
         }
 
         double vs = tableModel->record(index.row()).value("VS").toDouble();
@@ -2397,7 +2178,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         double evoid = emax-Dr*(emax-emin);
         double rho_d = Gs/(1.0+evoid);
         double rho_s = rho_d*(1.0+evoid/Gs);
-        QString defaultElasMat = " 2.0 " + QString::number(E)+" 0.3 "+QString::number(rho);
+        QString defaultElasMat = " 2.0 " + QString::number(E)+" 0.3 "+QString::number(rho,'g',16);
         defaultElasMat += " "+QString::number(Dr);
         defaultElasMat += " "+QString::number(evoid);
         defaultElasMat += " "+QString::number(hPerm);

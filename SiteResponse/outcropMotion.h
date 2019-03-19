@@ -34,9 +34,9 @@ public:
 	GroundMotion*    getGroundMotion() { return theGroundMotion; };
 	  
 	bool                isInitialized() { return isThisInitialized; };
-	std::vector<double> getDTvector() { return m_dt; };
-    double              getDt() {return m_dt_avg;};
-	int                 getNumSteps() { return m_numSteps; };
+    std::vector<double> getDTvector() { return m_dt; }
+    double              getDt() {return m_dt_avg;}
+    int                 getNumSteps() { return m_numSteps; }
 	void                setMotion(const char* fName);
     void                setBBPMotion(const char* fName, int colNum);
 
@@ -47,7 +47,7 @@ private:
 	GroundMotion*  theGroundMotion;
 
 	bool isThisInitialized;
-	int  m_numSteps;
+    int  m_numSteps=0;
 	std::vector<double> m_dt;
     double m_dt_avg;
 };
