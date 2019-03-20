@@ -932,14 +932,15 @@ QString TabManager::loadGMtoString()
     QStringList *xd = postProcessor->getxdBaseVel();
     QStringList *yd = postProcessor->getydBaseVel();
 
+    int overStep = int(floor(xd->size()/maxStepToShow));
 
     stream << "xnew = ['x'";
-    for (int i=0; i<xd->size(); i++)
+    for (int i=0; i<xd->size(); i+=overStep)
         stream << ", "<<xd->at(i);
     stream <<"];" <<endl;
 
     stream << "ynew = ['Rock motion'";
-    for (int i=0; i<yd->size(); i++)
+    for (int i=0; i<yd->size(); i+=overStep)
         stream << ", "<<yd->at(i);
     stream <<"];" <<endl;
 
@@ -951,13 +952,14 @@ QString TabManager::loadGMtoString()
     QStringList *xdSurfaceVel = postProcessor->getxdSurfaceVel();
     QStringList *ydSurfaceVel = postProcessor->getydSurfaceVel();
 
+    overStep = int(floor(xdSurfaceVel->size()/maxStepToShow));
     stream << "xSurfaceVel = ['x'";
-    for (int i=0; i<xdSurfaceVel->size(); i++)
+    for (int i=0; i<xdSurfaceVel->size(); i+=overStep)
         stream << ", "<<xdSurfaceVel->at(i);
     stream <<"];" <<endl;
 
     stream << "ySurfaceVel = ['Surface motion'";
-    for (int i=0; i<ydSurfaceVel->size(); i++)
+    for (int i=0; i<ydSurfaceVel->size(); i+=overStep)
         stream << ", "<<ydSurfaceVel->at(i).toDouble();
     stream <<"];" <<endl;
 
@@ -1382,22 +1384,6 @@ QString TabManager::loadPWPResponse()
         for (int i=0; i<v[2].size(); i+=overStep)
             stream << ", "<<v[2][i];
         stream <<"];" <<endl;
-
-
-        /*
-        stream << "xSurfaceVel = ['x'";
-        for (int i=0; i<v.size(); i++)
-            stream << ", "<<v.at(i);
-        stream <<"];" <<endl;
-
-        stream << "ySurfaceVel = ['Surface motion'";
-        for (int i=0; i<v.size(); i++)
-            stream << ", "<<v.at(i).toDouble();
-        stream <<"];" <<endl;
-        */
-
-
-
 
 
         stream << "time = ['x'";
