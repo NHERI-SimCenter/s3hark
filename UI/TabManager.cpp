@@ -1720,7 +1720,7 @@ bool TabManager::writeSurfaceMotion()
     patternx["dof"] = 1;
     patterny["type"] = "UniformAcceleration";
     patterny["timeSeries"] = "accel_Y";
-    patterny["dof"] = 1;
+    patterny["dof"] = 2;
     patterns.append(patternx);
     patterns.append(patterny);
 
