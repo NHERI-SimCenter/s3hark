@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QDir>
 #include "GlobalConstances.h"
+#include <QStandardPaths>
 
 class DatabaseManager : public QObject
 {
@@ -33,7 +34,7 @@ private:
     QSqlDatabase m_db;
     Status       m_status;
     QString analysisName = "analysis";
-    QString rootDir = qApp->applicationDirPath();// QDir::currentPath();
+    QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation); //qApp->applicationDirPath();// QDir::currentPath();
     QString analysisDir = QDir(rootDir).filePath("analysis");
     QString dbFilename = QDir(analysisDir).filePath(g_dbFileName);
 };

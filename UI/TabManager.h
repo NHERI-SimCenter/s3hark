@@ -19,6 +19,7 @@
 #include "ElementModel.h"
 #include "PostProcessor.h"
 #include <math.h>
+#include <QStandardPaths>
 
 
 
@@ -73,7 +74,7 @@ signals:
 
 
 public:
-    QString rootDir = qApp->applicationDirPath();// QDir::currentPath();
+    QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);//qApp->applicationDirPath();// QDir::currentPath();
 public slots:
     void onTableViewClicked(const QModelIndex &index);
     void onTableViewUpdated(const QModelIndex&,const QModelIndex&);
