@@ -1,4 +1,5 @@
 #include "ProfileManager.h"
+#include <QChar>
 
 ProfileManager::ProfileManager(QWidget *parent) : QDialog(parent)
 {
@@ -40,11 +41,7 @@ ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWi
     }
     gammaHtmlView->load(QUrl::fromLocalFile(QFileInfo(gammaHtmlName).absoluteFilePath()));
     gammaHtmlView->show();
-    m_tab->addTab(gammaHtmlView,"\u03B3max(%)");
-
-
-
-
+    m_tab->addTab(gammaHtmlView, QString(QChar(0x03B3)) + "max(%)");
 
     // disp max view
     dispHtmlView = new QWebEngineView(this);
