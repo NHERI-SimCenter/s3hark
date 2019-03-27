@@ -53,7 +53,7 @@ void TabManager::onElementDataChanged(QModelIndex,QModelIndex)
 
 void TabManager::init(QTabWidget* theTab){
     this->tab = theTab;
-    tab->setTabsClosable(true);
+    //tab->setTabsClosable(true);
 
 
     QUiLoader uiLoader;
