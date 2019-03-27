@@ -35,6 +35,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui(new Ui::RockOutcrop)
 {
 
+    copyDir(QDir(qApp->applicationDirPath()).filePath("resources"),QDir(rootDir).filePath("resources"),true);
     // create analysis dir
     if(!QDir(analysisDir).exists())
         QDir().mkdir(analysisDir);
@@ -1267,6 +1268,39 @@ void RockOutcrop::refresh()
     //ui->tableView->setVisible(true);
 
 
+}
+
+bool RockOutcrop::copyDir(const QDir& from, const QDir& to, bool cover=true)
+{
+
+    if (!to.exists())
+        {
+        if (!to.mkdir(to.absolutePath()))
+            return false;
+    } else {
+
+    }
+
+    QFileInfoList fileInfoList = from.entryInfoList();
+    foreach(QFileInfo fileInfo, fileInfoList)
+    {
+        if (fileInfo.fileName() == "." || fileInfo.fileName() == "..")
+            continue;
+
+        if (fileInfo.isDir()){
+            if (!copyDir(fileInfo.filePath(), to.filePath(fileInfo.fileName())))
+                return false;
+        }
+        else{
+            if (cover && to.exists(fileInfo.fileName())){
+                //to.remove(fileInfo.fileName());
+            }
+            if (!QFile::copy(fileInfo.filePath(), to.filePath(fileInfo.fileName()))){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 

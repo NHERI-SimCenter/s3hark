@@ -13,6 +13,7 @@
 #include "SimCenterAppWidget.h"
 #include "SiteResponse.h"
 #include "SSSharkThread.h"
+#include <QStandardPaths>
 
 using namespace std::placeholders;
 
@@ -45,6 +46,7 @@ public:
     void refreshRun(double step);
     std::function<void(double)> m_callbackptr = std::bind(&RockOutcrop::refreshRun,this, _1);
 
+    bool copyDir(const QDir& from, const QDir& to, bool cover) ;
     void cleanTable();
 
 public slots:
@@ -132,7 +134,7 @@ private:// some of them were public
     QThread *workerThread;
 
  public:
-    QString rootDir = qApp->applicationDirPath();
+    QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation); // qApp->applicationDirPath();//
     QString analysisDir = QDir(rootDir).filePath("analysis");
     QString tclName = QDir(analysisDir).filePath("model.tcl");
     QString outputDir = QDir(analysisDir).filePath("out_tcl");

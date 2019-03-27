@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QApplication>
 #include "PostProcessor.h"
+#include <QStandardPaths>
 
 class ProfileManager : public QDialog
 {
@@ -28,7 +29,7 @@ public slots:
     void onPostProcessorUpdated();
     void onTabBarClicked(int);
 public:
-    QString rootDir = qApp->applicationDirPath();
+    QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);//qApp->applicationDirPath();
 private:
     QTabWidget *m_tab;
     QWebEngineView *pgaHtmlView;

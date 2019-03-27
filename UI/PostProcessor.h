@@ -9,6 +9,7 @@
 #include <QTextStream>
 #include <math.h>
 #include <QApplication>
+#include <QStandardPaths>
 
 class PostProcessor : public QDialog
 {
@@ -84,7 +85,7 @@ public:
 signals:
     void updateFinished();
 private:
-    QString rootDir = qApp->applicationDirPath();
+    QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);//qApp->applicationDirPath();
     QString analysisName = "analysis";
     QString analysisDir = QDir(rootDir).filePath(analysisName);
 
