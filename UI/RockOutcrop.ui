@@ -140,7 +140,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>3</width>
+             <width>20</width>
              <height>3</height>
             </size>
            </property>
@@ -192,7 +192,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>3</width>
+             <width>20</width>
              <height>3</height>
             </size>
            </property>
@@ -413,19 +413,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="runBtn">
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Run</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -460,6 +447,19 @@
             </spacer>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="runBtn">
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Analyze</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

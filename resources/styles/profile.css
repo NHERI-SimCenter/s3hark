@@ -30,11 +30,11 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:!selected {
-    background: #b6fb66;/*#d9f293;*//*b0df24*/
+    background: #64B5F6; /*#b6fb66;*/ /*#d9f293;*//*b0df24*/
 }
 
 QTabBar::tab:!selected:hover {
-    background: #eeffcc; /*#999*/
+    background: #e6f7ff; /*#eeffcc;*/ /*#999*/
 }
 
 

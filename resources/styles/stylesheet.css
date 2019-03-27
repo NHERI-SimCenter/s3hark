@@ -35,7 +35,7 @@ QLineEdit
 
 QTabWidget#tabWidget::pane {
     border: 1px solid black;
-    background: white;
+    background: green;
 }
 
 QTabWidget#tabWidget::tab-bar:top {
@@ -63,7 +63,7 @@ QTabBar::tab:selected {
 }
 
 QTabBar::tab:!selected {
-    background: silver; /* #d9f293;*//*b3e6ff*/ /*e2bcda*/
+    background: #64B5F6; /*silver;*/ /* #d9f293;*//*b3e6ff*/ /*e2bcda*/
 }
 
 QTabBar::tab:!selected:hover {
@@ -123,5 +123,33 @@ QTabBar::tab:left:last, QTabBar::tab:right:last,
 QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
     margin-bottom: 0;
 }
+
+/*overide 1983*/
+QDialog
+{
+	background: white;
+}
+
+QPushButton {
+    color: black;
+    border-style: outset;
+    background-color: white;
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 2px;
+    border-color: #4a4b48;
+    font-size: 12px;
+    font-weight: normal;
+    padding: 2px;
+}
+
+QPushButton#meshBtn {
+    background-color: #f0f0f0;
+}
+
+QPushButton#addRowBtn,#delRowBtn {
+    width: 20px
+}
+
 
 

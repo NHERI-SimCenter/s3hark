@@ -284,7 +284,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 
             QList<QVariant> valueList;
-            valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize;
+            valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize << "#64B5F6";
             ui->tableView->insertAt(valueList,0);
             ui->totalLayerLineEdit->setText("2");
         }
