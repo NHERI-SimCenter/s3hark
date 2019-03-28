@@ -1,3 +1,8 @@
+#ifdef _MSC_VER
+    #define _USE_MATH_DEFINES
+    #include <cmath>
+#endif
+
 #include "PostProcessor.h"
 
 PostProcessor::PostProcessor(QWidget *parent) : QDialog(parent)
