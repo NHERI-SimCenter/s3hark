@@ -146,10 +146,7 @@ void BonzaTableView::onCellSingleClicked(const QModelIndex &index)
     else
     {
         if (cellDoubleClicked)
-        {
-            QKeyEvent keyPress(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QString());
-            QCoreApplication::sendEvent(this, &keyPress);
-        }
+            this->edit(m_sqlModel->index(ir, ic));
     }
 
 
