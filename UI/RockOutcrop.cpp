@@ -34,12 +34,19 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     SimCenterAppWidget(parent),
     ui(new Ui::RockOutcrop)
 {
+
     if(!QDir(analysisDir).exists())
     {
         QDir newDir(analysisDir);
         newDir.mkpath(".");
     }
+
+
+    QDir resDir(QDir(rootDir).filePath("resources"));
+    resDir.removeRecursively();
+
     copyDir(QDir(qApp->applicationDirPath()).filePath("resources"),QDir(rootDir).filePath("resources"),true);
+
     // create analysis dir
     if(!QDir(analysisDir).exists())
         QDir().mkdir(analysisDir);
