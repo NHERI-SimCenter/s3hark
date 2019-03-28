@@ -477,6 +477,66 @@ void TabManager::writeGM()
                     break;
                 }
             }
+        } else if(type=="UniformVelocity")
+        {
+            for(int i=0;i<timeseries.size();i++)
+            {
+                QJsonObject tstmp = timeseries[i].toObject();
+                if(tstmp["name"]==tsname)
+                {
+                    QFile outFile(analysisDir+"/Rock.vel");
+                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream stream(&outFile);
+
+                    QFile outFileTime(analysisDir+"/Rock.time");
+                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream streamTime(&outFileTime);
+
+                    double dTtmp = tstmp["dT"].toDouble();
+                    QJsonArray data = tstmp["data"].toArray();
+                    for(int j=0;j<data.size();j++)
+                        streamTime << QString::number(dTtmp*j)+"\n";
+                    for(int j=0;j<data.size();j++)
+                        stream << QString::number(data[j].toDouble(),'g',16)+"\n";
+
+                    outFile.close();
+                    outFileTime.close();
+
+                    break;
+                }
+            }
+        } else if(type=="UniformAcceleration")
+        {
+            for(int i=0;i<timeseries.size();i++)
+            {
+                QJsonObject tstmp = timeseries[i].toObject();
+                if(tstmp["name"]==tsname)
+                {
+                    QFile outFile(analysisDir+"/Rock.vel");
+                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream stream(&outFile);
+
+                    QFile outFileTime(analysisDir+"/Rock.time");
+                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                    QTextStream streamTime(&outFileTime);
+
+                    double dTtmp = tstmp["dT"].toDouble();
+                    QJsonArray data = tstmp["data"].toArray();
+                    for(int j=0;j<data.size();j++)
+                        streamTime << QString::number(dTtmp*j)+"\n";
+                    double vprevious = 0.0;
+                    for(int j=0;j<data.size();j++)
+                    {
+                        double vnow = vprevious + data[j].toDouble()*dTtmp;
+                        vprevious = vnow;
+                        stream << QString::number(vnow,'g',16)+"\n";
+                    }
+                    outFile.close();
+                    outFileTime.close();
+
+                    break;
+                }
+            }
         }
 
 

@@ -1059,7 +1059,15 @@ void RockOutcrop::on_runBtn_clicked()
 
     }
     else{
-        QString openseespath =  theTabManager->openseespath();
+        QString openseespath = "opensees";//theTabManager->openseespath();
+        QProcess* openseesTesterProcess = new QProcess(this);
+        bool osrun = openseesProcess->startDetached(openseespath);
+        osrun = true;
+        //int osrun = openseesProcess->execute("bash", QStringList() << "-c" <<  openseespath);
+
+
+
+
         QString rockmotionpath =  theTabManager->rockmotionpath();
         bool openseesEmpty = openseespath=="" || openseespath=="Input the full path of OpenSees excutable.";
         bool rockEmpty = rockmotionpath=="" || rockmotionpath=="Input the path of a ground motion file.";
@@ -1073,7 +1081,7 @@ void RockOutcrop::on_runBtn_clicked()
 
         }else{
 
-            QFile openseesExefile(openseespath);
+            //QFile openseesExefile(openseespath);
             // build tcl file
             ui->reBtn->click();
 
@@ -1082,7 +1090,7 @@ void RockOutcrop::on_runBtn_clicked()
 
             ui->progressBar->show();
 
-            if(openseesExefile.exists())
+            if(osrun)
             {   // do FEA in opensees
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
@@ -1098,7 +1106,8 @@ void RockOutcrop::on_runBtn_clicked()
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
                 srt->buildTcl();
-                QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
+                //QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
+                QMessageBox::information(this,tr("Path error"), "OpenSees is not found in your environment. Analysis didn't run", tr("OK."));
                 ui->progressBar->hide();
                 theTabManager->getTab()->setCurrentIndex(0);
 

@@ -398,12 +398,7 @@ HEADERS  += \
 
 FORMS    += \
     $$PWD/UI/RockOutcrop.ui \
-    $$PWD/UI/InsertWindow.ui \
-    $$PWD/UI/PM4Sand.ui \
-    $$PWD/UI/ElasticIsotropic.ui \
-    $$PWD/UI/DefaultMatTab.ui \
-    $$PWD/UI/GroundMotion.ui \
-    $$PWD/UI/FEM.ui
+    $$PWD/UI/InsertWindow.ui
 
 RESOURCES += \
     $$PWD/resources.qrc
