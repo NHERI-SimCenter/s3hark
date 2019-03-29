@@ -398,6 +398,24 @@ void TabManager::writeGM()
         QJsonArray timeseries = events[0].toObject()["timeSeries"].toArray();
         QString type = patterns[0].toObject()["type"].toString();
         QString tsname = patterns[0].toObject()["timeSeries"].toString();
+
+        QJsonObject units = events[0].toObject()["units"].toObject();
+        double g = 9.81;
+        double lengthUnit = 1.;
+        double timeUnit = 1.; // I guess everybody use sec for time.
+        if(!units.isEmpty())
+        {
+            QString lengthType = units["length"].toString();
+            if (lengthType=="in")
+                lengthUnit = 0.0254;
+            else if (lengthType=="m")
+                lengthUnit = 1.0;
+            else
+                qDebug() << "length unit not recognized.";// TODO: more handling in future
+            g = lengthUnit / timeUnit / timeUnit;
+        }
+
+
         if(type=="Time-Velocity")
         {
             for(int i=0;i<timeseries.size();i++)
@@ -512,11 +530,13 @@ void TabManager::writeGM()
             }
         } else if(type=="UniformAcceleration")
         {
+
             for(int i=0;i<timeseries.size();i++)
             {
                 QJsonObject tstmp = timeseries[i].toObject();
                 if(tstmp["name"]==tsname)
                 {
+
                     QFile outFile(analysisDir+"/Rock.vel");
                     outFile.open(QIODevice::WriteOnly | QIODevice::Text);
                     QTextStream stream(&outFile);
@@ -532,7 +552,7 @@ void TabManager::writeGM()
                     double vprevious = 0.0;
                     for(int j=0;j<data.size();j++)
                     {
-                        double vnow = vprevious + data[j].toDouble()*dTtmp;
+                        double vnow = vprevious + data[j].toDouble()*g*dTtmp;
                         vprevious = vnow;
                         stream << QString::number(vnow,'g',16)+"\n";
                     }
@@ -1773,21 +1793,25 @@ bool TabManager::writeSurfaceMotion()
     timeSerix["type"]= "Value";
     timeSerix["dT"]= dT;
     timeSerix["data"]= tx;
+    timeSeries.append(timeSerix);
+    /*
     timeSeriy["name"]= "accel_Y";
     timeSeriy["type"]= "Value";
     timeSeriy["dT"]= dT;
     timeSeriy["data"]= ty;
-    timeSeries.append(timeSerix);
     timeSeries.append(timeSeriy);
+    */
 
     patternx["type"] = "UniformAcceleration";
     patternx["timeSeries"] = "accel_X";
     patternx["dof"] = 1;
+    patterns.append(patternx);
+    /*
     patterny["type"] = "UniformAcceleration";
     patterny["timeSeries"] = "accel_Y";
     patterny["dof"] = 2;
-    patterns.append(patternx);
     patterns.append(patterny);
+    */
 
 
     evt["name"] = "SiteResponseTool";
