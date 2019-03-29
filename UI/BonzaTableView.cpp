@@ -923,10 +923,10 @@ int BonzaTableView::lastPageSize()
 void BonzaTableView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu* popMenu = new QMenu(this);
-    QAction *insertAction = popMenu->addAction( tr("&Insert  ⤴") );
+    QAction *insertAction = popMenu->addAction( tr("&Insert  ") + QChar(0x2934) );
     connect( insertAction, SIGNAL(triggered()), this, SIGNAL(insertAct()) );
 
-    QAction *removeAction = popMenu->addAction( tr("&Delete ×") );
+    QAction *removeAction = popMenu->addAction( tr("&Delete ") + QChar(0x2717) );
     removeAction->setEnabled(false);
 
     QModelIndex idx = this->indexAt( mapFromGlobal( QPoint( event->globalPos().x(), \
@@ -942,7 +942,7 @@ void BonzaTableView::contextMenuEvent(QContextMenuEvent *event)
         this->selectionModel()->clearSelection();
     }
 
-    QAction *insertBelowAction = popMenu->addAction( tr("&Insert  ⤵") );
+    QAction *insertBelowAction = popMenu->addAction( tr("&Insert  ") + QChar(0x2935) );
     insertBelowAction->setEnabled(false);
 
     QModelIndex idx2 = this->indexAt( mapFromGlobal( QPoint( event->globalPos().x(), \
