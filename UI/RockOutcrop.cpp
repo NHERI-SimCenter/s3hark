@@ -91,6 +91,9 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui->gotoPageBox->hide();
     ui->curPageLabel->hide();
 
+    ui->heightLabel->setToolTip("meter");
+    ui->gwtLabel->setToolTip("meter");
+
 
     // set the global stylesheet
     QFile file(":/resources/styles/stylesheet.css");
