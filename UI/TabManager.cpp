@@ -173,7 +173,7 @@ void TabManager::init(QTabWidget* theTab){
 
     // adding tooltips
     QLabel *ELabel= ElasticIsotropicWidget->findChild<QLabel*>("ELabel");
-    ELabel->setToolTip("Pa");
+    ELabel->setToolTip("kPa");
     QLabel *vLabel= ElasticIsotropicWidget->findChild<QLabel*>("vLabel");
     vLabel->setToolTip("Poisson's ratio");
     QLabel *hPermLabel= ElasticIsotropicWidget->findChild<QLabel*>("hPermLabel");
@@ -202,12 +202,17 @@ void TabManager::setPM4SandToolTps()
 {
 
     // adding tooltips
-    /*
-    QLabel *ELabel= PM4SandWidget->findChild<QLabel*>("ELabel");
-    ELabel->setToolTip("Pa");
-    QLabel *vLabel= PM4SandWidget->findChild<QLabel*>("vLabel");
-    vLabel->setToolTip("Poisson's ratio");
-    */
+
+    QLabel *G0Label= PM4SandWidget->findChild<QLabel*>("G0_2");
+    G0Label->setToolTip("kPa");
+    QLabel *DenLabel= PM4SandWidget->findChild<QLabel*>("Den_2");
+    DenLabel->setToolTip("Mg/m^3");
+
+    QLabel *patmLabel= PM4SandWidget->findChild<QLabel*>("P_atm_2");
+    patmLabel->setToolTip("kPa");
+    QLabel *phicLabel= PM4SandWidget->findChild<QLabel*>("phic_2");
+    phicLabel->setToolTip("deg");
+
     QLabel *hPermLabel= PM4SandWidget->findChild<QLabel*>("hPerm_2");
     hPermLabel->setToolTip("");
     QLabel *vPermLabel= PM4SandWidget->findChild<QLabel*>("vPerm_2");
