@@ -10,4 +10,4 @@
 
 #### 2. Make sure you have fortran and c++ compilers installed.
 
-#### 3. Build the Site Response Tool by clicking Run in Qt Creator.
+#### 3. Build the Site Response Tool by clicking Run in Qt Creator
