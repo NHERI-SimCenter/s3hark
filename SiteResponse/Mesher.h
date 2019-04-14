@@ -66,6 +66,8 @@ public:
     Mesher();
     Mesher(std::string jsonFile);
     bool mesh2DColumn();
+    bool mesh2DColumnFromJson(json &j);
+    bool mesh2DColumnFromFile();
 
     std::vector<Nodex*> nodes;
     std::vector<Quadx*> elements;

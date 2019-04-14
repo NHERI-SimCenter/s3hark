@@ -129,6 +129,14 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 
 
+
+
+
+
+
+
+
+
     //--------------------------------------------------------------------------------//
     // Init Mesher and Mesh View
     //--------------------------------------------------------------------------------//
@@ -206,7 +214,6 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 
 
-
     // add QQuickwidget for displaying soil layers
     QQuickView *plotView = new QQuickView();
     plotView->rootContext()->setContextProperty("designTableModel", ui->tableView);
@@ -224,6 +231,9 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 
 
+
+
+
     // hide some buttons
     ui->nextPageBtn->hide();
     ui->prePageBtn->hide();
@@ -231,8 +241,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     ui->meshBtn->setVisible(true);
 
     // add some connections
-    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
-    connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
+    connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(onThicknessEdited()));
     connect(ui->tableView, SIGNAL(rowRemoved(int)), this, SLOT(on_rowRemoved(int)));
     //connect(ui->tableView, SIGNAL(pressed(const QModelIndex &)), ui->tableView, SLOT(on_activated(const QModelIndex &)));
     connect(this, SIGNAL(tableMoved()), this, SLOT(refresh()));
@@ -240,9 +249,8 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     resize(830 + 80, 350 + 40);
     //resize(830 + 80 + 280, 530 + 20);
 
+
     ui->tableView->m_sqlModel->deActivateAll();
-
-
 
 
     // init the tab manager on the right-bottom
@@ -285,7 +293,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
         elementModel->clear();
         elementModel->refresh();
         //loadFromJson(); // commenting this for frank,
-                          //because he doesn't like previous analysis loaded by default
+        //because he doesn't like previous analysis loaded by default
 
         if(ui->tableView->m_sqlModel->rowCount()<1)
         {
@@ -301,10 +309,24 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
             QList<QVariant> valueList;
             valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize << "#64B5F6";
             ui->tableView->insertAt(valueList,0);
+            ui->totalHeight->setText(QString::number(DefaultThickness));
             ui->totalLayerLineEdit->setText("2");
+
+            QList<QVariant> valueList2;
+            valueList2 << "Layer 2" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize << "green";
+            ui->tableView->insertAt(valueList2,0);
+            ui->totalHeight->setText(QString::number(DefaultThickness * 2.0));
+            ui->totalLayerLineEdit->setText("3");
+
+            QList<QVariant> valueList3;
+            valueList2 << "Layer 3" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize << "green";
+            ui->tableView->insertAt(valueList3,0);
+            ui->totalHeight->setText(QString::number(DefaultThickness * 3.0));
+            ui->totalLayerLineEdit->setText("4");
         }
 
-    }else{
+    } else
+    {
         // add a default layer
         if(ui->tableView->m_sqlModel->rowCount()<1)
         {
@@ -591,10 +613,10 @@ void RockOutcrop::onTotalLayerEdited()
 
 
 
-void RockOutcrop::on_meshBtn_clicked(bool checked)
+void RockOutcrop::on_meshBtn_clicked()
 {
 
-    Q_UNUSED(checked);
+    //Q_UNUSED(checked);
     if (resultsTab->isVisible()){
         ui->meshBtn->setText(">");
 
@@ -606,23 +628,32 @@ void RockOutcrop::on_meshBtn_clicked(bool checked)
         animation->start();
         */
 
+        if (resultsTab->currentIndex()<1)
+            currentTabID = 0;
+        else {
+            currentTabID = resultsTab->currentIndex();
+        }
+        resultsTab->setCurrentIndex(1);
+
         QPropertyAnimation *anim1=new QPropertyAnimation(resultsTab, "pos");
 
         anim1->setDuration(300);
 
         anim1->setStartValue(resultsTab->pos());
 
-        anim1->setEndValue(QPoint(resultsTab->pos().x()-220,resultsTab->pos().y()));
+        anim1->setEndValue(QPoint(resultsTab->pos().x()-210,resultsTab->pos().y()));
 
         anim1->setEasingCurve(QEasingCurve::OutBounce);
 
         anim1->start();
 
-
-        QTimer::singleShot(300, this, SLOT(hideShowTab()));
-
+        QTimer::singleShot(400, this, SLOT(hideShowTab()));
 
         ui->coolSpacer->changeSize(0,0,QSizePolicy::Maximum,QSizePolicy::Maximum);
+
+
+
+
     }
     else{
 
@@ -632,42 +663,38 @@ void RockOutcrop::on_meshBtn_clicked(bool checked)
 
         anim1->setStartValue(resultsTab->pos());
 
-        anim1->setEndValue(QPoint(resultsTab->pos().x()+220,resultsTab->pos().y()));
+        anim1->setEndValue(QPoint(resultsTab->pos().x()+210,resultsTab->pos().y()));
 
         anim1->setEasingCurve(QEasingCurve::OutBounce);
 
         anim1->start();
 
         ui->meshBtn->setText("<");
-        resultsTab->setVisible(true);
+
+        if(resultsTab->currentIndex()<1)
+        {
+            resultsTab->setCurrentIndex(1);
+            resultsTab->setCurrentIndex(0);
+        }
+        resultsTab->show();
+
         ui->coolSpacer->changeSize(5,5,QSizePolicy::Maximum,QSizePolicy::Maximum);
-        plotContainer->setVisible(false);
-        plotContainer->setVisible(true);
+        QTimer::singleShot(50, this, SLOT(showShowTab()));
     }
-    /*
-    if (ui->groupBox_Mesh->isVisible())
-    {
-        ui->groupBox_Mesh->setVisible(false);
 
-        int w = layerViewWidth + ui->groupBox_SoilLayersTable->size().width();
-        int h = ui->groupBox_Graphic->size().height() ;
-        this->resize(w+80,h+20);
-    }else{
-        ui->groupBox_Mesh->setVisible(true);
-        //ui->groupBox_Graphic->setVisible(false);
-        //int w =  meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
 
-        int w = layerViewWidth + meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
-        int h = ui->groupBox_Graphic->size().height() ;
-        this->resize(w+80,h+20);
-    }
-    */
+}
 
+void RockOutcrop::showShowTab()
+{
+    if (currentTabID<1)
+        resultsTab->setCurrentIndex(0);
+    resultsTab->show();
 }
 
 void RockOutcrop::hideShowTab()
 {
-    resultsTab->setVisible(false);
+    resultsTab->hide();
 }
 
 void RockOutcrop::updateCtrl()
@@ -688,6 +715,7 @@ void RockOutcrop::updateCtrl()
         ui->totalLayerLineEdit->setText(QString::number(total));
     }
 
+    /*
     int curPage = ui->tableView->currentPage();
     int totalPage = ui->tableView->totalPage();
     ui->curPageLabel->setText( tr("Page %1/%2").arg(curPage).arg(totalPage));
@@ -711,6 +739,7 @@ void RockOutcrop::updateCtrl()
 
         }
     }
+    */
 
 }
 
@@ -764,7 +793,7 @@ void RockOutcrop::insertBelow()
     QList<QVariant> emptyList;
     ui->tableView->insertBelow(emptyList);
     updateCtrl();
-    ui->reBtn->click();
+    //ui->reBtn->click();
 
 }
 
@@ -847,10 +876,11 @@ void RockOutcrop::totalHeightChanged()
 
 }
 
-void RockOutcrop::on_thickness_edited()
+void RockOutcrop::onThicknessEdited()
 {
 
     ui->totalHeight->setText(QString::number(ui->tableView->totalHeight()));
+
 
     // move GWT to new position in UI
     double originalGWT = ui->tableView->getGWT();
@@ -858,7 +888,7 @@ void RockOutcrop::on_thickness_edited()
     ui->gwtEdit->textChanged(QString::number(originalGWT));
 
     ui->reBtn->click();
-
+    //updateMesh();
 
 }
 
@@ -931,11 +961,15 @@ void RockOutcrop::on_reBtn_clicked()
         {"name","Configureation of Site Response Analysis of A Demo Site"},
         {"author","SimCenter Site Response Tool"}
     };
+
+    //TODO: this part is actually doing nothing?
     QList<QString> listFEMtab = {"eSizeH", "eSizeV", "RockVs", "RockDen", "DashpotCoeff", "VisC", "GMPath"  };
     for (int i = 0; i < listFEMtab.size(); ++i) {
         QString edtName = listFEMtab[i] ;
         FEMtab->findChild<QLineEdit*>(edtName)->text();
     }
+
+
     json basicSettings;
     basicSettings["eSizeH"] = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
     basicSettings["eSizeV"] = FEMtab->findChild<QLineEdit*>("eSizeV")->text().toDouble();
@@ -958,47 +992,50 @@ void RockOutcrop::on_reBtn_clicked()
     for (int i=0; i<numLayers; i++)
     {
         QList<QVariant> list = tableModel->getRowInfo(i);
-        std::istringstream iss(list.at(FEM-2).toString().toStdString());
-        std::vector<std::string> pars((std::istream_iterator<std::string>(iss)),
-                                      std::istream_iterator<std::string>());
-        double eSize = atof(pars[0].c_str());
-        int id = i;
         QStringList thisFEMList = list.at(FEM-2).toString().split(" ");
-        int DrInd=0, hPermInd=0, vPermInd=0, uBulkInd=0;
-        if(list.at(MATERIAL-2).toString()=="Elastic")
+        if(thisFEMList.count()>1)
         {
-            DrInd = 4; hPermInd = 6; vPermInd = 7; uBulkInd = 10;
-        }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
-        {
-            DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+            std::istringstream iss(list.at(FEM-2).toString().toStdString());
+            std::vector<std::string> pars((std::istream_iterator<std::string>(iss)),
+                                          std::istream_iterator<std::string>());
+            double eSize = atof(pars[0].c_str());
+            int id = i;
+
+            int DrInd=0, hPermInd=0, vPermInd=0, uBulkInd=0;
+            if(list.at(MATERIAL-2).toString()=="Elastic")
+            {
+                DrInd = 4; hPermInd = 6; vPermInd = 7; uBulkInd = 10;
+            }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
+            {
+                DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+            }
+
+            if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
+            {
+                double rockVsTmp = list.at(VS-2).toDouble();
+                double rockDenTmp = list.at(DENSITY-2).toDouble();
+                root["basicSettings"]["rockVs"] = rockVsTmp;
+                root["basicSettings"]["rockDen"] = rockDenTmp;
+            }
+
+            layer = {
+                {"id",id+1},
+                {"name",list.at(LAYERNAME-2).toString().toStdString()},
+                {"thickness",list.at(THICKNESS-2).toDouble()},
+                {"density",list.at(DENSITY-2).toDouble()},
+                {"vs",list.at(VS-2).toDouble()},
+                {"material", id+1},
+                {"color",list.at(COLOR-2).toString().toStdString()},
+                {"eSize",eSize},
+                {"Dr",thisFEMList.at(DrInd).toDouble()},
+                {"hPerm",thisFEMList.at(hPermInd).toDouble()},
+                {"vPerm",thisFEMList.at(vPermInd).toDouble()},
+                {"uBulk",thisFEMList.at(uBulkInd).toDouble()},
+            };
+            material =  createMaterial(i+1, list.at(MATERIAL-2).toString().toStdString(),list.at(FEM-2).toString().toStdString());
+            materials.push_back(material);
+            soilLayers.push_back(layer);
         }
-
-        if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
-        {
-            double rockVsTmp = list.at(VS-2).toDouble();
-            double rockDenTmp = list.at(DENSITY-2).toDouble();
-            root["basicSettings"]["rockVs"] = rockVsTmp;
-            root["basicSettings"]["rockDen"] = rockDenTmp;
-        }
-
-        layer = {
-            {"id",id+1},
-            {"name",list.at(LAYERNAME-2).toString().toStdString()},
-            {"thickness",list.at(THICKNESS-2).toDouble()},
-            {"density",list.at(DENSITY-2).toDouble()},
-            {"vs",list.at(VS-2).toDouble()},
-            {"material", id+1},
-            {"color",list.at(COLOR-2).toString().toStdString()},
-            {"eSize",eSize},
-            {"Dr",thisFEMList.at(DrInd).toDouble()},
-            {"hPerm",thisFEMList.at(hPermInd).toDouble()},
-            {"vPerm",thisFEMList.at(vPermInd).toDouble()},
-            {"uBulk",thisFEMList.at(uBulkInd).toDouble()},
-        };
-        material =  createMaterial(i+1, list.at(MATERIAL-2).toString().toStdString(),list.at(FEM-2).toString().toStdString());
-        materials.push_back(material);
-        soilLayers.push_back(layer);
-
     }
 
 
@@ -1016,6 +1053,7 @@ void RockOutcrop::on_reBtn_clicked()
     QString file_name = srtFileName;//"SRT.json";
     //QString file_name = QFileDialog::getSaveFileName(this, tr("Choose Path for saving the analysis"), "", tr("Config Files (*.json)"));
 
+    /*
     if (!file_name.isNull())
     {
         std::ofstream o(file_name.toStdString());
@@ -1023,10 +1061,16 @@ void RockOutcrop::on_reBtn_clicked()
     } else {
         QMessageBox::information(this, "error", "Failed to get file name.");
     }
+    */
+
+    updateMesh(root);
 
 
+}
 
-    mesher->mesh2DColumn();
+void RockOutcrop::updateMesh(json &j)
+{
+    mesher->mesh2DColumnFromJson(j);
     elementModel->clear();
     elementModel->setTotalHeight(ui->totalHeight->text().toDouble());
     elementModel->setNodes(mesher->nodes);
@@ -1046,7 +1090,6 @@ void RockOutcrop::on_reBtn_clicked()
         elementModel->addElement("quad",tag,i,j,k,l,t,color,isActive);
     }
     elementModel->refresh();
-
 }
 
 

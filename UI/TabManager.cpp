@@ -1936,7 +1936,7 @@ void TabManager::fillFEMTab(){
 void TabManager::onTableViewClicked(const QModelIndex &index){
     //qDebug() << index.row() << " " << index.column();
 
-    thisMatType = tableView->m_sqlModel->record(index.row()).value("MATERIAL").toString();
+    thisMatType = tableView->m_sqlModel->data(tableView->m_sqlModel->index(index.row(),MATERIAL)).toString();
 
     currentRow = index.row();
     currentCol = index.column();
@@ -2046,7 +2046,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
     checkDefaultFEM(thisMatType, index);
 
-    QString FEMString = tableModel->record(index.row()).value("FEM").toString();
+    QString FEMString = tableModel->data(tableModel->index(index.row(), FEM)).toString();
     QStringList FEMStringList = FEMString.split(" ", QString::SkipEmptyParts);
 
     cleanForm(currentEdts);
@@ -2064,7 +2064,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
         // for Elastic, check the density are the same as shown in the soil layer table
         if (thisMatType == "Elastic")
         {
-            QString densityFromTable = tableModel->record(index.row()).value("DENSITY").toString();
+            QString densityFromTable = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
             QLineEdit* DenEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("rhoEdt");
             QString densityFromForm = DenEdt->text();
 
@@ -2082,7 +2082,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                     DenEdt->setText(densityFromTable);
                 }
 
-                double vsFromTable = tableModel->record(index.row()).value("VS").toDouble();
+                double vsFromTable = tableModel->data(tableModel->index(index.row(), VS)).toDouble();
                 QLineEdit* vEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("vEdt");
                 double v = vEdt->text().toDouble();
                 QLineEdit* EEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("EEdt");
@@ -2094,7 +2094,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
 
 
-            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QString esizeFromTable = tableModel->data(tableModel->index(index.row(), ESIZE)).toString();
             QLineEdit* esizeEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("eSize");
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
@@ -2116,7 +2116,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
         // for PM4Sand, check the density are the same as shown in the soil layer table
         if (thisMatType == "PM4Sand")
         {
-            QString densityFromTable = tableModel->record(index.row()).value("DENSITY").toString();
+            QString densityFromTable = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
 
             QLineEdit* DenEdt = PM4SandWidget->findChild<QLineEdit*>("Den");
             QString densityFromForm = DenEdt->text();
@@ -2135,7 +2135,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 }
             }
 
-            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QString esizeFromTable = tableModel->data(tableModel->index(index.row(), ESIZE)).toString();
             QLineEdit* esizeEdt = PM4SandWidget->findChild<QLineEdit*>("eSize");
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
@@ -2206,7 +2206,7 @@ void TabManager::cleanForm(QVector<QLineEdit*> currentEdts)
 
 void TabManager::checkDefaultFEM(QString thisMatType,const QModelIndex &index)
 {
-    QString FEMString = tableModel->record(index.row()).value("FEM").toString();
+    QString FEMString = tableModel->data(tableModel->index(index.row(), FEM)).toString();
     QStringList FEMStringList = FEMString.split(" ", QString::SkipEmptyParts);
 
     int numPars;
@@ -2227,14 +2227,14 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
 
     if (thisMatType == "Elastic")
     {
-        double rho = tableModel->record(index.row()).value("DENSITY").toDouble();
+        double rho = tableModel->data(tableModel->index(index.row(), DENSITY)).toDouble();
         if (rho<1.0e-11 & rho>-1.0e-11) //
         {
             rho = 2.0; // set default Vs
             tableModel->setData(tableModel->index(index.row(), DENSITY), QString::number(rho,'g',16));
         }
 
-        double vs = tableModel->record(index.row()).value("VS").toDouble();
+        double vs = tableModel->data(tableModel->index(index.row(), VS)).toDouble();
         if (vs<1.0e-11 & vs>-1.0e-11) //
         {
             vs = 182.0; // set default Vs
@@ -2267,7 +2267,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
     }
     else if (thisMatType == "PM4Sand")
     {
-        QString density = tableModel->record(index.row()).value("DENSITY").toString();
+        QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
         if (density=="")
             density = "2.0";
         tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 500.0 0.45 "+ density +" 101.3 -1. 0.8 0.5 0.5 0.1 -1. -1. 250 -1. 33.0 0.3 2.0 -1. -1. 10. 1.5 0.01 -1. -1. "+"1.0e-7 1.0e-7 2.2e6");

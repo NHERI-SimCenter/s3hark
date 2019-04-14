@@ -40,7 +40,6 @@ LIBS += -L"$$_PRO_FILE_PWD_/lib"
 SOURCES += $$PWD/main.cpp\
         $$PWD/UI/MainWindow.cpp \
         $$PWD/UI/RockOutcrop.cpp \
-    $$PWD/UI/DatabaseManager.cpp \
     $$PWD/UI/BonzaTableView.cpp \
     $$PWD/UI/InsertWindow.cpp \
     $$PWD/UI/BonzaTableModel.cpp \
@@ -216,7 +215,6 @@ SOURCES += $$PWD/main.cpp\
 
 HEADERS  += $$PWD/UI/MainWindow.h \
     $$PWD/UI/RockOutcrop.h \
-    $$PWD/UI/DatabaseManager.h \
     $$PWD/GlobalConstances.h \
     $$PWD/UI/BonzaTableView.h \
     $$PWD/UI/InsertWindow.h \

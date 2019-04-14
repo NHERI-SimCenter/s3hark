@@ -4,13 +4,13 @@
 #                                                                              #
 #------------------------------------------------------------------------------#
 
-QT       += core gui sql quick qml webenginewidgets uitools webengine webchannel
+QT       += core gui quick qml webenginewidgets uitools webengine webchannel
 
 CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SiteResponseTool
+TARGET = S3hark
 TEMPLATE = app
 
 
