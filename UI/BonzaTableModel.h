@@ -7,8 +7,7 @@
 #include <QEvent>
 #include <QThread>
 #include <QPainter>
-#include <QStyledItemDelegate>
-#include <QItemDelegate>
+
 #include <QApplication>
 #include <QMouseEvent>
 #include <QHeaderView>
@@ -55,11 +54,18 @@ public:
     {
         beginResetModel();
         for (int i=0;i<numRow ;++i)
-            setData(this->index(i, CHECKED), "0");
+        {
+            QModelIndex ind = this->index(i, CHECKED);
+            int thisValue = data(ind).toInt();
+            if(abs(i-row)>1e-5 && thisValue>0)
+            {
+                setData(ind, "0");
+            }
+        }
 
         setData(this->index(row, CHECKED), "1");
 
-        emit dataChanged(this->index(0, CHECKED), this->index(numRow-1, CHECKED));
+        //emit dataChanged(this->index(0, CHECKED), this->index(numRow-1, CHECKED));
         endResetModel();
     }
 

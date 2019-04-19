@@ -9,7 +9,7 @@ Qt::ItemFlags BonzaTableModel::flags( const QModelIndex &index ) const
     if ( index.column() == CHECKED )
         return (QAbstractTableModel::flags(index) & Qt::ItemIsEditable);
 
-    return  QAbstractTableModel::flags(index);
+    return  (QAbstractTableModel::flags(index) | Qt::ItemIsEditable) ;
 }
 
 int BonzaTableModel::columnCount(const QModelIndex &parent) const
@@ -129,7 +129,7 @@ bool BonzaTableModel::editData( int row, int col, const QVariant &value, int rol
 {
     switch (col) {
     case CHECKED:
-        checkedVec[row] = (value.toString());
+        checkedVec[row] = value.toString();
         break;
     case LayerID:
         layerIDVec[row] = value.toString();
@@ -228,7 +228,7 @@ QVariant BonzaTableModel::data( const QModelIndex &index, int role ) const
     if(!index.isValid())
         return QVariant();
 
-    if (role == Qt::DisplayRole)
+    if (role == Qt::DisplayRole | role == Qt::EditRole)
     {
         switch (index.column()) {
         case CHECKED:

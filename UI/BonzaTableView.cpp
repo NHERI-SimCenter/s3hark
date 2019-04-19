@@ -62,6 +62,7 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
 
 
 
+
     //setEditTriggers(QAbstractItemView::SelectedClicked);
     connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onCellSingleClicked(const QModelIndex &)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onCellDoubleClicked(const QModelIndex &)));
@@ -139,8 +140,10 @@ void BonzaTableView::onCellSingleClicked(const QModelIndex &index)
         qDebug() << "Rock layer clicked, do nothing.";
     else
     {
+
         if (cellDoubleClicked)
             this->edit(m_sqlModel->index(ir, ic));
+
     }
 
 
