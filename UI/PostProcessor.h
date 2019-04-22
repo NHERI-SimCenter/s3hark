@@ -47,6 +47,7 @@ public:
     QVector<double> getDisp(){return m_disp;}
     QVector<double> getRu(){return m_ru;}
     QVector<double> getRupwp(){return m_rupwp;}
+    QVector<double> getInitialStress(){return m_initialStress;}
 
     QString getElementFileName(){return elementFileName;}
     QString getNodesFileName(){return nodesFileName;}
@@ -97,6 +98,7 @@ private:
     QVector<double> m_disp;
     QVector<double> m_ru;
     QVector<double> m_rupwp;
+    QVector<double> m_initialStress;
     double g=9.81;
     int eleCount;
     QString m_outputDir;

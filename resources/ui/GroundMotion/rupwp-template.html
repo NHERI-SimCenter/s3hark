@@ -48,7 +48,7 @@
             color: #ffffff;
             padding: 5px 10px;
         }
-        
+
         #nodeBtn {
             border: 1px solid #062e4e;
             background-color: #5f64ac;
@@ -68,6 +68,11 @@
             border: 1px solid #999999;
             background-color: #cccccc;
             color: #666666;
+        }
+
+        sup {
+            vertical-align: super;
+            font-size: medium;
         }
     </style>
 </head>
@@ -119,7 +124,7 @@
 
                 },
                 y: {
-                    label: { text: 'γ', position: 'outer-middle' },
+                    label: { text: 'ruPWP ', position: 'outer-middle' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -145,7 +150,7 @@
 
         //UPDATEPOINT
 
-        
+
         function showResultAt(elementID) {
             var queue = [
                 function () {
@@ -155,7 +160,7 @@
                     chart.load({
                         columns: [
                             time,
-                            eval("Strain" + elementID.toString())
+                            eval("rupwp" + elementID.toString())
                         ]
                     });
                 },
@@ -176,15 +181,15 @@
         window.onload = function () {
 
             new QWebChannel(qt.webChannelTransport, function (channel) {
-                
+
                 window.elementModel = channel.objects.elementModel;
                 var gwt = elementModel.activeID;
 
-                elementModel.activeIDChanged.connect(function (activeID) {                 
+                elementModel.activeIDChanged.connect(function (activeID) {
                     showResultAt(activeID);
                 });
 
-               
+
             });
         }
 
@@ -199,15 +204,15 @@
 
     <div class="box">
 
-        <input class="btn" id="nodeBtn"  type="button" onclick="location.href='index.html';" value="Node" />
-        <input class="btn" id="eleBtn" style="border: 1px solid #fc0404; width: 60px;"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
-        &nbsp;&nbsp;&nbsp; 
+        <input class="btn" id="nodeBtn" type="button" onclick="location.href='index.html';" value="Node" />
+        <input class="btn" id="eleBtn" style="border: 1px solid #fc0404; width: 60px;" type="button"
+            style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
+        &nbsp;&nbsp;&nbsp;
         <input class="btn" type="button" onclick="location.href='stress.html';" value="Stress" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='strain.html';"
-            value="Strain" />
-        <input class="btn"  type="button" onclick="location.href='stressstrain.html';" value="σ-γ" />
-        <input class="btn" style="width: 60px;" type="button" onclick="location.href='rupwp.html';" value="ruPWP" />
-        
+        <input class="btn" type="button" onclick="location.href='strain.html';" value="Strain" />
+        <input class="btn" type="button" onclick="location.href='stressstrain.html';" value="σ-γ" />
+        <input style="border: 1px solid #fc0404;width: 60px;" class="btn" type="button" onclick="location.href='rupwp.html';"
+            value="ruPWP" />
 
         <div>
             <div id="output"></div>

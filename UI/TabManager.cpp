@@ -1537,6 +1537,7 @@ QString TabManager::loadruPWPResponse()
 
     QString text;
     QTextStream stream(&text);
+    QVector<double> v1 = postProcessor->getInitialStress();
 
     if(v.size()>0)
     {
@@ -1574,7 +1575,7 @@ QString TabManager::loadruPWPResponse()
                 }
                 */
 
-                double thisepwp = (v[j][i]-v[j][0]);
+                double thisepwp = - (v[j][i]-v[j][0]) / v1[eleInd];
                 stream << ", "<<thisepwp;
             }
             stream <<"];" <<endl;
