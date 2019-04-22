@@ -312,6 +312,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
             ui->totalHeight->setText(QString::number(DefaultThickness));
             ui->totalLayerLineEdit->setText("2");
 
+            /*
             QList<QVariant> valueList2;
             valueList2 << "Layer 2" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize << "green";
             ui->tableView->insertAt(valueList2,0);
@@ -323,6 +324,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
             ui->tableView->insertAt(valueList3,0);
             ui->totalHeight->setText(QString::number(DefaultThickness * 3.0));
             ui->totalLayerLineEdit->setText("4");
+            */
         }
 
     } else
@@ -1053,7 +1055,7 @@ void RockOutcrop::on_reBtn_clicked()
     QString file_name = srtFileName;//"SRT.json";
     //QString file_name = QFileDialog::getSaveFileName(this, tr("Choose Path for saving the analysis"), "", tr("Config Files (*.json)"));
 
-    /*
+
     if (!file_name.isNull())
     {
         std::ofstream o(file_name.toStdString());
@@ -1061,7 +1063,7 @@ void RockOutcrop::on_reBtn_clicked()
     } else {
         QMessageBox::information(this, "error", "Failed to get file name.");
     }
-    */
+
 
     updateMesh(root);
 
