@@ -107,10 +107,11 @@ private:
     ElementModel* elementModel;
     PostProcessor *postProcessor;
 
-    QFile uiFilePM4Sand;
-    QFile uiFileElasticIsotropic;
+    //QFile uiFilePM4Sand;
+    //QFile uiFileElasticIsotropic;
 
     QWidget* PM4SandWidget;
+    QWidget* PM4SiltWidget;
     QWidget* ElasticIsotropicWidget;
     QWidget* defaultWidget;
     QWidget* GMWidget;
@@ -133,10 +134,14 @@ private:
                                       "z_max", "cz", "ce", "phic", "nu", "cgd", "cdr",
                                       "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo",
                                         "hPerm","vPerm","uBulk"};
-
+    QList<QString> listPM4SiltFEM = {"eSize", "Dr", "S_u", "Su_Rat", "G_o", "h_po", "Den", "Su_factor", "P_atm",
+                                      "nu", "nG", "h0", "eInit", "lambda", "phicv", "nb_wet", "nb_dry", "nd", "Ado", "ru_max", "z_max",
+                                     "cz", "ce", "cgd", "ckaf", "m_m", "CG_consol",
+                                        "hPerm","vPerm","uBulk"};
     QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;
     QVector<QLineEdit*> edtsPM4SandFEM;
+    QVector<QLineEdit*> edtsPM4SiltFEM;
 
     QString thisMatType;
     QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");

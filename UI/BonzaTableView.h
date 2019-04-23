@@ -185,6 +185,7 @@ public:
         QComboBox *editor = new QComboBox(parent);
         editor->addItem("Elastic");
         editor->addItem("PM4Sand");
+        editor->addItem("PM4Silt");
         return editor;
     }
 

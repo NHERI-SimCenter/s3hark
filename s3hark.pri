@@ -408,6 +408,7 @@ FORMS    += $$PWD/UI/MainWindow.ui \
     $$PWD/UI/RockOutcrop.ui \
     $$PWD/UI/InsertWindow.ui \
     $$PWD/UI/PM4Sand.ui \
+    $$PWD/UI/PM4Silt.ui \
     $$PWD/UI/ElasticIsotropic.ui \
     $$PWD/UI/DefaultMatTab.ui \
     $$PWD/UI/GroundMotion.ui \

@@ -59,6 +59,7 @@
 #include "J2CyclicBoundingSurface.h"
 #include "ElasticIsotropicMaterial.h"
 #include "PM4Sand.h"
+#include "PM4Silt.h"
 #include "ElasticMaterial.h"
 #include "NewtonRaphson.h"
 #include "LoadControl.h"
@@ -381,7 +382,47 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				s << "nDMaterial PM4Sand " << matTag<< " " << thisDr<< " " <<G0<< " " <<hpo<< " " <<thisDen<< " " <<P_atm<< " " <<h0<< " "<<emax<< " "<<emin<< " " <<
 				nb<< " " <<nd<< " " <<Ado<< " " <<z_max<< " " <<cz<< " " <<ce<< " " <<phic<< " " <<nu<< " " <<cgd<< " " <<cdr<< " " <<ckaf<< " " <<
 				Q<< " " <<R<< " " <<m<< " " <<Fsed_min<< " " <<p_sedo << endln;
-			}
+            }else if(!matType.compare("PM4Silt"))
+            {
+                double thisDr = mat["Dr"];
+                double S_u = mat["S_u"];
+                double Su_Rat = mat["Su_Rat"];
+                double G_o = mat["G_o"];
+                double h_po = mat["h_po"];
+                double thisDen = mat["Den"];
+
+                double Su_factor = mat["Su_factor"];
+                double P_atm = mat["P_atm"];
+                double nu = mat["nu"];
+                double nG = mat["nG"];
+                double h0 = mat["h0"];
+                double eInit = mat["eInit"];
+                double lambda = mat["lambda"];
+                double phicv = mat["phicv"];
+                double nb_wet = mat["nb_wet"];
+                double nb_dry = mat["nb_dry"];
+                double nd = mat["nd"];
+                double Ado = mat["Ado"];
+                double ru_max = mat["ru_max"];
+                double z_max = mat["z_max"];
+                double cz = mat["cz"];
+                double ce = mat["ce"];
+                double cgd = mat["cgd"];
+                double ckaf = mat["ckaf"];
+                double m_m = mat["m_m"];
+                double CG_consol = mat["CG_consol"];
+
+
+
+
+
+                //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                theMat = new PM4Silt(matTag, S_u, Su_Rat, G_o, h_po, thisDen, Su_factor, P_atm,nu, nG, h0, eInit, lambda, phicv, nb_wet, nb_dry, nd, Ado, ru_max, z_max,cz, ce, cgd, ckaf, m_m, CG_consol);
+                s << "nDMaterial PM4Silt " << matTag<< " " << S_u<< " " <<Su_Rat<< " " <<G_o<< " " <<h_po<< " " <<thisDen<< " "
+                  <<Su_factor<< " " <<P_atm<< " " <<nu<< " " <<nG<< " " <<h0<< " " <<eInit<< " " <<lambda<< " " <<phicv<< " "
+                 <<nb_wet<< " " <<nb_dry<< " " <<nd<< " " <<Ado<< " " <<ru_max<< " " <<z_max<< " " <<cz<< " " <<ce<< " " <<cgd
+                << " " <<ckaf<< " " <<m_m<< " " <<CG_consol << endln;
+            }
 			OPS_addNDMaterial(theMat);
 			if (PRINTDEBUG) opserr << "Material " << matType.c_str() << ", tag = " << matTag << endln;
 

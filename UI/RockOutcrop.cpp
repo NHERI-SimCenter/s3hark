@@ -1010,6 +1010,9 @@ void RockOutcrop::on_reBtn_clicked()
             }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
             {
                 DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+            }else if(list.at(MATERIAL-2).toString()=="PM4Silt")
+            {
+                DrInd = 1; hPermInd = 27; vPermInd = 28; uBulkInd = 29;
             }
 
             if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
@@ -1310,6 +1313,37 @@ json RockOutcrop::createMaterial(int tag, std::string matType, std::string param
         mat["m"] = atof(pars[22].c_str());
         mat["Fsed_min"] = atof(pars[23].c_str());
         mat["p_sedo"] = atof(pars[24].c_str());
+    } else if (!matType.compare("PM4Silt"))
+    {
+        mat["Dr"] = atof(pars[1].c_str());
+        mat["S_u"] = atof(pars[2].c_str());
+        mat["Su_Rat"] = atof(pars[3].c_str());
+        mat["G_o"] = atof(pars[4].c_str());
+        mat["h_po"] = atof(pars[5].c_str());
+        mat["Den"] = atof(pars[6].c_str());
+        mat["Su_factor"] = atof(pars[7].c_str());
+        mat["P_atm"] = atof(pars[8].c_str());
+        mat["nu"] = atof(pars[9].c_str());
+        mat["nG"] = atof(pars[10].c_str());
+        mat["h0"] = atof(pars[11].c_str());
+        mat["eInit"] = atof(pars[12].c_str());
+        mat["lambda"] = atof(pars[13].c_str());
+        mat["phicv"] = atof(pars[14].c_str());
+        mat["nb_wet"] = atof(pars[15].c_str());
+        mat["nb_dry"] = atof(pars[16].c_str());
+        mat["nd"] = atof(pars[17].c_str());
+        mat["Ado"] = atof(pars[18].c_str());
+
+        mat["ru_max"] = atof(pars[19].c_str());
+        mat["z_max"] = atof(pars[20].c_str());
+        mat["cz"] = atof(pars[21].c_str());
+        mat["ce"] = atof(pars[22].c_str());
+        mat["cgd"] = atof(pars[23].c_str());
+        mat["ckaf"] = atof(pars[24].c_str());
+
+        mat["m_m"] = atof(pars[25].c_str());
+        mat["CG_consol"] = atof(pars[26].c_str());
+
     }
     return mat;
 }

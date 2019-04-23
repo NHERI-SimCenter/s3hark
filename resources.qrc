@@ -10,6 +10,7 @@
         <file>resources/ui/GroundMotion/index.html</file>
         <file>resources/js/qwebchannel.js</file>
         <file>UI/PM4Sand.ui</file>
+        <file>UI/PM4Silt.ui</file>
         <file>UI/ElasticIsotropic.ui</file>
         <file>UI/DefaultMatTab.ui</file>
         <file>UI/GroundMotion.ui</file>
