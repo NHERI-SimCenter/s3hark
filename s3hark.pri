@@ -1,20 +1,28 @@
 
+
 INCLUDEPATH += $$PWD/ \
-	       $$PWD/Include \
-      	       $$PWD/FEM \
-	       $$PWD/SiteResponse \
-	       $$PWD/UI
+               $$PWD/Include \
+               $$PWD/FEM \
+               $$PWD/SiteResponse \
+               $$PWD/UI
 
-unix: {
+unix {
 # You need to modify this section if your blas and lapack is in a different place
+INCLUDEPATH += /usr/local/opt/lapack/include \
+               /usr/local/include
 
-INCLUDEPATH += 
- #           /usr/local/opt/lapack/include \
- #           /usr/local/include
+# You need to modify this section if your blas and lapack is in a different place
+#LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
+#        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
+#        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
+#        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
+LIBS += -llapack -lblas
 }
 
-unix: {LIBS += -llapack -lblas}
 win32: {
+# You must append your lapack include path if it is not in a standard place.
+INCLUDEPATH += FEM \
+               SiteResponse
 
 LIBS += "C:/Adam/OpenSEES source/Win64/lib/release/lapack.lib"
 LIBS += "C:/Adam/OpenSEES source/Win64/lib/release/blas.lib"
@@ -25,18 +33,19 @@ LIBS += "C:/Adam/OpenSEES source/Win64/lib/libifport.lib"
 LIBS += "C:/Adam/OpenSEES source/Win64/lib/libmmt.lib"
 LIBS += "C:/Adam/OpenSEES source/Win64/lib/svml_dispmt.lib"
 # You must append your lapack include path if it is not in a standard place.
-
+LIBS += -L"$$_PRO_FILE_PWD_/lib"
 }
 
-SOURCES += \
+
+SOURCES += $$PWD/main.cpp\
+        $$PWD/UI/MainWindow.cpp \
         $$PWD/UI/RockOutcrop.cpp \
-    $$PWD/UI/DatabaseManager.cpp \
     $$PWD/UI/BonzaTableView.cpp \
     $$PWD/UI/InsertWindow.cpp \
     $$PWD/UI/BonzaTableModel.cpp \
     $$PWD/UI/SiteResponse.cpp \
     $$PWD/UI/TabManager.cpp \
-    #SiteResponse/Mesher.cpp \
+    #$$PWD/SiteResponse/Mesher.cpp \
     $$PWD/UI/JsonManager.cpp \
     $$PWD/UI/ElementModel.cpp \
     $$PWD/FEM/PM4Sand.cpp \
@@ -204,16 +213,15 @@ SOURCES += \
     $$PWD/UI/PostProcessor.cpp \
     $$PWD/UI/SSSharkThread.cpp
 
-HEADERS  += \
+HEADERS  += $$PWD/UI/MainWindow.h \
     $$PWD/UI/RockOutcrop.h \
-    $$PWD/UI/DatabaseManager.h \
     $$PWD/GlobalConstances.h \
     $$PWD/UI/BonzaTableView.h \
     $$PWD/UI/InsertWindow.h \
     $$PWD/UI/BonzaTableModel.h \
     $$PWD/UI/SiteResponse.h \
     $$PWD/UI/TabManager.h \
-    #SiteResponse/Mesher.h \
+    #$$PWD/SiteResponse/Mesher.h \
     $$PWD/UI/JsonManager.h \
     $$PWD/UI/ElementModel.h \
     $$PWD/FEM/PM4Sand.h \
@@ -396,9 +404,15 @@ HEADERS  += \
     $$PWD/UI/SSSharkThread.h
 
 
-FORMS    += \
+FORMS    += $$PWD/UI/MainWindow.ui \
     $$PWD/UI/RockOutcrop.ui \
-    $$PWD/UI/InsertWindow.ui
+    $$PWD/UI/InsertWindow.ui \
+    $$PWD/UI/PM4Sand.ui \
+    $$PWD/UI/PM4Silt.ui \
+    $$PWD/UI/ElasticIsotropic.ui \
+    $$PWD/UI/DefaultMatTab.ui \
+    $$PWD/UI/GroundMotion.ui \
+    $$PWD/UI/FEM.ui
 
 RESOURCES += \
     $$PWD/resources.qrc

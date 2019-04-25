@@ -23,16 +23,17 @@ static const QString g_colorLabel = "Color";
 #define ESIZE 7
 #define COLOR 8
 #define FEM 9
+#define LASTCOL 9
 
 
 #define DefaultThickness 3
 #define DefaultDensity 2.0
 #define DefaultVs 180
 #define DefaultEType "Elastic"
-#define DefaultESize 0.25
+#define DefaultESize 1
 
-#define MAXLAYERS 20
-#define PAGESIZE 20
+#define MAXLAYERS 1000
+#define PAGESIZE 1000
 
 #define useJSONasInput true
 

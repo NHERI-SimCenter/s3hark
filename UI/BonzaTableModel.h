@@ -2,15 +2,12 @@
 #define BONZATABLEMODEL_H
 
 #include "GlobalConstances.h"
-
-#include <QSqlTableModel>
+#include <QAbstractTableModel>
 #include <QTableView>
 #include <QEvent>
 #include <QThread>
-#include <QSqlRecord>
 #include <QPainter>
-#include <QStyledItemDelegate>
-#include <QItemDelegate>
+
 #include <QApplication>
 #include <QMouseEvent>
 #include <QHeaderView>
@@ -20,9 +17,8 @@
 
 #include <QDebug>
 
-class QSqlDatabase;
 
-class BonzaTableModel : public QSqlTableModel
+class BonzaTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -31,197 +27,110 @@ signals:
     void rowActivated(int row);
 
 public:
-        explicit BonzaTableModel(QWidget *parent = nullptr, QSqlDatabase db = QSqlDatabase()):
-        QSqlTableModel(parent, db)
-    {
-    }
-
-
-    Qt::ItemFlags flags( const QModelIndex &index ) const
-    {
-        if(!index.isValid())
-            return nullptr;
-
-        if ( index.column() == CHECKED )
-            return (QSqlTableModel::flags(index) & Qt::ItemIsEditable);
-
-        return  QSqlTableModel::flags(index);
-    }
-
-    bool setData( const QModelIndex &index, const QVariant &value, int role = Qt::EditRole )
-    {
-        if(!index.isValid())
-            return false;
-
-        int ir = index.row();
-        int ic = index.column();
-        int numLayers = this->rowCount();
-
-        if (abs(ir - (numLayers-1)) < 1e-5 && numLayers==1) // First time to add Rock layer
-        {
-            QSqlTableModel::setData(index, value, Qt::EditRole);
-            //emit thicknessEdited();
-            return submitAll();
-        }
-
-
-
-        if ( ic != CHECKED )
-        {
-            /*
-            if  (abs(ir - (numLayers-1)) < 1e-5)
-            {   // rock layer
-
-                if((ic==LAYERNAME || ic==THICKNESS || ic==MATERIAL || ic==ESIZE))
-                {
-                    //if(index.column()==THICKNESS  || index.column()==ESIZE)
-                    qDebug() << "Rock layer's thickness and esize can not be edited.";
-                    //QSqlTableModel::setData(index, value, Qt::EditRole);
-                }
-                else
-                { QSqlTableModel::setData(index, value, Qt::EditRole);}
-
-
-            } else {
-                QSqlTableModel::setData(index, value, Qt::EditRole);
-                if(ic==THICKNESS || ic==FEM || ic==ESIZE)
-                {
-                    emit thicknessEdited();
-                }
-            }
-            */
-            QSqlTableModel::setData(index, value, Qt::EditRole);
-            /*
-            if(ic==THICKNESS || ic==FEM || ic==ESIZE || ic==DENSITY || ic==VS)
-            {
-                emit thicknessEdited();
-            }
-            */
-            emit thicknessEdited();
-
-            return submitAll();
-        }
-
-        QSqlTableModel::setData(index, value, Qt::EditRole);
-        return submitAll();
-
-    }
-
-    bool setDataSilent( const QModelIndex &index, const QVariant &value, int role = Qt::EditRole )
-    {
-        if(!index.isValid())
-            return false;
-
-        int ir = index.row();
-        int ic = index.column();
-        int numLayers = this->rowCount();
-
-        if (abs(ir - (numLayers-1)) < 1e-5 && numLayers==1) // First time to add Rock layer
-        {
-            QSqlTableModel::setData(index, value, Qt::EditRole);
-            return submitAll();
-        }
-
-
-        if ( ic != CHECKED )
-        {
-            QSqlTableModel::setData(index, value, Qt::EditRole);
-
-
-            return submitAll();
-        }
-
-        QSqlTableModel::setData(index, value, Qt::EditRole);
-        return submitAll();
-
-    }
-
-
-    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole ) const
-    {
-        if(!index.isValid())
-            return QVariant();
-
-        if (role == Qt::DisplayRole)
-        {
-            if ( index.column() == CHECKED )
-            {
-                int checked = this->record(index.row()).value(CHECKED).toInt();
-                return  checked;// == 1 ? Qt::Checked : Qt::Unchecked;
-            }
-        }
-
-        return QSqlTableModel::data(index, role);
-    }
-    Q_INVOKABLE QString getLayerName(int row)
-    {
-        return this->record(row).value(LAYERNAME).toString();
-    }
-    Q_INVOKABLE double getThickness(int row)
-    {
-        return this->record(row).value(THICKNESS).toDouble();
-    }
-    Q_INVOKABLE double getBotompos(int row)
-    {
-        double botompos = 0.0;
-        int i;
-        for (i=0;i<=row;++i)
-            botompos+=this->record(i).value(THICKNESS).toDouble();
-        return botompos;
-    }
-    Q_INVOKABLE double getToppos(int row)
-    {
-        double toppos = 0.0;
-        int i;
-        for (i=0;i<row;++i)
-            toppos+=this->record(i).value(THICKNESS).toDouble();
-        return toppos;
-    }
-    Q_INVOKABLE QString getSoilColor(int row)
-    {
-        Q_UNUSED(row)
-        return this->record(row).value(COLOR).toString();
-    }
-    Q_INVOKABLE double getTotalHeight()
-    {
-        double totalHeight = 0.0;
-        int i;
-        for (i=0;i<this->rowCount() ;++i)
-            totalHeight += this->record(i).value(THICKNESS).toDouble();
-        return totalHeight;
-    }
+    explicit BonzaTableModel(QObject *parent = nullptr):
+        QAbstractTableModel(parent){}
+    Qt::ItemFlags flags( const QModelIndex &index ) const;
+    virtual int rowCount(const QModelIndex &parent=QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent=QModelIndex()) const;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    bool setData( const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole );
+    bool setData( int ir, int ic, const QVariant &value, int role = Qt::DisplayRole);
+    bool setDataSilent( const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole );
+    bool addData( int row, int col, const QVariant &value, int role = Qt::DisplayRole);
+    bool editData( int row, int col, const QVariant &value, int role = Qt::DisplayRole);
+    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole ) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::EditRole);
 
 
 
     Q_INVOKABLE bool isActive(int row)
     {
-        return this->record(row).value(CHECKED).toBool();
+        bool thisActive = data(this->index(row, CHECKED)).toBool();;
+        return thisActive;
     }
-
     Q_INVOKABLE void setActive(int row)
     {
-        int i;
-
-        for (i=0;i<this->rowCount() ;++i)
-            setData(this->index(i, CHECKED), "0");
+        beginResetModel();
+        for (int i=0;i<numRow ;++i)
+        {
+            QModelIndex ind = this->index(i, CHECKED);
+            int thisValue = data(ind).toInt();
+            if(abs(i-row)>1e-5 && thisValue>0)
+            {
+                setData(ind, "0");
+            }
+        }
 
         setData(this->index(row, CHECKED), "1");
 
-        submitAll();
+        //emit dataChanged(this->index(0, CHECKED), this->index(numRow-1, CHECKED));
+        endResetModel();
+    }
 
-        //emit rowActivated(row);
+    Q_INVOKABLE QString getLayerName(int row)
+    {
+        return data(createIndex(row,LAYERNAME)).toString();
+        //return this->record(row).value(LAYERNAME).toString();//commentednotsure
+    }
 
+    Q_INVOKABLE double getThickness(int row)
+    {
+        return data(createIndex(row,THICKNESS)).toDouble();
+        //return this->record(row).value(THICKNESS).toDouble();//commentednotsure
+    }
+
+    Q_INVOKABLE double getBotompos(int row)
+    {
+        double botompos = 0.0;
+        int i;
+        for (i=0;i<=row;++i)
+            botompos += data(createIndex(i,THICKNESS)).toDouble();
+            //botompos+=this->record(i).value(THICKNESS).toDouble();//commentednotsure
+        return botompos;
+    }
+
+    Q_INVOKABLE double getToppos(int row)
+    {
+        double toppos = 0.0;
+        int i;
+        for (i=0;i<row;++i)
+            toppos += data(createIndex(i, THICKNESS)).toDouble();
+            //toppos+=this->record(i).value(THICKNESS).toDouble();//commentednotsure
+        return toppos;
+    }
+
+    Q_INVOKABLE QString getSoilColor(int row)
+    {
+        Q_UNUSED(row)
+        //return this->record(row).value(COLOR).toString();//commentednotsure
+        return data(createIndex(row, COLOR)).toString();
+    }
+
+    Q_INVOKABLE double getTotalHeight()
+    {
+        double totalHeight = 0.0;
+        int i;
+        for (i=0;i<this->rowCount() ;++i)
+            totalHeight += data(createIndex(i, THICKNESS)).toDouble();//commentednotsure
+        return totalHeight;
     }
 
 
     Q_INVOKABLE void setActiveFromView(int row)
     {
-        int i;
-        for (i=0;i<this->rowCount() ;++i)
+
+        for (int i=0;i<numRow ;++i)
             setData(this->index(i, CHECKED), "0");
 
         setData(this->index(row, CHECKED), "1");
-        submitAll();
+
+        QModelIndex indtop = createIndex(0, CHECKED);
+        QModelIndex indbot = createIndex(numRow-1, CHECKED);
+        emit dataChanged(indtop, indbot, { Qt::EditRole, Qt::DisplayRole });
+
+        //submitAll(); //commentednotsure
         //emit rowActivated(row);
         qDebug()<< "row " << row << " activated., said the model.";
     }
@@ -231,27 +140,36 @@ public:
         int i;
         for (i=0;i<this->rowCount() ;++i)
             setData(this->index(i, CHECKED), "0");
-        submitAll();
+        //submitAll();//commentednotsure
     }
+
+
+private:
+    QVector<QString> layerIDVec;
+    QVector<QString> checkedVec;
+    QVector<QString> layerNameVec;
+    QVector<QString> thicknessVec;
+    QVector<QString> densityVec;
+    QVector<QString> vsVec;
+    QVector<QString> materialVec;
+    QVector<QString> esizeVec;
+    QVector<QString> colorVec;
+    QVector<QString> femVec;
+
+    int numRow = 0;
+
+    QStringList  header = {"","","","","","","","","","","","","","",""};
+
 
 public slots:
     void setActive(const QModelIndex &index)
     {
-/*
-        int i;
-        for (i=0;i<this->rowCount() ;++i)
-            setData(this->index(i, CHECKED), "0");
-
-        setData(this->index(index.row(), CHECKED), "1");
-        submitAll();
-*/
-        //emit rowActivated(index.row());
-        //setActive(index.row());
         qDebug() << "model slot says: activated: " << index.row();
-
     }
-
     QList<QVariant> getRowInfo(int row) const;
+
+
+
 
 
 };

@@ -64,8 +64,8 @@ QTabBar::tab:top:only-one, QTabBar::tab:bottom:only-one {
 QTabBar::tab:left, QTabBar::tab:right {
     min-height: 10ex;
     max-height: 25ex;
-    min-width: 3ex;
-    max-width: 6ex;
+    min-width: 2ex;
+    max-width: 3ex;
 
     margin-bottom: -1px;
     padding: 4px 4px 5px 5px;

@@ -49,9 +49,11 @@ public:
     bool copyDir(const QDir& from, const QDir& to, bool cover) ;
     void cleanTable();
 
+    void updateMesh(json &j);
+
 public slots:
 
-    void on_thickness_edited();
+    void onThicknessEdited();
     void onConfigTabUpdated();
     void onInternalFEAInvoked();
     void onInternalFEAUpdated(double step){refreshRun(step);}
@@ -73,7 +75,7 @@ private slots:
 
     void on_addRowBtn_clicked();
 
-    void on_meshBtn_clicked(bool checked);
+    void on_meshBtn_clicked();
 
     void on_gwtEdit_textChanged(const QString &arg1);
 
@@ -96,6 +98,7 @@ private slots:
     void onOpenSeesFinished();
 
     void hideShowTab();
+    void showShowTab();
 
     void writeSurfaceMotion();
 
@@ -115,6 +118,7 @@ private:
     int layerTableWidth = 630;
     int layerTableHeight = 500;//320;
     int openseesErrCount = 0;
+    int currentTabID;
 
 private:// some of them were public
     QWidget *plotContainer;

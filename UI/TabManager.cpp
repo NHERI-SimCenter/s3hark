@@ -131,6 +131,35 @@ void TabManager::init(QTabWidget* theTab){
 
 
 
+    QFile uiFilePM4Silt(":/UI/PM4Silt.ui");
+    uiFilePM4Silt.open(QIODevice::ReadOnly);
+    PM4SiltWidget = uiLoader.load(&uiFilePM4Silt,this);
+    for (int i = 0; i < listPM4SiltFEM.size(); ++i) {
+        QString edtName = listPM4SiltFEM[i] ;
+        edtsPM4SiltFEM.push_back(PM4SiltWidget->findChild<QLineEdit*>(edtName));
+    }
+    // connect edit signal with onDataEdited
+    for (int i = 0; i < edtsPM4SiltFEM.size(); ++i) {
+        connect(edtsPM4SiltFEM[i], SIGNAL(editingFinished()), this, SLOT(onDataEdited()));
+    }
+    eSizeEdtTmp= PM4SiltWidget->findChild<QLineEdit*>("eSize");
+    eSizeEdtTmp->hide();
+    eSizeLabelTmp= PM4SiltWidget->findChild<QLabel*>("eSizeLabel");
+    eSizeLabelTmp->hide();
+    QLineEdit *DrEdtTmpPM4Silt= PM4SiltWidget->findChild<QLineEdit*>("Dr");
+    DrEdtTmpPM4Silt->hide();
+    QLabel *DrLabelTmpPM4Silt= PM4SiltWidget->findChild<QLabel*>("Dr_2");
+    DrLabelTmpPM4Silt->hide();
+    /*
+    QPushButton *secondaryBtn= PM4SiltWidget->findChild<QPushButton*>("secondaryBtn");
+    secondaryBtn->setCheckable(true);
+    secondaryBtn->hide();
+    connect(secondaryBtn, SIGNAL(clicked(bool)), this, SLOT(onSecondaryBtnClicked(bool)));
+    */
+
+
+
+
     QFile uiFileElasticIsotropic(":/UI/ElasticIsotropic.ui");
     uiFileElasticIsotropic.open(QIODevice::ReadOnly);
     ElasticIsotropicWidget = uiLoader.load(&uiFileElasticIsotropic,this);
@@ -1537,6 +1566,7 @@ QString TabManager::loadruPWPResponse()
 
     QString text;
     QTextStream stream(&text);
+    QVector<double> v1 = postProcessor->getInitialStress();
 
     if(v.size()>0)
     {
@@ -1574,7 +1604,7 @@ QString TabManager::loadruPWPResponse()
                 }
                 */
 
-                double thisepwp = (v[j][i]-v[j][0]);
+                double thisepwp = - (v[j][i]-v[j][0]) / v1[eleInd];
                 stream << ", "<<thisepwp;
             }
             stream <<"];" <<endl;
@@ -1936,7 +1966,7 @@ void TabManager::fillFEMTab(){
 void TabManager::onTableViewClicked(const QModelIndex &index){
     //qDebug() << index.row() << " " << index.column();
 
-    thisMatType = tableView->m_sqlModel->record(index.row()).value("MATERIAL").toString();
+    thisMatType = tableView->m_sqlModel->data(tableView->m_sqlModel->index(index.row(),MATERIAL)).toString();
 
     currentRow = index.row();
     currentCol = index.column();
@@ -1953,6 +1983,11 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
     {
         currentEdts = edtsPM4SandFEM;
         currentWidget = PM4SandWidget;
+    }
+    else if (thisMatType=="PM4Silt")
+    {
+        currentEdts = edtsPM4SiltFEM;
+        currentWidget = PM4SiltWidget;
     }
     else
         currentWidget = defaultWidget;
@@ -2030,6 +2065,19 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PM4SandWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+    } else if(matType=="PM4Silt")
+    {
+        for (int i = 0; i < listPM4SiltFEM.size(); ++i) {
+            QString edtName = listPM4SiltFEM[i] ;
+            if(!mat[edtName].isNull())
+                edtsPM4SiltFEM[i]->setText(QString::number(mat[edtName].toDouble(),'g',16));
+        }
+        QLineEdit *hPerm= PM4SiltWidget->findChild<QLineEdit*>("hPerm");
+        hPerm->setText(QString::number(hPermval,'g',16));
+        QLineEdit *vPerm= PM4SiltWidget->findChild<QLineEdit*>("vPerm");
+        vPerm->setText(QString::number(vPermval,'g',16));
+        QLineEdit *uBulk= PM4SiltWidget->findChild<QLineEdit*>("uBulk");
+        uBulk->setText(QString::number(uBulkval,'g',16));
     }
 
     // send the signal to update FEM cell
@@ -2046,7 +2094,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
     checkDefaultFEM(thisMatType, index);
 
-    QString FEMString = tableModel->record(index.row()).value("FEM").toString();
+    QString FEMString = tableModel->data(tableModel->index(index.row(), FEM)).toString();
     QStringList FEMStringList = FEMString.split(" ", QString::SkipEmptyParts);
 
     cleanForm(currentEdts);
@@ -2064,7 +2112,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
         // for Elastic, check the density are the same as shown in the soil layer table
         if (thisMatType == "Elastic")
         {
-            QString densityFromTable = tableModel->record(index.row()).value("DENSITY").toString();
+            QString densityFromTable = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
             QLineEdit* DenEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("rhoEdt");
             QString densityFromForm = DenEdt->text();
 
@@ -2082,7 +2130,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                     DenEdt->setText(densityFromTable);
                 }
 
-                double vsFromTable = tableModel->record(index.row()).value("VS").toDouble();
+                double vsFromTable = tableModel->data(tableModel->index(index.row(), VS)).toDouble();
                 QLineEdit* vEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("vEdt");
                 double v = vEdt->text().toDouble();
                 QLineEdit* EEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("EEdt");
@@ -2094,7 +2142,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
 
 
 
-            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QString esizeFromTable = tableModel->data(tableModel->index(index.row(), ESIZE)).toString();
             QLineEdit* esizeEdt = ElasticIsotropicWidget->findChild<QLineEdit*>("eSize");
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
@@ -2116,7 +2164,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
         // for PM4Sand, check the density are the same as shown in the soil layer table
         if (thisMatType == "PM4Sand")
         {
-            QString densityFromTable = tableModel->record(index.row()).value("DENSITY").toString();
+            QString densityFromTable = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
 
             QLineEdit* DenEdt = PM4SandWidget->findChild<QLineEdit*>("Den");
             QString densityFromForm = DenEdt->text();
@@ -2135,7 +2183,7 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 }
             }
 
-            QString esizeFromTable = tableModel->record(index.row()).value("ElementSize").toString();
+            QString esizeFromTable = tableModel->data(tableModel->index(index.row(), ESIZE)).toString();
             QLineEdit* esizeEdt = PM4SandWidget->findChild<QLineEdit*>("eSize");
             QString esizeFromForm = esizeEdt->text();
             if(esizeFromTable != esizeFromForm)
@@ -2152,6 +2200,47 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
                 }
             }
         }
+
+        // for PM4Silt, check the density are the same as shown in the soil layer table
+        if (thisMatType == "PM4Silt")
+        {
+            QString densityFromTable = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
+
+            QLineEdit* DenEdt = PM4SiltWidget->findChild<QLineEdit*>("Den");
+            QString densityFromForm = DenEdt->text();
+
+            if(densityFromTable != densityFromForm)
+            {
+                //qDebug() << "Den here is different from the above table. ";
+                if (densityFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), DENSITY), densityFromForm);
+                    DenEdt->setText(densityFromForm);
+                }
+                else
+                {
+                    DenEdt->setText(densityFromTable);
+                }
+            }
+
+            QString esizeFromTable = tableModel->data(tableModel->index(index.row(), ESIZE)).toString();
+            QLineEdit* esizeEdt = PM4SiltWidget->findChild<QLineEdit*>("eSize");
+            QString esizeFromForm = esizeEdt->text();
+            if(esizeFromTable != esizeFromForm)
+            {
+                //qDebug() << "esize here is different from the above table. ";
+                if (esizeFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
+                }
+                else
+                {
+                    esizeEdt->setText(esizeFromTable);
+                    onDataEdited();
+                }
+            }
+        }
+
         //onDataEdited();
 
     } else
@@ -2171,6 +2260,8 @@ void TabManager::onDataEdited()
         currentEdts = edtsElasticIsotropicFEM;
     else if (thisMatType=="PM4Sand")
         currentEdts = edtsPM4SandFEM;
+    else if (thisMatType=="PM4Silt")
+        currentEdts = edtsPM4SiltFEM;
 
     // collect data in the form
     QString thisFEmString;
@@ -2192,6 +2283,11 @@ void TabManager::onDataEdited()
         QLineEdit* DenEdt = PM4SandWidget->findChild<QLineEdit*>("Den");
         tableModel->setData(tableModel->index(currentRow, DENSITY), DenEdt->text());
     }
+    if (thisMatType=="PM4Silt")
+    {
+        QLineEdit* DenEdt = PM4SiltWidget->findChild<QLineEdit*>("Den");
+        tableModel->setData(tableModel->index(currentRow, DENSITY), DenEdt->text());
+    }
 
 
 }
@@ -2206,7 +2302,7 @@ void TabManager::cleanForm(QVector<QLineEdit*> currentEdts)
 
 void TabManager::checkDefaultFEM(QString thisMatType,const QModelIndex &index)
 {
-    QString FEMString = tableModel->record(index.row()).value("FEM").toString();
+    QString FEMString = tableModel->data(tableModel->index(index.row(), FEM)).toString();
     QStringList FEMStringList = FEMString.split(" ", QString::SkipEmptyParts);
 
     int numPars;
@@ -2214,6 +2310,8 @@ void TabManager::checkDefaultFEM(QString thisMatType,const QModelIndex &index)
         numPars = 11;
     else if (thisMatType == "PM4Sand")
         numPars = 28;
+    else if (thisMatType == "PM4Silt")
+        numPars = 30;
     else
         numPars =0;
 
@@ -2227,14 +2325,14 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
 
     if (thisMatType == "Elastic")
     {
-        double rho = tableModel->record(index.row()).value("DENSITY").toDouble();
+        double rho = tableModel->data(tableModel->index(index.row(), DENSITY)).toDouble();
         if (rho<1.0e-11 & rho>-1.0e-11) //
         {
             rho = 2.0; // set default Vs
             tableModel->setData(tableModel->index(index.row(), DENSITY), QString::number(rho,'g',16));
         }
 
-        double vs = tableModel->record(index.row()).value("VS").toDouble();
+        double vs = tableModel->data(tableModel->index(index.row(), VS)).toDouble();
         if (vs<1.0e-11 & vs>-1.0e-11) //
         {
             vs = 182.0; // set default Vs
@@ -2267,10 +2365,18 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
     }
     else if (thisMatType == "PM4Sand")
     {
-        QString density = tableModel->record(index.row()).value("DENSITY").toString();
+        QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
         if (density=="")
             density = "2.0";
         tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 500.0 0.45 "+ density +" 101.3 -1. 0.8 0.5 0.5 0.1 -1. -1. 250 -1. 33.0 0.3 2.0 -1. -1. 10. 1.5 0.01 -1. -1. "+"1.0e-7 1.0e-7 2.2e6");
+        //  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
+    }
+    else if (thisMatType == "PM4Silt")
+    {
+        QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
+        if (density=="")
+            density = "2.0";
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 100.0 1.0 500.0 0.45 "+ density +" 1.0 101.3 0.3 0.75 0.5 0.9 0.06 32.0 0.8 0.5 0.3 0.8 -1 -1 100.0 -1 3.0 4.0 0.01 2.0 "+"1.0e-7 1.0e-7 2.2e6");
         //  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
     }
 

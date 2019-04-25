@@ -734,6 +734,11 @@ void PostProcessor::calcRupwp()
     for(int i=0;i<v.size();i++)
         m_rupwp.append( v[i] * 100 );
 
+    if (m_initialStress.size()>0)
+        m_initialStress.clear();
+    for(int i=0;i<v1.size();i++)
+        m_initialStress.append( v1[i] );
+
 
 
     QFile saveFile(rupwpFileName);

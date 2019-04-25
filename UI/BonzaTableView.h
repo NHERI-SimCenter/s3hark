@@ -6,7 +6,6 @@
 #include <QTableView>
 #include <QEvent>
 #include <QThread>
-#include <QSqlRecord>
 #include <QPainter>
 #include <QStyledItemDelegate>
 #include <QItemDelegate>
@@ -36,7 +35,8 @@ public:
 
     // hidden data can not be obtained from current tableview's model
     // I'm getting it from database's model
-    QSqlTableModel* sqlModel() { return m_sqlModel; }
+    //QSqlTableModel* sqlModel() { return m_sqlModel; }//commentednotsure
+    //QAbstractTableModel* sqlModel() { return m_sqlModel; }
 
     QList<QVariant> currentRowInfo() const;
     QList<QVariant> getRowInfo(int r) const;
@@ -185,6 +185,7 @@ public:
         QComboBox *editor = new QComboBox(parent);
         editor->addItem("Elastic");
         editor->addItem("PM4Sand");
+        editor->addItem("PM4Silt");
         return editor;
     }
 
