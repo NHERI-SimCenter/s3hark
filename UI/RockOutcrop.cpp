@@ -1447,7 +1447,7 @@ json RockOutcrop::createMaterial(int tag, std::string matType, std::string param
         mat["A0"] = atof(pars[15].c_str());
         mat["nd"] = atof(pars[16].c_str());
         mat["z_max"] = atof(pars[17].c_str());
-        mat["cs"] = atof(pars[18].c_str());
+        mat["cz"] = atof(pars[18].c_str());
         mat["Den"] = atof(pars[19].c_str());
 
     }
