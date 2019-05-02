@@ -112,6 +112,10 @@ private:
 
     QWidget* PM4SandWidget;
     QWidget* PM4SiltWidget;
+    QWidget* PIMYWidget;
+    QWidget* PDMYWidget;
+    QWidget* PDMY02Widget;
+    QWidget* ManzariDafaliasWidget;
     QWidget* ElasticIsotropicWidget;
     QWidget* defaultWidget;
     QWidget* GMWidget;
@@ -138,10 +142,28 @@ private:
                                       "nu", "nG", "h0", "eInit", "lambda", "phicv", "nb_wet", "nb_dry", "nd", "Ado", "ru_max", "z_max",
                                      "cz", "ce", "cgd", "ckaf", "m_m", "CG_consol",
                                         "hPerm","vPerm","uBulk"};
+    QList<QString> listPIMYFEM = {"eSize", "Dr", "nd", "rho", "refShearModul", "refBulkModul", "cohesi", "peakShearStra",
+                                      "frictionAng", "refPress", "pressDependCoe", "noYieldSurf",
+                                        "hPerm","vPerm","uBulk"};
+    QList<QString> listPDMYFEM = {"eSize", "Dr", "nd", "rho", "refShearModul", "refBulkModul", "frictionAng", "peakShearStra",
+                                      "refPress", "pressDependCoe", "PTAng", "contrac", "dilat1", "dilat2", "liquefac1", "liquefac2", "liquefac3",
+                                        "e", "cs1", "cs2", "cs3", "pa","c", "noYieldSurf",
+                                        "hPerm","vPerm","uBulk"};
+    QList<QString> listPDMY02FEM = {"eSize", "Dr", "nd", "rho", "refShearModul", "refBulkModul", "frictionAng", "peakShearStra",
+         "refPress", "pressDependCoe", "PTAng", "contrac1","contrac3", "dilat1", "dilat3", "contrac2", "dilat2", "liquefac1", "liquefac2",
+           "e", "cs1", "cs2", "cs3", "pa","c", "noYieldSurf",
+           "hPerm","vPerm","uBulk"};
+    QList<QString> listManzariDafaliasFEM = {"eSize", "Dr", "G0", "nu", "e_init", "Mc", "c", "lambda_c", "e0", "ksi", "P_atm", "m", "h0",
+                                              "ch", "nb", "A0", "nd", "z_max", "cz", "Den",
+                                        "hPerm","vPerm","uBulk"};
     QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;
     QVector<QLineEdit*> edtsPM4SandFEM;
     QVector<QLineEdit*> edtsPM4SiltFEM;
+    QVector<QLineEdit*> edtsPIMYFEM;
+    QVector<QLineEdit*> edtsPDMYFEM;
+    QVector<QLineEdit*> edtsPDMY02FEM;
+    QVector<QLineEdit*> edtsManzariDafaliasFEM;
 
     QString thisMatType;
     QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");

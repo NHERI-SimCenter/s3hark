@@ -11,6 +11,10 @@
         <file>resources/js/qwebchannel.js</file>
         <file>UI/PM4Sand.ui</file>
         <file>UI/PM4Silt.ui</file>
+        <file>UI/PIMY.ui</file>
+        <file>UI/PDMY.ui</file>
+        <file>UI/PDMY02.ui</file>
+        <file>UI/ManzariDafalias.ui</file>
         <file>UI/ElasticIsotropic.ui</file>
         <file>UI/DefaultMatTab.ui</file>
         <file>UI/GroundMotion.ui</file>
