@@ -200,6 +200,10 @@ void TabManager::init(QTabWidget* theTab){
     DrEdtTmpPDMY->hide();
     QLabel *DrLabelTmpPDMY= PDMYWidget->findChild<QLabel*>("Dr_2");
     DrLabelTmpPDMY->hide();
+    QLineEdit *noYieldSurfEdtTmpPDMY= PDMYWidget->findChild<QLineEdit*>("noYieldSurf");
+    noYieldSurfEdtTmpPDMY->hide();
+    QLabel *noYieldSurfLabelTmpPDMY= PDMYWidget->findChild<QLabel*>("noYieldSurf_2");
+    noYieldSurfLabelTmpPDMY->hide();
 
 
     QFile uiFilePDMY02(":/UI/PDMY02.ui");
@@ -221,6 +225,10 @@ void TabManager::init(QTabWidget* theTab){
     DrEdtTmpPDMY02->hide();
     QLabel *DrLabelTmpPDMY02= PDMY02Widget->findChild<QLabel*>("Dr_2");
     DrLabelTmpPDMY02->hide();
+    QLineEdit *noYieldSurfEdtTmpPDMY02= PDMY02Widget->findChild<QLineEdit*>("noYieldSurf");
+    noYieldSurfEdtTmpPDMY02->hide();
+    QLabel *noYieldSurfLabelTmpPDMY02= PDMY02Widget->findChild<QLabel*>("noYieldSurf_2");
+    noYieldSurfLabelTmpPDMY02->hide();
 
 
     QFile uiFileManzariDafalias(":/UI/ManzariDafalias.ui");
