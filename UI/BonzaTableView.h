@@ -186,6 +186,10 @@ public:
         editor->addItem("Elastic");
         editor->addItem("PM4Sand");
         editor->addItem("PM4Silt");
+        editor->addItem("PIMY");
+        editor->addItem("PDMY");
+        editor->addItem("PDMY02");
+        editor->addItem("ManzariDafalias");
         return editor;
     }
 

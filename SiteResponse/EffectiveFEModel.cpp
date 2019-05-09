@@ -412,17 +412,139 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                 double m_m = mat["m_m"];
                 double CG_consol = mat["CG_consol"];
 
-
-
-
-
                 //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                 theMat = new PM4Silt(matTag, S_u, Su_Rat, G_o, h_po, thisDen, Su_factor, P_atm,nu, nG, h0, eInit, lambda, phicv, nb_wet, nb_dry, nd, Ado, ru_max, z_max,cz, ce, cgd, ckaf, m_m, CG_consol);
                 s << "nDMaterial PM4Silt " << matTag<< " " << S_u<< " " <<Su_Rat<< " " <<G_o<< " " <<h_po<< " " <<thisDen<< " "
                   <<Su_factor<< " " <<P_atm<< " " <<nu<< " " <<nG<< " " <<h0<< " " <<eInit<< " " <<lambda<< " " <<phicv<< " "
                  <<nb_wet<< " " <<nb_dry<< " " <<nd<< " " <<Ado<< " " <<ru_max<< " " <<z_max<< " " <<cz<< " " <<ce<< " " <<cgd
                 << " " <<ckaf<< " " <<m_m<< " " <<CG_consol << endln;
+            }else if(!matType.compare("PIMY"))
+            {
+                double thisDr = mat["Dr"];
+                double nd = mat["nd"];
+                double rho = mat["rho"];
+                double refShearModul = mat["refShearModul"];
+                double refBulkModul = mat["refBulkModul"];
+                double cohesi = mat["cohesi"];
+                double peakShearStra = mat["peakShearStra"];
+
+                double frictionAng = mat["frictionAng"];
+                double refPress = mat["refPress"];
+                double pressDependCoe = mat["pressDependCoe"];
+                double noYieldSurf = mat["noYieldSurf"];
+
+                //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                //TODO: PM4Silt->PIMY
+                //TODO: deal with noYieldSurf
+                theMat = new PM4Silt(matTag, nd,rho,refShearModul,refBulkModul,cohesi,peakShearStra,frictionAng,refPress,pressDependCoe);
+                s << "nDMaterial PressureIndependMultiYield "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "<<refBulkModul<<" "<<cohesi<<" "<<peakShearStra<<" "<<
+                        frictionAng<<" "<< refPress<<" "<<pressDependCoe<<endln;
+            }else if(!matType.compare("PDMY"))
+            {
+
+                double thisDr = mat["Dr"];
+                double nd = mat["nd"];
+                double rho = mat["rho"];
+                double refShearModul = mat["refShearModul"];
+                double refBulkModul = mat["refBulkModul"];
+                double frictionAng = mat["frictionAng"];
+                double peakShearStra = mat["peakShearStra"];
+
+                double refPress = mat["refPress"];
+                double pressDependCoe = mat["pressDependCoe"];
+                double PTAng = mat["PTAng"];
+                double contrac = mat["contrac"];
+                double dilat1 = mat["dilat1"];
+                double dilat2 = mat["dilat2"];
+                double liquefac1 = mat["liquefac1"];
+                double liquefac2 = mat["liquefac2"];
+                double liquefac3 = mat["liquefac3"];
+                double e = mat["e"];
+                double cs1 = mat["cs1"];
+                double cs2 = mat["cs2"];
+                double cs3 = mat["cs3"];
+                double pa = mat["pa"];
+                double c = mat["c"];
+                double noYieldSurf = mat["noYieldSurf"];
+
+                //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                //TODO: PM4Silt->PDMY
+                //TODO: deal with noYieldSurf
+                theMat = new PM4Silt(matTag, nd,rho,refShearModul,refBulkModul,frictionAng,peakShearStra,
+                                     refPress,pressDependCoe,PTAng,contrac,dilat1,dilat2,liquefac1,liquefac2,liquefac3,
+                                      e,cs1,cs2,cs3,pa,c);
+                s << "nDMaterial PressureDependMultiYield "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "<<refBulkModul<<" "<<frictionAng<<" "<<peakShearStra<<" "<<
+                        refPress<<" "<<pressDependCoe<<" "<<PTAng<<" "<<contrac<<" "<<dilat1<<" "<<dilat2<<" "<<liquefac1<<" "<<liquefac2<<" "<<liquefac3
+                          <<" "<<e<<" "<<cs1<<" "<<cs2<<" "<<cs3<<" "<<pa<<" "<<c<<endln;
+            }else if(!matType.compare("PDMY02"))
+            {
+
+                double thisDr = mat["Dr"];
+                double nd = mat["nd"];
+                double rho = mat["rho"];
+                double refShearModul = mat["refShearModul"];
+                double refBulkModul = mat["refBulkModul"];
+                double frictionAng = mat["frictionAng"];
+                double peakShearStra = mat["peakShearStra"];
+
+                double refPress = mat["refPress"];
+                double pressDependCoe = mat["pressDependCoe"];
+                double PTAng = mat["PTAng"];
+                double contrac1 = mat["contrac1"];
+                double contrac3 = mat["contrac3"];
+                double dilat1 = mat["dilat1"];
+                double dilat3 = mat["dilat3"];
+                double contrac2 = mat["contrac2"];
+                double dilat2 = mat["dilat2"];
+                double liquefac1 = mat["liquefac1"];
+                double liquefac2 = mat["liquefac2"];
+                double e = mat["e"];
+                double cs1 = mat["cs1"];
+                double cs2 = mat["cs2"];
+                double cs3 = mat["cs3"];
+                double pa = mat["pa"];
+                double c = mat["c"];
+                double noYieldSurf = mat["noYieldSurf"];
+
+                //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                //TODO: PM4Silt->PDMY02
+                //TODO: deal with noYieldSurf
+                theMat = new PM4Silt(matTag, nd,rho,refShearModul,refBulkModul,frictionAng,peakShearStra,
+                                     refPress,pressDependCoe,PTAng,contrac1,contrac3,dilat1,dilat3,contrac2,dilat2,liquefac1,liquefac2
+                                       ,e,cs1,cs2,cs3,pa,c);
+                s << "nDMaterial PressureDependMultiYield02 "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "<<refBulkModul<<" "<<frictionAng<<" "<<peakShearStra<<" "<<
+                        refPress<<" "<<pressDependCoe<<" "<<PTAng<<" "<<contrac1<<" "<<contrac3<<" "<<dilat1<<" "<<dilat3<<" "<<contrac2<<" "<<dilat2<<" "<<liquefac1<<" "<<liquefac2
+                          <<" "<<e<<" "<<cs1<<" "<<cs2<<" "<<cs3<<" "<<pa<<" "<<c<<endln;
+
             }
+            else if(!matType.compare("ManzariDafalias"))
+                        {
+                            double Dr = mat["Dr"];
+                            double G0 = mat["G0"];
+                            double nu = mat["nu"];
+                            double e_init = mat["e_init"];
+                            double Mc = mat["Mc"];
+                            double c = mat["c"];
+
+                            double lambda_c = mat["lambda_c"];
+                            double e0 = mat["e0"];
+                            double ksi = mat["ksi"];
+                            double P_atm = mat["P_atm"];
+                            double m = mat["m"];
+                            double h0 = mat["h0"];
+                            double ch = mat["ch"];
+                            double nb = mat["nb"];
+                            double A0 = mat["A0"];
+                            double nd = mat["nd"];
+                            double z_max = mat["z_max"];
+                            double cz = mat["cz"];
+                            double Den = mat["Den"];
+
+                            //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                            //TODO: PM4Silt->ManzariDafalias
+                            theMat = new PM4Silt(matTag, G0, nu, e_init, Mc, c, lambda_c, e0, ksi, P_atm, m, h0, ch, nb, A0, nd, z_max, cz, Den);
+                            s << "nDMaterial ManzariDafalias " << matTag<< " " << G0<< " " <<nu<< " " <<e_init<< " " <<Mc<< " " <<c<< " " <<lambda_c<< " " <<e0<< " " <<ksi<< " " <<P_atm<< " " <<m<< " " <<h0<< " " <<ch<< " " <<nb<< " " <<A0<< " " <<nd<< " " <<z_max<< " " <<cz<< " " <<Den << endln;
+                        }
 			OPS_addNDMaterial(theMat);
 			if (PRINTDEBUG) opserr << "Material " << matType.c_str() << ", tag = " << matTag << endln;
 
