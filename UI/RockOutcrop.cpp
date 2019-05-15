@@ -1157,7 +1157,7 @@ void RockOutcrop::on_runBtn_clicked()
             {   // do FEA in opensees
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
-                srt->buildTcl();
+                srt->buildTcl3D();
                 openseesProcess->start(openseespath,QStringList()<<tclName);
                 openseesErrCount = 1;
                 emit runBtnClicked();

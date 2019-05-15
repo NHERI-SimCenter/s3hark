@@ -17,6 +17,7 @@ public:
 
     void run();
     void buildTcl();
+    void buildTcl3D();
 
     std::function<void(double)> m_callbackFunction;
 
@@ -29,8 +30,6 @@ private:
     std::string m_configureFile;
     std::string m_analysisDir;
     std::string m_outputDir;
-
-
 
 };
 

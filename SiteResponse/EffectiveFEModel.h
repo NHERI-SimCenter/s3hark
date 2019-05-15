@@ -40,7 +40,9 @@ public:
 	~SiteResponseModel();
 
 	int   buildEffectiveStressModel2D(bool doAnalysis);
+    int   buildEffectiveStressModel3D(bool doAnalysis);
 	int   runEffectiveStressModel2D();
+    int   runEffectiveStressModel3D();
     void  setOutputDir(std::string outDir) { theOutputDir = outDir; }
     void setConfigFile(std::string configFile) { theConfigFile = configFile; }
     void  setTclOutputDir(std::string outDir) { theTclOutputDir = outDir; }
