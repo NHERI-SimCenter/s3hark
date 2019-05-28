@@ -547,9 +547,19 @@ void TabManager::writeGM()
         }
 
         if (timeseries.size() < 2)
+        {
             dimCheckBox->setChecked(false);
+            slopex2->hide();
+            slopex2label->hide();
+            slopex2degreelabel->hide();
+        }
         else
+        {
             dimCheckBox->setChecked(true);
+            slopex2->setHidden(false);
+            slopex2label->setHidden(false);
+            slopex2degreelabel->setHidden(false);
+        }
 
 
         if(type=="Time-Velocity")
@@ -2017,6 +2027,17 @@ void TabManager::initFEMTab(){
     for (int i = 0; i < edtsFEM.size(); ++i) {
         connect(edtsFEM[i], SIGNAL(editingFinished()), this, SLOT(onFEMTabEdited()));
     }
+
+
+    slopex1 = FEMWidget->findChild<QLineEdit*>("slopex1");
+    slopex2 = FEMWidget->findChild<QLineEdit*>("slopex2");
+    slopex1label = FEMWidget->findChild<QLabel*>("slopex1label");
+    slopex2label = FEMWidget->findChild<QLabel*>("slopex2label");
+    slopex1degreelabel = FEMWidget->findChild<QLabel*>("degreex1label");
+    slopex2degreelabel = FEMWidget->findChild<QLabel*>("degreex2label");
+
+    slopex1->setText("0");
+    slopex2->setText("0");
 
     fillFEMTab();
 

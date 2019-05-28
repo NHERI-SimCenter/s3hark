@@ -227,6 +227,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	int numElems = 0;
 	double totalHeight = 0.0;
 	double sElemX = 0.0;
+    double slopex1 = 0.0;
     json basicSettings;
     double dampingCoeff,dashpotCoeff,groundWaterTable,rockDen,rockVs;
     std::string groundMotion;
@@ -240,6 +241,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         rockDen = basicSettings["rockDen"];
         rockVs = basicSettings["rockVs"];
 		sElemX = basicSettings["eSizeH"];
+        slopex1 = basicSettings["slopex1"];
         if (sElemX<minESizeH)
         {
             std::string err = "eSizeH is tool small. change it in the json file.";throw err;
@@ -578,7 +580,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                 vPermVec.push_back(vPerm);
 				s << "element SSPquadUP "<<numElems + 1<<" " 
 					<<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
-                    << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " 0.0 "<< g * 1.0 << endln;
+                    << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " "<< g * sin(slopex1*pi/180.) <<" "<< g * cos(slopex1*pi/180.)  << endln;
 				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << endln;
 
@@ -1714,6 +1716,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     int numElems = 0;
     double totalHeight = 0.0;
     double sElemX = 0.0;
+    double slopex1 = 0.0;
+    double slopex2 = 0.0;
     json basicSettings;
     double dampingCoeff,dashpotCoeff,groundWaterTable,rockDen,rockVs;
     std::string groundMotion;
@@ -1727,6 +1731,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         rockDen = basicSettings["rockDen"];
         rockVs = basicSettings["rockVs"];
         sElemX = basicSettings["eSizeH"];
+        slopex1 = basicSettings["slopex1"];
+        slopex2 = basicSettings["slopex2"];
         if (sElemX<minESizeH)
         {
             std::string err = "eSizeH is tool small. change it in the json file.";throw err;
@@ -2095,7 +2101,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 s << "element SSPbrickUP "<<numElems + 1<<" "
                     <<numNodes - 3 <<" "<<numNodes - 2<<" "<< numNodes +1<<" "<< numNodes+1 <<" "
                       <<numNodes <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
-                    << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " 0.0 "<< g * 1.0 << " 0.0" << endln;
+                    << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " "<< sin(slopex1*pi/180.) * g <<" "<< cos(slopex2*pi/180.) * g <<" " << cos(slopex1*pi/180.) * g << endln;
                 es << numElems + 1<<" " <<numNodes - 3 <<" "<< numNodes - 2<<" "<< numNodes +2<<" "<<numNodes+1<<" "
                      <<numNodes  <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
                     << theMat->getTag() << endln;

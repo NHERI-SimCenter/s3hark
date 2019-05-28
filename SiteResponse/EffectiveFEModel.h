@@ -51,6 +51,7 @@ public:
 
 
     std::function<void(double)> m_callbackFunction;
+    double pi = 3.1415926535897;
 
 
 private:

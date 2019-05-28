@@ -21,6 +21,7 @@
 #include <math.h>
 #include <QStandardPaths>
 #include <QCheckBox>
+#include <QLabel>
 
 
 
@@ -172,6 +173,14 @@ private:
     QVector<QLineEdit*> edtsPDMYFEM;
     QVector<QLineEdit*> edtsPDMY02FEM;
     QVector<QLineEdit*> edtsManzariDafaliasFEM;
+
+    QLineEdit* slopex1;
+    QLineEdit* slopex2;
+    QLabel* slopex1label;
+    QLabel* slopex2label;
+    QLabel* slopex1degreelabel;
+    QLabel* slopex2degreelabel;
+
 
     QString thisMatType;
     QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");

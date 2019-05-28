@@ -14,6 +14,7 @@
 #include "SiteResponse.h"
 #include "SSSharkThread.h"
 #include <QStandardPaths>
+#include <QCheckBox>
 
 using namespace std::placeholders;
 

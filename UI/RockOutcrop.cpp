@@ -232,8 +232,6 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 
 
-
-
     // hide some buttons
     ui->nextPageBtn->hide();
     ui->prePageBtn->hide();
@@ -973,6 +971,11 @@ void RockOutcrop::on_reBtn_clicked()
 
 
     json basicSettings;
+
+    bool is3D2D = FEMtab->findChild<QCheckBox*>("shakeDimCheck")->isChecked();
+    basicSettings["simType"] = is3D2D ? "3D2D" : "2D1D";
+    basicSettings["slopex1"] = FEMtab->findChild<QLineEdit*>("slopex1")->text().toDouble();
+    basicSettings["slopex2"] = FEMtab->findChild<QLineEdit*>("slopex2")->text().toDouble();
     basicSettings["eSizeH"] = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
     basicSettings["eSizeV"] = FEMtab->findChild<QLineEdit*>("eSizeV")->text().toDouble();
     basicSettings["rockVs"] = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
