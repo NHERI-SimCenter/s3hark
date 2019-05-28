@@ -74,6 +74,12 @@ void TabManager::init(QTabWidget* theTab){
     connect(FEMWidget->findChild<QLineEdit*>("openseesPath"), SIGNAL(editingFinished()), this, SLOT(onConfigTabEdtFinished()));
     connect(FEMWidget->findChild<QLineEdit*>("GMPath"), SIGNAL(editingFinished()), this, SLOT(onConfigTabEdtFinished()));
 
+    dimCheckBox= FEMWidget->findChild<QCheckBox*>("shakeDimCheck");
+    dimCheckBox->setDisabled(true);
+    dimCheckBox->setToolTip("If your rock motion file contains bi-directional shaking data, this will be checked.");
+    connect(dimCheckBox, SIGNAL(toggled(bool)), this, SLOT(onShakeDimCheckToggled(bool)));
+
+
 
 
     QString uiFileName = ":/UI/DefaultMatTab.ui";
@@ -318,6 +324,8 @@ void TabManager::init(QTabWidget* theTab){
 
     setPM4SandToolTps();
 
+    writeGM();
+
 
 }
 
@@ -538,118 +546,127 @@ void TabManager::writeGM()
             g = lengthUnit / timeUnit / timeUnit;
         }
 
+        if (timeseries.size() < 2)
+            dimCheckBox->setChecked(false);
+        else
+            dimCheckBox->setChecked(true);
+
 
         if(type=="Time-Velocity")
         {
             for(int i=0;i<timeseries.size();i++)
             {
                 QJsonObject tstmp = timeseries[i].toObject();
-                if(tstmp["name"]==tsname)
-                {
-                    QFile outFile(analysisDir+"/Rock.vel");
-                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream stream(&outFile);
+                //if(tstmp["name"]==tsname)
+                //{
+                QString thisTsName = tstmp["name"].toString();
+                QFile outFile(analysisDir+"/Rock-"+thisTsName+".vel");
+                outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream stream(&outFile);
 
-                    QFile outFileTime(analysisDir+"/Rock.time");
-                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream streamTime(&outFileTime);
+                QFile outFileTime(analysisDir+"/Rock-"+thisTsName+".time");
+                outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream streamTime(&outFileTime);
 
-                    QJsonArray tV = tstmp["time"].toArray();
-                    QJsonArray data = tstmp["data"].toArray();
-                    for(int j=0;j<tV.size();j++)
-                        streamTime << QString::number(tV[j].toDouble())+"\n";
-                    for(int j=0;j<data.size();j++)
-                        stream << QString::number(data[j].toDouble(),'g',16)+"\n";
+                QJsonArray tV = tstmp["time"].toArray();
+                QJsonArray data = tstmp["data"].toArray();
+                for(int j=0;j<tV.size();j++)
+                    streamTime << QString::number(tV[j].toDouble())+"\n";
+                for(int j=0;j<data.size();j++)
+                    stream << QString::number(data[j].toDouble(),'g',16)+"\n";
 
-                    outFile.close();
-                    outFileTime.close();
+                outFile.close();
+                outFileTime.close();
 
-                    break;
-                }
+                //break;
+                //}
             }
         }else if(type=="Time-Acceleration") // unit in g
         {
             for(int i=0;i<timeseries.size();i++)
             {
                 QJsonObject tstmp = timeseries[i].toObject();
-                if(tstmp["name"]==tsname)
-                {
-                    QFile outFile(analysisDir+"/Rock.acc");
-                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream stream(&outFile);
+                //if(tstmp["name"]==tsname)
+                //{
+                QString thisTsName = tstmp["name"].toString();
+                QFile outFile(analysisDir+"/Rock-"+thisTsName+".acc");
+                outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream stream(&outFile);
 
-                    QFile outFileTime(analysisDir+"/Rock.time");
-                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream streamTime(&outFileTime);
+                QFile outFileTime(analysisDir+"/Rock-"+thisTsName+".time");
+                outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream streamTime(&outFileTime);
 
-                    QJsonArray tV = tstmp["time"].toArray();
-                    QJsonArray data = tstmp["data"].toArray();
-                    for(int j=0;j<tV.size();j++)
-                        streamTime << QString::number(tV[j].toDouble())+"\n";
-                    for(int j=0;j<data.size();j++)
-                        stream << QString::number(data[j].toDouble())+"\n";
+                QJsonArray tV = tstmp["time"].toArray();
+                QJsonArray data = tstmp["data"].toArray();
+                for(int j=0;j<tV.size();j++)
+                    streamTime << QString::number(tV[j].toDouble())+"\n";
+                for(int j=0;j<data.size();j++)
+                    stream << QString::number(data[j].toDouble())+"\n";
 
-                    outFile.close();
-                    outFileTime.close();
+                outFile.close();
+                outFileTime.close();
 
-                    break;
-                }
+                //break;
+                //}
             }
         }else if(type=="Time-Displacement")
         {
             for(int i=0;i<timeseries.size();i++)
             {
                 QJsonObject tstmp = timeseries[i].toObject();
-                if(tstmp["name"]==tsname)
-                {
-                    QFile outFile(analysisDir+"/Rock.disp");
-                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream stream(&outFile);
+                //if(tstmp["name"]==tsname)
+                //{
+                QString thisTsName = tstmp["name"].toString();
+                QFile outFile(analysisDir+"/Rock-"+thisTsName+".disp");
+                outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream stream(&outFile);
 
-                    QFile outFileTime(analysisDir+"/Rock.time");
-                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream streamTime(&outFileTime);
+                QFile outFileTime(analysisDir+"/Rock-"+thisTsName+".time");
+                outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream streamTime(&outFileTime);
 
-                    QJsonArray tV = tstmp["time"].toArray();
-                    QJsonArray data = tstmp["data"].toArray();
-                    for(int j=0;j<tV.size();j++)
-                        streamTime << QString::number(tV[j].toDouble())+"\n";
-                    for(int j=0;j<data.size();j++)
-                        stream << QString::number(data[j].toDouble())+"\n";
+                QJsonArray tV = tstmp["time"].toArray();
+                QJsonArray data = tstmp["data"].toArray();
+                for(int j=0;j<tV.size();j++)
+                    streamTime << QString::number(tV[j].toDouble())+"\n";
+                for(int j=0;j<data.size();j++)
+                    stream << QString::number(data[j].toDouble())+"\n";
 
-                    outFile.close();
-                    outFileTime.close();
+                outFile.close();
+                outFileTime.close();
 
-                    break;
-                }
+                // break;
+                //}
             }
         } else if(type=="UniformVelocity")
         {
             for(int i=0;i<timeseries.size();i++)
             {
                 QJsonObject tstmp = timeseries[i].toObject();
-                if(tstmp["name"]==tsname)
-                {
-                    QFile outFile(analysisDir+"/Rock.vel");
-                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream stream(&outFile);
+                //if(tstmp["name"]==tsname)
+                //{
+                QString thisTsName = tstmp["name"].toString();
+                QFile outFile(analysisDir+"/Rock-"+thisTsName+".vel");
+                outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream stream(&outFile);
 
-                    QFile outFileTime(analysisDir+"/Rock.time");
-                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream streamTime(&outFileTime);
+                QFile outFileTime(analysisDir+"/Rock-"+thisTsName+".time");
+                outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream streamTime(&outFileTime);
 
-                    double dTtmp = tstmp["dT"].toDouble();
-                    QJsonArray data = tstmp["data"].toArray();
-                    for(int j=0;j<data.size();j++)
-                        streamTime << QString::number(dTtmp*j)+"\n";
-                    for(int j=0;j<data.size();j++)
-                        stream << QString::number(data[j].toDouble(),'g',16)+"\n";
+                double dTtmp = tstmp["dT"].toDouble();
+                QJsonArray data = tstmp["data"].toArray();
+                for(int j=0;j<data.size();j++)
+                    streamTime << QString::number(dTtmp*j)+"\n";
+                for(int j=0;j<data.size();j++)
+                    stream << QString::number(data[j].toDouble(),'g',16)+"\n";
 
-                    outFile.close();
-                    outFileTime.close();
+                outFile.close();
+                outFileTime.close();
 
-                    break;
-                }
+                //break;
+                //}
             }
         } else if(type=="UniformAcceleration")
         {
@@ -657,33 +674,34 @@ void TabManager::writeGM()
             for(int i=0;i<timeseries.size();i++)
             {
                 QJsonObject tstmp = timeseries[i].toObject();
-                if(tstmp["name"]==tsname)
+                //if(tstmp["name"]==tsname)
+                //{
+
+                QString thisTsName = tstmp["name"].toString();
+                QFile outFile(analysisDir+"/Rock-"+thisTsName+".vel");
+                outFile.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream stream(&outFile);
+
+                QFile outFileTime(analysisDir+"/Rock-"+thisTsName+".time");
+                outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
+                QTextStream streamTime(&outFileTime);
+
+                double dTtmp = tstmp["dT"].toDouble();
+                QJsonArray data = tstmp["data"].toArray();
+                for(int j=0;j<data.size();j++)
+                    streamTime << QString::number(dTtmp*j)+"\n";
+                double vprevious = 0.0;
+                for(int j=0;j<data.size();j++)
                 {
-
-                    QFile outFile(analysisDir+"/Rock.vel");
-                    outFile.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream stream(&outFile);
-
-                    QFile outFileTime(analysisDir+"/Rock.time");
-                    outFileTime.open(QIODevice::WriteOnly | QIODevice::Text);
-                    QTextStream streamTime(&outFileTime);
-
-                    double dTtmp = tstmp["dT"].toDouble();
-                    QJsonArray data = tstmp["data"].toArray();
-                    for(int j=0;j<data.size();j++)
-                        streamTime << QString::number(dTtmp*j)+"\n";
-                    double vprevious = 0.0;
-                    for(int j=0;j<data.size();j++)
-                    {
-                        double vnow = vprevious + data[j].toDouble()*g*dTtmp;
-                        vprevious = vnow;
-                        stream << QString::number(vnow,'g',16)+"\n";
-                    }
-                    outFile.close();
-                    outFileTime.close();
-
-                    break;
+                    double vnow = vprevious + data[j].toDouble()*g*dTtmp;
+                    vprevious = vnow;
+                    stream << QString::number(vnow,'g',16)+"\n";
                 }
+                outFile.close();
+                outFileTime.close();
+
+                //break;
+                //}
             }
         }
 

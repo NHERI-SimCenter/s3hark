@@ -361,7 +361,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     if(!QDir(outputDir).exists())
         QDir().mkdir(outputDir);
 
-
+    //ui->tabWidget->hide();
 
 }
 
@@ -1109,6 +1109,25 @@ void RockOutcrop::updateMesh(json &j)
     elementModel->refresh();
 }
 
+int RockOutcrop::checkDimension()
+{
+    if(theTabManager->is2Dmotion())//2D motion set in the configure tab
+    {
+        // check if there is PM4Sand or PM4Silt
+
+        int layerContaining2DOnlyModel = ui->tableView->m_sqlModel->has2DOnlyModel();
+        if (layerContaining2DOnlyModel>0)
+        {
+            dimMsg = "Layer "+ QString::number(layerContaining2DOnlyModel)+" contains material which can only be used in 2D simulation.";
+            return -1;
+        }
+        return 3; // 3D column
+    }else {
+        // check nd
+        return 2; // 2D column
+    }
+
+}
 
 
 void RockOutcrop::on_runBtn_clicked()
@@ -1116,10 +1135,15 @@ void RockOutcrop::on_runBtn_clicked()
     //cleanTable();cleanTable();
 
     int numLayers = ui->totalLayerLineEdit->text().toInt();
+    int simDim = checkDimension();
+
     if (numLayers<=1)
     {
         QMessageBox::information(this,tr("Soil err"), "You need to add at least one soil layer.", tr("OK."));
 
+    } else if(simDim < 0)
+    {
+        QMessageBox::information(this,tr("Dimension err"), dimMsg, tr("OK."));
     }
     else{
         QString openseespath = theTabManager->openseespath();;//"OpenSees";//theTabManager->openseespath();
@@ -1157,7 +1181,17 @@ void RockOutcrop::on_runBtn_clicked()
             {   // do FEA in opensees
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
-                srt->buildTcl3D();
+                if (simDim==3)
+                {
+                    theTabManager->setSimulationD(3);
+                    srt->buildTcl3D();
+                }
+                else
+                {
+                    theTabManager->setSimulationD(2);
+                    srt->buildTcl();
+                }
+
                 openseesProcess->start(openseespath,QStringList()<<tclName);
                 openseesErrCount = 1;
                 emit runBtnClicked();
@@ -1168,7 +1202,17 @@ void RockOutcrop::on_runBtn_clicked()
 
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
-                srt->buildTcl();
+                if (simDim==3)
+                {
+                    theTabManager->setSimulationD(3);
+                    srt->buildTcl3D();
+                }
+                else
+                {
+                    theTabManager->setSimulationD(2);
+                    srt->buildTcl();
+                }
+
                 QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
                 //QMessageBox::information(this,tr("Path error"), "OpenSees is not found in your environment. Analysis didn't run", tr("OK."));
                 ui->progressBar->hide();

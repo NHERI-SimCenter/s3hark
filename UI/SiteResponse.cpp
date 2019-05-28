@@ -53,7 +53,7 @@ SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::str
     else {
         std::string bbpLName = "Log";
         //std::string motionXFN("/Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL");
-        std::string motionXFN(anaDir+"/Rock");//TODO: may not work on windows
+        std::string motionXFN(anaDir+"/Rock-x");//TODO: may not work on windows
         motionX.setMotion(motionXFN.c_str());
         bbpOName = "out";
         model = new SiteResponseModel("2D", &motionX, m_callbackFunction);

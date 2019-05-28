@@ -20,6 +20,7 @@
 #include "PostProcessor.h"
 #include <math.h>
 #include <QStandardPaths>
+#include <QCheckBox>
 
 
 
@@ -68,6 +69,7 @@ public:
     void updatePostProcessor(PostProcessor *postProcessort);
     void setGMViewLoaded(){GMViewLoaded = true;}
     QVector<QVector<double>> getElemResVec(QString);
+    QCheckBox *dimCheckBox;
 
 signals:
     void configTabUpdated();
@@ -95,6 +97,12 @@ public slots:
     void updateOpenSeesPath(QString);
     void updateLayerTab(QJsonObject,QJsonObject);
     void onConfigTabEdtFinished();
+
+    int getCurrentD() {return currentD;}
+    int getSimulationD () {return simulationD;}
+    void setCurrentD(int d) { currentD = d;}
+    void setSimulationD (int d) { simulationD = d;}
+    bool is2Dmotion(){ return dimCheckBox->isChecked() ? true : false; }
 
 
 private:
@@ -195,6 +203,9 @@ private:
     int maxStepToShow = 300;
 
     QVector<QVector<double>> m_vStress;
+
+    int currentD = 2; // 2 is 2D, 3 is 3D
+    int simulationD = 2; // dim in previous simulation
 
 
 };

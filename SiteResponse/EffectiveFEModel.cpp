@@ -1095,7 +1095,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "set dT " << dT << endln;
 	s << "set motionDT " << motionDT << endln;
     //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
-    s << "set mSeries \"Path -dt $motionDT -filePath Rock.vel -factor $cFactor\""<<endln;
+    s << "set mSeries \"Path -dt $motionDT -filePath Rock-x.vel -factor $cFactor\""<<endln;
 
     // using a stress input with the dashpot
 	if (theMotionX->isInitialized())
@@ -1296,6 +1296,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     s<< "eval \"recorder Node -file out_tcl/base.vel -time -dT $recDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
 
 
+    /*
 	// Record pwp at node 17
 	dofToRecord.resize(1);
 	dofToRecord(0) = 2; // only record the pore pressure dof
@@ -1307,6 +1308,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	theDomain->addRecorder(*theRecorder);
 
     s<< "eval \"recorder Node -file out_tcl/pwpLiq.out -time -dT $recDT -node 17 -dof 3 vel\""<<endln;
+    */
 
 
 	// Record the response of all nodes
@@ -1503,7 +1505,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "print -file out_tcl/Domain.out" << endln << endln;
 	
 	s << "wipe" << endln;
-	s << "puts \"Site response analysis is finished.\n\""<< endln;
+    s << "puts \"Site response analysis is finished.\""<< endln;
 	s << "exit" << endln << endln;
 
 	s.close();
@@ -2683,7 +2685,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set dT " << dT << endln;
     s << "set motionDT " << motionDT << endln;
     //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
-    s << "set mSeries \"Path -dt $motionDT -filePath Rock.vel -factor $cFactor\""<<endln;
+    s << "set mSeries \"Path -dt $motionDT -filePath Rock-x.vel -factor $cFactor\""<<endln;
 
     // using a stress input with the dashpot
     if (theMotionX->isInitialized())
@@ -2884,6 +2886,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s<< "eval \"recorder Node -file out_tcl/base.vel -time -dT $recDT -node 1 -dof 1 2 3 vel\""<<endln;// 3
 
 
+    /*
     // Record pwp at node 17
     dofToRecord.resize(1);
     dofToRecord(0) = 2; // only record the pore pressure dof
@@ -2894,7 +2897,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theRecorder = new NodeRecorder(dofToRecord, &pwpNodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
     theDomain->addRecorder(*theRecorder);
 
-    s<< "eval \"recorder Node -file out_tcl/pwpLiq.out -time -dT $recDT -node 17 -dof 3 vel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/pwpLiq.out -time -dT $recDT -node 17 -dof 4 vel\""<<endln;
+    */
 
 
     // Record the response of all nodes
@@ -2927,10 +2931,10 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
     theDomain->addRecorder(*theRecorder);
 
-    s<< "eval \"recorder Node -file out_tcl/displacement.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  disp\""<<endln;
-    s<< "eval \"recorder Node -file out_tcl/velocity.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  vel\""<<endln;
-    s<< "eval \"recorder Node -file out_tcl/acceleration.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  accel\""<<endln;
-    s<< "eval \"recorder Node -file out_tcl/porePressure.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 3 vel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/displacement.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 3  disp\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/velocity.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 3  vel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/acceleration.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 3  accel\""<<endln;
+    s<< "eval \"recorder Node -file out_tcl/porePressure.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 4 vel\""<<endln;
 
 
     // Record element results

@@ -240,6 +240,19 @@
     </item>
    </layout>
   </widget>
+  <widget class="QCheckBox" name="shakeDimCheck">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>120</y>
+     <width>91</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>2D Shaking</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

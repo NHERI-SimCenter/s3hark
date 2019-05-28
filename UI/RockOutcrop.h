@@ -51,6 +51,8 @@ public:
 
     void updateMesh(json &j);
 
+    int checkDimension();
+
 public slots:
 
     void onThicknessEdited();
@@ -136,6 +138,8 @@ private:// some of them were public
     double maxPGA;
 
     QThread *workerThread;
+
+    QString dimMsg = "";
 
  public:
     QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation); // qApp->applicationDirPath();//
