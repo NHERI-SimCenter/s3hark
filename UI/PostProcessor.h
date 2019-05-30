@@ -81,6 +81,10 @@ public:
     QVector<QVector<double>> *getSa(){return saVec;}
     QVector<double> *getPeriods(){return Periods;}
 
+    int checkDim();
+    void check3DStress();
+
+
 
 
 signals:
@@ -91,11 +95,13 @@ private:
     QString analysisDir = QDir(rootDir).filePath(analysisName);
 
     QVector<double> m_pga;
+    QVector<double> m_pgax2;
     QVector<double> m_depths;
     QVector<double> m_ruDepths;
     QVector<double> m_gamma;
     QVector<double> m_sigma;
     QVector<double> m_disp;
+    QVector<double> m_dispx2;
     QVector<double> m_ru;
     QVector<double> m_rupwp;
     QVector<double> m_initialStress;
@@ -103,6 +109,7 @@ private:
     int eleCount;
     QString m_outputDir;
     // opensees results
+    QString esmat3DFileName = QDir(m_outputDir).filePath("elementMatInfo3D.dat");
     QString elementFileName = QDir(m_outputDir).filePath("elementInfo.dat");
     QString nodesFileName = QDir(m_outputDir).filePath("nodesInfo.dat");
     QString dephsFileName = QDir(m_outputDir).filePath("depths.dat");
@@ -115,11 +122,13 @@ private:
 
     // processed dat
     QString pgaFileName = QDir(m_outputDir).filePath("pga.dat");
+    QString pgaFileNamex2 = QDir(m_outputDir).filePath("pgax2.dat");
     QString ruFileName = QDir(m_outputDir).filePath("ru.dat");
     QString rupwpFileName = QDir(m_outputDir).filePath("rupwp.dat");
     QString gammaMaxFileName = QDir(m_outputDir).filePath("gammaMax.dat");
     QString sigmaMaxFileName = QDir(m_outputDir).filePath("sigmaMax.dat");
     QString dispMaxFileName = QDir(m_outputDir).filePath("dispMax.dat");
+    QString dispMaxFileNamex2 = QDir(m_outputDir).filePath("dispMaxx2.dat");
 
     QStringList *xdBaseVel = new QStringList();
     QStringList *ydBaseVel = new QStringList();
@@ -140,6 +149,8 @@ private:
 
     QVector<double> *Periods = new QVector<double>;
     QVector<QVector<double>> *saVec = new QVector<QVector<double>>;
+
+    int dim = 2;
 
 
 

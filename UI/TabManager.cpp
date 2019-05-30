@@ -134,6 +134,12 @@ void TabManager::init(QTabWidget* theTab){
     secondaryBtn->hide();
     connect(secondaryBtn, SIGNAL(clicked(bool)), this, SLOT(onSecondaryBtnClicked(bool)));
 
+    PM4SandWidget->findChild<QLineEdit*>("Den")->setReadOnly(true);
+    QPalette *palette = new QPalette();
+    palette->setColor(QPalette::Base,Qt::lightGray);
+    palette->setColor(QPalette::Text,Qt::white);
+    PM4SandWidget->findChild<QLineEdit*>("Den")->setPalette(*palette);
+
 
 
 
@@ -162,6 +168,8 @@ void TabManager::init(QTabWidget* theTab){
     secondaryBtn->hide();
     connect(secondaryBtn, SIGNAL(clicked(bool)), this, SLOT(onSecondaryBtnClicked(bool)));
     */
+    PM4SiltWidget->findChild<QLineEdit*>("Den")->setReadOnly(true);
+    PM4SiltWidget->findChild<QLineEdit*>("Den")->setPalette(*palette);
 
     QFile uiFilePIMY(":/UI/PIMY.ui");
     uiFilePIMY.open(QIODevice::ReadOnly);
@@ -186,6 +194,8 @@ void TabManager::init(QTabWidget* theTab){
     noYieldSurfEdtTmpPIMY->hide();
     QLabel *noYieldSurfLabelTmpPIMY= PIMYWidget->findChild<QLabel*>("noYieldSurf_2");
     noYieldSurfLabelTmpPIMY->hide();
+    PIMYWidget->findChild<QLineEdit*>("rho")->setReadOnly(true);
+    PIMYWidget->findChild<QLineEdit*>("rho")->setPalette(*palette);
 
     QFile uiFilePDMY(":/UI/PDMY.ui");
     uiFilePDMY.open(QIODevice::ReadOnly);
@@ -210,6 +220,8 @@ void TabManager::init(QTabWidget* theTab){
     noYieldSurfEdtTmpPDMY->hide();
     QLabel *noYieldSurfLabelTmpPDMY= PDMYWidget->findChild<QLabel*>("noYieldSurf_2");
     noYieldSurfLabelTmpPDMY->hide();
+    PDMYWidget->findChild<QLineEdit*>("rho")->setReadOnly(true);
+    PDMYWidget->findChild<QLineEdit*>("rho")->setPalette(*palette);
 
 
     QFile uiFilePDMY02(":/UI/PDMY02.ui");
@@ -235,6 +247,8 @@ void TabManager::init(QTabWidget* theTab){
     noYieldSurfEdtTmpPDMY02->hide();
     QLabel *noYieldSurfLabelTmpPDMY02= PDMY02Widget->findChild<QLabel*>("noYieldSurf_2");
     noYieldSurfLabelTmpPDMY02->hide();
+    PDMY02Widget->findChild<QLineEdit*>("rho")->setReadOnly(true);
+    PDMY02Widget->findChild<QLineEdit*>("rho")->setPalette(*palette);
 
 
     QFile uiFileManzariDafalias(":/UI/ManzariDafalias.ui");
@@ -256,6 +270,8 @@ void TabManager::init(QTabWidget* theTab){
     DrEdtTmpManzariDafalias->hide();
     QLabel *DrLabelTmpManzariDafalias= ManzariDafaliasWidget->findChild<QLabel*>("Dr_2");
     DrLabelTmpManzariDafalias->hide();
+    ManzariDafaliasWidget->findChild<QLineEdit*>("Den")->setReadOnly(true);
+    ManzariDafaliasWidget->findChild<QLineEdit*>("Den")->setPalette(*palette);
 
 
 
@@ -1629,7 +1645,9 @@ QString TabManager::loadPWPResponse()
 
 
         int eleID = elementModel->getSize();
-        for (int j=4;j<v.size();j+=2)
+        int startind = simulationD==3 ? 8 : 4;
+        int thisstep = simulationD==3 ? 4 : 2;
+        for (int j=startind;j<v.size();j+=thisstep)
         {
             eleID -= 1;
             //stream << "n1 = ['Node 1'";
@@ -1702,7 +1720,9 @@ QString TabManager::loadruPWPResponse()
 
         int eleID = elementModel->getSize();
         int eleInd = -1;
-        for (int j=4;j<v.size();j+=2)
+        int jinit = simulationD==3 ? 8 : 4;
+        int jstep = simulationD==3 ? 4 : 2;
+        for (int j=jinit;j<v.size();j+=jstep)
         {
             eleID -= 1;
             //stream << "n1 = ['Node 1'";
@@ -1838,10 +1858,12 @@ QString TabManager::loadEleResponse(QString motion)
         else if(motion=="stressstrain")
             outTitle="StressStrain";
 
+        int startind = simulationD==3 ? 4 : 3;
+        int thisstep = simulationD==3 ? 6 : 3;
         if(motion!="stressstrain")
         {
             int eleID = elementModel->getSize();
-            for (int j=3;j<v.size();j+=3)
+            for (int j=startind;j<v.size();j+=thisstep)
             {
                 eleID -= 1;
                 //stream << "n1 = ['Node 1'";
@@ -1854,7 +1876,7 @@ QString TabManager::loadEleResponse(QString motion)
         }else{
 
             int eleID = elementModel->getSize();
-            for (int j=3;j<vStress.size();j+=3)
+            for (int j=startind;j<vStress.size();j+=thisstep)
             {
                 eleID -= 1;
 

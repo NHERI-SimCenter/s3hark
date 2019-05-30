@@ -424,7 +424,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
             }else if(!matType.compare("PIMY"))
             {
                 double thisDr = mat["Dr"];
-                double nd = mat["nd"];
+                double nd = 2;//mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -446,7 +446,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
             {
 
                 double thisDr = mat["Dr"];
-                double nd = mat["nd"];
+                double nd = 2;//mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -483,7 +483,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
             {
 
                 double thisDr = mat["Dr"];
-                double nd = mat["nd"];
+                double nd = 2;// mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -1516,6 +1516,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
 
+
 	/*
 	OPS_Stream* theOutputStreamAll;
 	theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
@@ -1705,6 +1706,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s.precision(16);
     ofstream ns (theTclOutputDir+"/nodesInfo.dat", std::ofstream::out);
     ofstream es (theTclOutputDir+"/elementInfo.dat", std::ofstream::out);
+    ofstream esmat3D (theTclOutputDir+"/elementMatInfo3D.dat", std::ofstream::out);
     //ofstream s ("/Users/simcenter/Codes/SimCenter/build-SiteResponseTool-Desktop_Qt_5_11_1_clang_64bit-Debug/SiteResponseTool.app/Contents/MacOS/model.tcl", std::ofstream::out);
     s << "# #########################################################" << "\n\n";
     s << "wipe \n\n";
@@ -1924,7 +1926,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
             }else if(!matType.compare("PIMY"))
             {
                 double thisDr = mat["Dr"];
-                double nd = mat["nd"];
+                double nd = 3;//mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -1946,7 +1948,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
             {
 
                 double thisDr = mat["Dr"];
-                double nd = mat["nd"];
+                double nd = 3;//mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -1983,7 +1985,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
             {
 
                 double thisDr = mat["Dr"];
-                double nd = mat["nd"];
+                double nd = 3;//mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -2101,10 +2103,11 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 s << "element SSPbrickUP "<<numElems + 1<<" "
                     <<numNodes - 3 <<" "<<numNodes - 2<<" "<< numNodes +1<<" "<< numNodes+1 <<" "
                       <<numNodes <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
-                    << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " "<< sin(slopex1*pi/180.) * g <<" "<< cos(slopex2*pi/180.) * g <<" " << cos(slopex1*pi/180.) * g << endln;
+                    << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " "<< -1*sin(slopex1*pi/180.) * sin(slopex2*pi/180.) * g <<" "<< cos(slopex1*pi/180.) * g <<" " << -1*sin(slopex1*pi/180.)*cos(slopex2*pi/180.) * g << endln;
                 es << numElems + 1<<" " <<numNodes - 3 <<" "<< numNodes - 2<<" "<< numNodes +2<<" "<<numNodes+1<<" "
                      <<numNodes  <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
                     << theMat->getTag() << endln;
+                esmat3D << numElems + 1 << " " << matType << endln;
 
                 theDomain->addElement(theEle);
 
@@ -2960,7 +2963,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, motionDT, NULL);
     theDomain->addRecorder(*theRecorder);
 
-    s<< "recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  stress 3"<<endln;
+    s<< "recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  stress"<<endln;
     s<< "recorder Element -file out_tcl/strain.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  strain"<<endln;
     s<< endln << endln;
 
@@ -3107,6 +3110,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s.close();
     ns.close();
     es.close();
+    esmat3D.close();
 
 
 
