@@ -869,8 +869,11 @@ void TabManager::initGMTab()
 void TabManager::updateVelHtml()
 {
     // get file paths
+    QString tmpPath;
+
     QFileInfo indexHtmlInfo(GMTabHtmlName);
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index-template.html");
+    if (simulationD==3) tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index3D2D-template.html");
+    else tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
     QFile::remove(newPath);
     //QFile::copy(tmpPath, newPath);
@@ -904,7 +907,9 @@ void TabManager::updateAccHtml()
     // get file paths
     QFileInfo htmlInfo(accHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/acc-template.html");
+    QString tmpPath;
+    if (simulationD==3) tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/acc3D2D-template.html");
+    else tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/acc-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QFile::remove(newPath);
 
@@ -938,7 +943,9 @@ void TabManager::updateDispHtml()
     // get file paths
     QFileInfo htmlInfo(dispHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/disp-template.html");
+    QString tmpPath;
+    if (simulationD==3) tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/disp3D2D-template.html");
+    else tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/disp-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
     QFile::remove(newPath);
 
@@ -1183,6 +1190,7 @@ QString TabManager::loadGMtoString()
 
     QStringList *xd = postProcessor->getxdBaseVel();
     QStringList *yd = postProcessor->getydBaseVel();
+    QStringList *ydx2 = postProcessor->getydBaseVelx2();
 
     int overStep = int(floor(xd->size()/maxStepToShow));
 
@@ -1191,10 +1199,23 @@ QString TabManager::loadGMtoString()
         stream << ", "<<xd->at(i);
     stream <<"];" <<endl;
 
-    stream << "ynew = ['Rock motion'";
-    for (int i=0; i<yd->size(); i+=overStep)
-        stream << ", "<<yd->at(i);
-    stream <<"];" <<endl;
+    if (simulationD==3)
+    {
+        stream << "ynewx1 = ['Rock motion-x1'";
+        for (int i=0; i<yd->size(); i+=overStep)
+            stream << ", "<<yd->at(i);
+        stream <<"];" <<endl;
+        stream << "ynewx2 = ['Rock motion-x2'";
+        for (int i=0; i<ydx2->size(); i+=overStep)
+            stream << ", "<<ydx2->at(i);
+        stream <<"];" <<endl;
+    }
+    else {
+        stream << "ynew = ['Rock motion'";
+        for (int i=0; i<yd->size(); i+=overStep)
+            stream << ", "<<yd->at(i);
+        stream <<"];" <<endl;
+    }
 
     /*
      * Get surface motion from file
@@ -1203,6 +1224,7 @@ QString TabManager::loadGMtoString()
 
     QStringList *xdSurfaceVel = postProcessor->getxdSurfaceVel();
     QStringList *ydSurfaceVel = postProcessor->getydSurfaceVel();
+    QStringList *ydSurfaceVelx2 = postProcessor->getydSurfaceVelx2();
 
     overStep = int(floor(xdSurfaceVel->size()/maxStepToShow));
     stream << "xSurfaceVel = ['x'";
@@ -1210,10 +1232,24 @@ QString TabManager::loadGMtoString()
         stream << ", "<<xdSurfaceVel->at(i);
     stream <<"];" <<endl;
 
-    stream << "ySurfaceVel = ['Surface motion'";
-    for (int i=0; i<ydSurfaceVel->size(); i+=overStep)
-        stream << ", "<<ydSurfaceVel->at(i).toDouble();
-    stream <<"];" <<endl;
+    if (simulationD==3)
+    {
+        stream << "ySurfaceVelx1 = ['Surface motion-x1'";
+        for (int i=0; i<ydSurfaceVel->size(); i+=overStep)
+            stream << ", "<<ydSurfaceVel->at(i).toDouble();
+        stream <<"];" <<endl;
+
+        stream << "ySurfaceVelx2 = ['Surface motion-x2'";
+        for (int i=0; i<ydSurfaceVelx2->size(); i+=overStep)
+            stream << ", "<<ydSurfaceVelx2->at(i).toDouble();
+        stream <<"];" <<endl;
+    }
+    else {
+        stream << "ySurfaceVel = ['Surface motion'";
+        for (int i=0; i<ydSurfaceVel->size(); i+=overStep)
+            stream << ", "<<ydSurfaceVel->at(i).toDouble();
+        stream <<"];" <<endl;
+    }
 
     QString nodeResponseStr = loadNodeResponse("vel");
     stream << nodeResponseStr;
@@ -1230,14 +1266,24 @@ QString TabManager::loadGMtoString()
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
     stream << "           xnew,"<<endl;
-    stream <<"           ynew"<<endl;
+    if(simulationD==3)
+    {
+    stream <<"           ynewx1,"<<endl;
+    stream <<"           ynewx2"<<endl;
+    }
+    else stream <<"           ynew"<<endl;
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
 
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
     stream << "           xSurfaceVel,"<<endl;
-    stream <<"           ySurfaceVel"<<endl;
+    if(simulationD==3)
+    {
+    stream <<"           ySurfaceVelx1,"<<endl;
+    stream <<"           ySurfaceVelx2"<<endl;
+    }
+    else stream <<"           ySurfaceVel"<<endl;
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
 
@@ -1352,7 +1398,12 @@ QString TabManager::loadGMtoStringVintage()
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
     stream << "           xSurfaceVel,"<<endl;
-    stream <<"           ySurfaceVel"<<endl;
+    if(simulationD==3)
+    {
+    stream <<"           ySurfaceVelx1,"<<endl;
+    stream <<"           ySurfaceVelx2"<<endl;
+    }
+    else stream <<"           ySurfaceVel"<<endl;
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
 
@@ -1377,25 +1428,33 @@ QString TabManager::loadMotions2String(QString motion)
     QStringList *xdBase;
     QStringList *xdSurface;
     QStringList *ydBase;
+    QStringList *ydBasex2;
     QStringList *ydSurface;
+    QStringList *ydSurfacex2;
 
     if (motion=="vel")
     {
         xdBase = postProcessor->getxdBaseVel();
         ydBase = postProcessor->getydBaseVel();
+        if(simulationD==3) ydBasex2 = postProcessor->getydBaseVelx2();
         xdSurface = postProcessor->getxdSurfaceVel();
         ydSurface = postProcessor->getydSurfaceVel();
+        if(simulationD==3) ydSurfacex2 = postProcessor->getydSurfaceVelx2();
     } else if (motion=="acc")
     {
         xdBase = postProcessor->getxdBaseAcc();
         ydBase = postProcessor->getydBaseAcc();
+        if(simulationD==3) ydBasex2 = postProcessor->getydBaseAccx2();
         xdSurface = postProcessor->getxdSurfaceAcc();
         ydSurface = postProcessor->getydSurfaceAcc();
+        if(simulationD==3) ydSurfacex2 = postProcessor->getydSurfaceAccx2();
     } else {
         xdBase = postProcessor->getxdBaseDisp();
         ydBase = postProcessor->getydBaseDisp();
+        if(simulationD==3) ydBasex2 = postProcessor->getydBaseDispx2();
         xdSurface = postProcessor->getxdSurfaceDisp();
         ydSurface = postProcessor->getydSurfaceDisp();
+        if(simulationD==3) ydSurfacex2 = postProcessor->getydSurfaceDispx2();
     }
 
 
@@ -1408,10 +1467,23 @@ QString TabManager::loadMotions2String(QString motion)
             stream << ", "<<xdBase->at(i);
         stream <<"];" <<endl;
 
-        stream << "ynew = ['Rock motion'";
-        for (int i=0; i<ydBase->size(); i+=overStep)
-            stream << ", "<<ydBase->at(i);
-        stream <<"];" <<endl;
+        if(simulationD==3)
+        {
+            stream << "ynewx1 = ['Rock motion-x1'";
+            for (int i=0; i<ydBase->size(); i+=overStep)
+                stream << ", "<<ydBase->at(i);
+            stream <<"];" <<endl;
+            stream << "ynewx2 = ['Rock motion-x2'";
+            for (int i=0; i<ydBasex2->size(); i+=overStep)
+                stream << ", "<<ydBasex2->at(i);
+            stream <<"];" <<endl;
+        }else {
+            stream << "ynew = ['Rock motion'";
+            for (int i=0; i<ydBase->size(); i+=overStep)
+                stream << ", "<<ydBase->at(i);
+            stream <<"];" <<endl;
+
+        }
     }
 
 
@@ -1432,11 +1504,23 @@ QString TabManager::loadMotions2String(QString motion)
         for (int i=0; i<xdSurface->size(); i+=overStep)
             stream << ", "<<xdSurface->at(i);
         stream <<"];" <<endl;
+        if(simulationD==3)
+        {
+            stream << "ySurfaceVelx1 = ['Surface motion-x1'";
+            for (int i=0; i<ydSurface->size(); i+=overStep)
+                stream << ", "<<ydSurface->at(i).toDouble();
+            stream <<"];" <<endl;
+            stream << "ySurfaceVelx2 = ['Surface motion-x2'";
+            for (int i=0; i<ydSurfacex2->size(); i+=overStep)
+                stream << ", "<<ydSurfacex2->at(i).toDouble();
+            stream <<"];" <<endl;
+        }else {
+            stream << "ySurfaceVel = ['Surface motion'";
+            for (int i=0; i<ydSurface->size(); i+=overStep)
+                stream << ", "<<ydSurface->at(i).toDouble();
+            stream <<"];" <<endl;
 
-        stream << "ySurfaceVel = ['Surface motion'";
-        for (int i=0; i<ydSurface->size(); i+=overStep)
-            stream << ", "<<ydSurface->at(i).toDouble();
-        stream <<"];" <<endl;
+        }
     }
 
     writeSurfaceMotion();
@@ -1451,14 +1535,24 @@ QString TabManager::loadMotions2String(QString motion)
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
     stream << "           xnew,"<<endl;
-    stream <<"           ynew"<<endl;
+    if(simulationD==3)
+    {stream <<"           ynewx1,"<<endl;
+        stream <<"           ynewx2"<<endl;
+    }else {
+        stream <<"           ynew"<<endl;
+    }
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
 
     stream << "       chart.load({"<<endl;
     stream << "           columns: ["<<endl;
     stream << "           xSurfaceVel,"<<endl;
-    stream <<"           ySurfaceVel"<<endl;
+    if(simulationD==3)
+    {stream <<"           ySurfaceVelx1,"<<endl;
+        stream <<"           ySurfaceVelx2"<<endl;
+    }else {
+        stream <<"           ySurfaceVel"<<endl;
+    }
     stream <<"           ]"<<endl;
     stream <<"       });"<<endl;
 
@@ -1516,11 +1610,24 @@ QString TabManager::loadNodeResponse(QString motion)
         for (int j=7;j<v->size();j+=4)
         {
             eleID -= 1;
-            stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
-            for (int i=0; i<(*v)[j].size(); i+=overStep)
-                stream << ", "<<(*v)[j][i];
-            stream <<"];" <<endl;
+            if(simulationD==2)
+            {
+                stream << "n"+QString::number(eleID)+" = ['Node "+QString::number(eleID)+"'";
+                for (int i=0; i<(*v)[j].size(); i+=overStep)
+                    stream << ", "<<(*v)[j][i];
+                stream <<"];" <<endl;
+            }else {
+                stream << "n"+QString::number(eleID)+"x1 = ['Node "+QString::number(eleID)+"-x1'";
+                for (int i=0; i<(*v)[j].size(); i+=overStep)
+                    stream << ", "<<(*v)[j][i];
+                stream <<"];" <<endl;
+                stream << "n"+QString::number(eleID)+"x2 = ['Node "+QString::number(eleID)+"-x2'";
+                for (int i=0; i<(*v)[j+1].size(); i+=overStep)
+                    stream << ", "<<(*v)[j+1][i];
+                stream <<"];" <<endl;
+            }
         }
+
     }
 
 

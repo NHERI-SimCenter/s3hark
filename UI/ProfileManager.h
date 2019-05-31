@@ -18,12 +18,13 @@ public:
 
     explicit ProfileManager(QWidget *parent = nullptr);
     ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWidget *parent = nullptr);
-    void updatePGAHtml();
-    void updateGammaHtml();
+    void updatePGAHtml(); void updatePGAHtml3D();
+    void updateGammaHtml(); void updateGammaHtml3D();
     void updaterupwpHtml();
-    void updateDispHtml();
+    void updateDispHtml(); void updateDispHtml3D();
     void updateRuHtml();
     void updatePostProcessor(PostProcessor *);
+    int checkDim();
 
 public slots:
     void onPostProcessorUpdated();

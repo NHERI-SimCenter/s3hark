@@ -32,7 +32,6 @@ int PostProcessor::getEleCount()
 
 int PostProcessor::checkDim(){
     QFile file(elementFileName);
-    eleCount = 0;
     file.open(QIODevice::ReadOnly); //| QIODevice::Text)
     QTextStream in(&file);
     while( !in.atEnd())
@@ -126,18 +125,34 @@ void PostProcessor::update()
 
 void PostProcessor::loadMotions()
 {
-    calcMotion("base", "vel");
-    calcMotion("base", "disp");
-    calcMotion("base", "acc");
-    calcMotion("surface", "vel");
-    calcMotion("surface", "disp");
-    calcMotion("surface", "acc");
+    if (dim==3)
+    {
+        calcMotion3D("base", "vel");
+        calcMotion3D("base", "disp");
+        calcMotion3D("base", "acc");
+        calcMotion3D("surface", "vel");
+        calcMotion3D("surface", "disp");
+        calcMotion3D("surface", "acc");
 
-    calcAllMotion("vel");
-    calcAllMotion("disp");
-    calcAllMotion("acc");
+        calcAllMotion("vel");
+        calcAllMotion("disp");
+        calcAllMotion("acc");
 
-    calcSa();
+        calcSa();
+    } else {
+        calcMotion("base", "vel");
+        calcMotion("base", "disp");
+        calcMotion("base", "acc");
+        calcMotion("surface", "vel");
+        calcMotion("surface", "disp");
+        calcMotion("surface", "acc");
+
+        calcAllMotion("vel");
+        calcAllMotion("disp");
+        calcAllMotion("acc");
+
+        calcSa();
+}
 }
 
 void PostProcessor::calcSa()
@@ -282,6 +297,58 @@ void PostProcessor::calcMotion(QString pos, QString motion)
     }
 }
 
+void PostProcessor::calcMotion3D(QString pos, QString motion)
+{
+    QString vaseVelFileName = analysisDir+"/out_tcl/"+pos+"."+motion;
+    QFile baseVelFile(vaseVelFileName);
+    QStringList *xv;
+    QStringList *yv;
+    QStringList *yvx2;
+    if(pos=="base")
+    {
+        if (motion == "vel")
+        {xv = xdBaseVel; yv = ydBaseVel;yvx2 = ydBaseVelx2; }
+        else if (motion == "acc")
+        {xv = xdBaseAcc; yv = ydBaseAcc;yvx2 = ydBaseAccx2;}
+        else // (motion == "disp")
+        {xv = xdBaseDisp; yv = ydBaseDisp;yvx2 = ydBaseDispx2;}
+    }else{
+        if (motion == "vel")
+        {xv = xdSurfaceVel; yv = ydSurfaceVel;yvx2 = ydSurfaceVelx2;}
+        else if (motion == "acc")
+        {xv = xdSurfaceAcc; yv = ydSurfaceAcc;yvx2 = ydSurfaceAccx2;}
+        else // (motion == "disp")
+        {xv = xdSurfaceDisp; yv = ydSurfaceDisp;yvx2 = ydSurfaceDispx2;}
+    }
+
+    if(xv && yv &&yvx2)
+    {xv->clear(); yv->clear(); yvx2->clear();}
+
+    if(baseVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&baseVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                if(thisLine.size()>1)
+                {
+                   xv->append(thisLine[0].trimmed());
+                   yv->append(thisLine[1].trimmed());
+                   yvx2->append(thisLine[3].trimmed());
+                }else
+                    break;
+
+            }
+
+        }
+        baseVelFile.close();
+    }
+}
+
 void PostProcessor::calcAllMotion(QString motion)
 {
     QString motionFileName;
@@ -329,7 +396,7 @@ void PostProcessor::calcAllMotion(QString motion)
             else
             {
                 //thisLine.removeAll("");
-                int thisstep = dim==3 ? 4 : 1;
+                int thisstep = dim==3 ? 8 : 4;
                 int thisind = 0 ;
 
 
@@ -344,9 +411,9 @@ void PostProcessor::calcAllMotion(QString motion)
 
 
                 // add motion rows to v
-                for (int i=1; (i+thisstep-1)<thisLine.size();i+=thisstep*2)// TODO: 3D?
+                for (int i=1; (i+thisstep-1)<thisLine.size();i+=thisstep)// TODO: 3D?
                 {
-                    for (int j=i; j<i+thisstep; j++)
+                    for (int j=i; j<i+4; j++)
                     {
                         if (lineCount==1)
                         {
@@ -362,6 +429,8 @@ void PostProcessor::calcAllMotion(QString motion)
         File.close();
     }
 }
+
+
 
 
 void PostProcessor::calcDepths()
@@ -441,7 +510,8 @@ void PostProcessor::calcPGA()
                 thisLine.removeAll("");
                 QVector<double> thispga;
                 QVector<double> thispgax2;
-                for (int i=1; i<thisLine.size();i+=4)// TODO: 3D?
+                int thisstep = dim==3 ? 8 :4;
+                for (int i=1; i<thisLine.size();i+=thisstep)// TODO: 3D?
                 {
                     double tmp = fabs(thisLine[i].trimmed().toDouble());
                     thispga << tmp;
@@ -518,6 +588,8 @@ void PostProcessor::calcGamma()
     QString FileName = strainFileName;
     QFile File(FileName);
     QVector<double> v;
+    QVector<double> v13;
+    QVector<double> v23;
     if(File.open(QIODevice::ReadOnly)) {
         QTextStream in(&File);
         while(!in.atEnd()) {
@@ -529,24 +601,46 @@ void PostProcessor::calcGamma()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
+                QVector<double> thisv13;
+                QVector<double> thisv23;
                 int startpoint = dim==3 ? 4 : 3;
                 int step = dim==3 ? 6 : 3;
                 for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = fabs(thisLine[i].trimmed().toDouble());
                     thisv << tmp;
+                    if (dim==3)
+                    {
+                        thisv13 << fabs(thisLine[i+1].trimmed().toDouble());
+                        thisv23 << fabs(thisLine[i+2].trimmed().toDouble());
+                    }
+
                 }
                 if(v.size()!=thisv.size() && v.size()<1)
                 {
                     for (int j=0;j<thisv.size();j++)
+                    {
                         v << thisv[j];
+                        if (dim==3)
+                        {
+                            v13 << thisv13[j];
+                            v23 << thisv23[j];
+                        }
+                    }
                 }
                 if (v.size()==thisv.size())
                 {
                     for (int j=0;j<thisv.size();j++)
                     {
                         if (thisv[j]>v[j])
+                        {
                             v[j] = thisv[j];
+                            if (dim==3)
+                            {
+                                v13[j] = thisv13[j];
+                                v23[j] = thisv23[j];
+                            }
+                        }
                     }
                 }
             }
@@ -555,9 +649,21 @@ void PostProcessor::calcGamma()
     }
 
     if (m_gamma.size()>0)
+    {
         m_gamma.clear();
+        if (dim==3)
+        {
+            m_gamma13.clear();m_gamma23.clear();
+        }
+    }
     for(int i=0;i<v.size();i++)
+    {
         m_gamma.append( v[i] * 100 );
+        if (dim==3)
+        {
+            m_gamma13.append( v13[i] * 100 );m_gamma23.append( v23[i] * 100 );
+        }
+    }
 
 
 

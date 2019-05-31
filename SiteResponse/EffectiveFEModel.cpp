@@ -2695,6 +2695,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set motionDT " << motionDT << endln;
     //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
     s << "set mSeries \"Path -dt $motionDT -filePath Rock-x.vel -factor $cFactor\""<<endln;
+    s << "set mSeriesx2 \"Path -dt $motionDT -filePath Rock-y.vel -factor $cFactor\""<<endln;
 
     // using a stress input with the dashpot
     if (theMotionX->isInitialized())
@@ -2717,6 +2718,10 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
         s << "pattern Plain 10 $mSeries {"<<endln;
         s << "    load 1  1.0 0.0 0.0 0.0" << endln;
+        s << "}" << endln << endln;
+
+        s << "pattern Plain 11 $mSeriesx2 {"<<endln;
+        s << "    load 1  0.0 0.0 0.0 0.0" << endln;
         s << "}" << endln << endln;
 
         // update the number of steps as well as the dt vector
