@@ -548,6 +548,24 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                             theMat = new PM4Silt(matTag, G0, nu, e_init, Mc, c, lambda_c, e0, ksi, P_atm, m, h0, ch, nb, A0, nd, z_max, cz, Den);
                             s << "nDMaterial ManzariDafalias " << matTag<< " " << G0<< " " <<nu<< " " <<e_init<< " " <<Mc<< " " <<c<< " " <<lambda_c<< " " <<e0<< " " <<ksi<< " " <<P_atm<< " " <<m<< " " <<h0<< " " <<ch<< " " <<nb<< " " <<A0<< " " <<nd<< " " <<z_max<< " " <<cz<< " " <<Den << endln;
                         }
+            else if(!matType.compare("J2Bounding"))
+                        {
+                            double Dr = mat["Dr"];
+                            double G = mat["G"];
+                            double K = mat["K"];
+                            double su = mat["su"];
+                            double rho = mat["rho"];
+                            double h = mat["h"];
+                            double m = mat["m"];
+                            double k_in = mat["k_in"];
+                            double beta = mat["beta"];
+
+
+                            //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                            //TODO: PM4Silt->ManzariDafalias
+                            theMat = new PM4Silt(matTag, G, K, su, rho, h, m, k_in, beta);
+                            s << "nDMaterial J2CyclicBoundingSurface " << matTag<< " " << G<< " " <<K<< " " <<su<< " " <<rho<< " " <<h<< " " <<m<< " " <<k_in<< " " <<beta << endln;
+                        }
 			OPS_addNDMaterial(theMat);
 			if (PRINTDEBUG) opserr << "Material " << matType.c_str() << ", tag = " << matTag << endln;
 
@@ -2055,6 +2073,24 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                             //TODO: PM4Silt->ManzariDafalias
                             theMat = new PM4Silt(matTag, G0, nu, e_init, Mc, c, lambda_c, e0, ksi, P_atm, m, h0, ch, nb, A0, nd, z_max, cz, Den);
                             s << "nDMaterial ManzariDafalias " << matTag<< " " << G0<< " " <<nu<< " " <<e_init<< " " <<Mc<< " " <<c<< " " <<lambda_c<< " " <<e0<< " " <<ksi<< " " <<P_atm<< " " <<m<< " " <<h0<< " " <<ch<< " " <<nb<< " " <<A0<< " " <<nd<< " " <<z_max<< " " <<cz<< " " <<Den << endln;
+                        }
+            else if(!matType.compare("J2Bounding"))
+                        {
+                            double Dr = mat["Dr"];
+                            double G = mat["G"];
+                            double K = mat["K"];
+                            double su = mat["su"];
+                            double rho = mat["rho"];
+                            double h = mat["h"];
+                            double m = mat["m"];
+                            double k_in = mat["k_in"];
+                            double beta = mat["beta"];
+
+
+                            //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
+                            //TODO: PM4Silt->ManzariDafalias
+                            theMat = new PM4Silt(matTag, G, K, su, rho, h, m, k_in, beta);
+                            s << "nDMaterial J2CyclicBoundingSurface " << matTag<< " " << G<< " " <<K<< " " <<su<< " " <<rho<< " " <<h<< " " <<m<< " " <<k_in<< " " <<beta << endln;
                         }
             OPS_addNDMaterial(theMat);
             if (PRINTDEBUG) opserr << "Material " << matType.c_str() << ", tag = " << matTag << endln;

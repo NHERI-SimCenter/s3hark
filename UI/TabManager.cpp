@@ -274,6 +274,29 @@ void TabManager::init(QTabWidget* theTab){
     ManzariDafaliasWidget->findChild<QLineEdit*>("Den")->setPalette(*palette);
 
 
+    QFile uiFileJ2Bounding(":/UI/J2Bounding.ui");
+    uiFileJ2Bounding.open(QIODevice::ReadOnly);
+    J2BoundingWidget = uiLoader.load(&uiFileJ2Bounding,this);
+    for (int i = 0; i < listJ2BoundingFEM.size(); ++i) {
+        QString edtName = listJ2BoundingFEM[i] ;
+        edtsJ2BoundingFEM.push_back(J2BoundingWidget->findChild<QLineEdit*>(edtName));
+    }
+    // connect edit signal with onDataEdited
+    for (int i = 0; i < edtsJ2BoundingFEM.size(); ++i) {
+        connect(edtsJ2BoundingFEM[i], SIGNAL(editingFinished()), this, SLOT(onDataEdited()));
+    }
+    eSizeEdtTmp= J2BoundingWidget->findChild<QLineEdit*>("eSize");
+    eSizeEdtTmp->hide();
+    eSizeLabelTmp= J2BoundingWidget->findChild<QLabel*>("eSizeLabel");
+    eSizeLabelTmp->hide();
+    QLineEdit *DrEdtTmpJ2Bounding= J2BoundingWidget->findChild<QLineEdit*>("Dr");
+    DrEdtTmpJ2Bounding->hide();
+    QLabel *DrLabelTmpJ2Bounding= J2BoundingWidget->findChild<QLabel*>("Dr_2");
+    DrLabelTmpJ2Bounding->hide();
+    J2BoundingWidget->findChild<QLineEdit*>("rho")->setReadOnly(true);
+    J2BoundingWidget->findChild<QLineEdit*>("rho")->setPalette(*palette);
+
+
 
 
     QFile uiFileElasticIsotropic(":/UI/ElasticIsotropic.ui");
@@ -2266,6 +2289,10 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
     {
         currentEdts = edtsManzariDafaliasFEM;
         currentWidget = ManzariDafaliasWidget;
+    }else if (thisMatType=="J2Bounding")
+    {
+        currentEdts = edtsJ2BoundingFEM;
+        currentWidget = J2BoundingWidget;
     }
     else
         currentWidget = defaultWidget;
@@ -2407,6 +2434,19 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         QLineEdit *vPerm= ManzariDafaliasWidget->findChild<QLineEdit*>("vPerm");
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= ManzariDafaliasWidget->findChild<QLineEdit*>("uBulk");
+        uBulk->setText(QString::number(uBulkval,'g',16));
+    } else if(matType=="J2Bounding")
+    {
+        for (int i = 0; i < listJ2BoundingFEM.size(); ++i) {
+            QString edtName = listJ2BoundingFEM[i] ;
+            if(!mat[edtName].isNull())
+                edtsJ2BoundingFEM[i]->setText(QString::number(mat[edtName].toDouble(),'g',16));
+        }
+        QLineEdit *hPerm= J2BoundingWidget->findChild<QLineEdit*>("hPerm");
+        hPerm->setText(QString::number(hPermval,'g',16));
+        QLineEdit *vPerm= J2BoundingWidget->findChild<QLineEdit*>("vPerm");
+        vPerm->setText(QString::number(vPermval,'g',16));
+        QLineEdit *uBulk= J2BoundingWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
     }
 
@@ -2733,6 +2773,46 @@ void TabManager::fillMatTab(QString thisMatType,const QModelIndex &index){
             }
         }
 
+        if (thisMatType == "J2Bounding")
+        {
+            QString densityFromTable = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
+
+            QLineEdit* DenEdt = J2BoundingWidget->findChild<QLineEdit*>("rho");
+            QString densityFromForm = DenEdt->text();
+
+            if(densityFromTable != densityFromForm)
+            {
+                //qDebug() << "Den here is different from the above table. ";
+                if (densityFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), DENSITY), densityFromForm);
+                    DenEdt->setText(densityFromForm);
+                }
+                else
+                {
+                    DenEdt->setText(densityFromTable);
+                }
+                onDataEdited();
+            }
+
+            QString esizeFromTable = tableModel->data(tableModel->index(index.row(), ESIZE)).toString();
+            QLineEdit* esizeEdt = J2BoundingWidget->findChild<QLineEdit*>("eSize");
+            QString esizeFromForm = esizeEdt->text();
+            if(esizeFromTable != esizeFromForm)
+            {
+                //qDebug() << "esize here is different from the above table. ";
+                if (esizeFromTable == "")
+                {
+                    tableModel->setData(tableModel->index(index.row(), ESIZE), esizeFromForm);
+                }
+                else
+                {
+                    esizeEdt->setText(esizeFromTable);
+                    onDataEdited();
+                }
+            }
+        }
+
         //onDataEdited();
 
     } else
@@ -2762,6 +2842,8 @@ void TabManager::onDataEdited()
         currentEdts = edtsPDMY02FEM;
     else if (thisMatType=="ManzariDafalias")
         currentEdts = edtsManzariDafaliasFEM;
+    else if (thisMatType=="J2Bounding")
+        currentEdts = edtsJ2BoundingFEM;
 
     // collect data in the form
     QString thisFEmString;
@@ -2809,6 +2891,11 @@ void TabManager::onDataEdited()
         QLineEdit* DenEdt = ManzariDafaliasWidget->findChild<QLineEdit*>("Den");
         tableModel->setData(tableModel->index(currentRow, DENSITY), DenEdt->text());
     }
+    if (thisMatType=="J2Bounding")
+    {
+        QLineEdit* DenEdt = J2BoundingWidget->findChild<QLineEdit*>("rho");
+        tableModel->setData(tableModel->index(currentRow, DENSITY), DenEdt->text());
+    }
 
 
 }
@@ -2841,6 +2928,8 @@ void TabManager::checkDefaultFEM(QString thisMatType,const QModelIndex &index)
         numPars = 29;
     else if (thisMatType == "ManzariDafalias")
         numPars = 23;
+    else if (thisMatType == "J2Bounding")
+        numPars = 13;
     else
         numPars =0;
 
@@ -2939,6 +3028,13 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         if (density=="")
             density = "2.0";
         tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 125 0.05 0.8 1.25 0.712 0.019 0.934 0.7 100 0.01 7.05 0.968 1.1 0.704 3.5 4 600 "+ density +" 1.0e-7 1.0e-7 2.2e6");
+    }
+    else if (thisMatType == "J2Bounding")
+    {
+        QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
+        if (density=="")
+            density = "2.0";
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 1.0 1.0 1.0 "+ density +" 0.1 0.1 0.1 0 1.0e-7 1.0e-7 2.2e6");
     }
 
 }

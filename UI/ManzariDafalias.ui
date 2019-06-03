@@ -496,7 +496,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Primary parameters of ManzariDafalias model </string>
+    <string>Parameters of ManzariDafalias model </string>
    </property>
   </widget>
   <widget class="QLabel" name="line1_2">

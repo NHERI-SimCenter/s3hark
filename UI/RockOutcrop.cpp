@@ -1028,7 +1028,11 @@ void RockOutcrop::on_reBtn_clicked()
             }else if(list.at(MATERIAL-2).toString()=="ManzariDafalias")
             {//TODO: double check
                 DrInd = 1; hPermInd = 20; vPermInd = 21; uBulkInd = 22;
+            }else if(list.at(MATERIAL-2).toString()=="J2Bounding")
+            {//TODO: double check
+                DrInd = 1; hPermInd = 10; vPermInd = 11; uBulkInd = 12;
             }
+
 
             if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
             {
@@ -1496,6 +1500,18 @@ json RockOutcrop::createMaterial(int tag, std::string matType, std::string param
         mat["z_max"] = atof(pars[17].c_str());
         mat["cz"] = atof(pars[18].c_str());
         mat["Den"] = atof(pars[19].c_str());
+
+    } else if (!matType.compare("J2Bounding"))
+    {
+        mat["Dr"] = atof(pars[1].c_str());
+        mat["G"] = atof(pars[2].c_str());
+        mat["K"] = atof(pars[3].c_str());
+        mat["su"] = atof(pars[4].c_str());
+        mat["rho"] = atof(pars[5].c_str());
+        mat["h"] = atof(pars[6].c_str());
+        mat["m"] = atof(pars[7].c_str());
+        mat["k_in"] = atof(pars[8].c_str());
+        mat["beta"] = atof(pars[9].c_str());
 
     }
     return mat;

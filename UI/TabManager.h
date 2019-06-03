@@ -125,6 +125,7 @@ private:
     QWidget* PDMYWidget;
     QWidget* PDMY02Widget;
     QWidget* ManzariDafaliasWidget;
+    QWidget* J2BoundingWidget;
     QWidget* ElasticIsotropicWidget;
     QWidget* defaultWidget;
     QWidget* GMWidget;
@@ -165,6 +166,8 @@ private:
     QList<QString> listManzariDafaliasFEM = {"eSize", "Dr", "G0", "nu", "e_init", "Mc", "c", "lambda_c", "e0", "ksi", "P_atm", "m", "h0",
                                               "ch", "nb", "A0", "nd", "z_max", "cz", "Den",
                                         "hPerm","vPerm","uBulk"};
+    QList<QString> listJ2BoundingFEM = {"eSize", "Dr", "G", "K", "su", "rho", "h", "m", "k_in", "beta",
+                                        "hPerm","vPerm","uBulk"};
     QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;
     QVector<QLineEdit*> edtsPM4SandFEM;
@@ -173,6 +176,7 @@ private:
     QVector<QLineEdit*> edtsPDMYFEM;
     QVector<QLineEdit*> edtsPDMY02FEM;
     QVector<QLineEdit*> edtsManzariDafaliasFEM;
+    QVector<QLineEdit*> edtsJ2BoundingFEM;
 
     QLineEdit* slopex1;
     QLineEdit* slopex2;
