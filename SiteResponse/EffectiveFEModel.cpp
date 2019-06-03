@@ -578,9 +578,15 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                                        *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, alpha, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
                 hPermVec.push_back(hPerm);
                 vPermVec.push_back(vPerm);
+
 				s << "element SSPquadUP "<<numElems + 1<<" " 
 					<<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
-                    << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " "<< g * sin(slopex1*pi/180.) <<" "<< g * cos(slopex1*pi/180.)  << endln;
+                    << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " ";
+                slopex1 = slopex1 > 90 ? (180.-slopex1) : slopex1;
+                if (slopex1 <= 90)
+                    s<< -1.0 * g * sin(slopex1*pi/180.) <<" "<< g * cos(slopex1*pi/180.)  << endln;
+                else
+                    s<< 1.0 * g * sin((180-slopex1)*pi/180.) <<" "<< g * cos((180-slopex1)*pi/180.)  << endln;
 				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << endln;
 
@@ -2103,7 +2109,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 s << "element SSPbrickUP "<<numElems + 1<<" "
                     <<numNodes - 3 <<" "<<numNodes - 2<<" "<< numNodes +1<<" "<< numNodes+1 <<" "
                       <<numNodes <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
-                    << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " "<< -1*sin(slopex1*pi/180.) * sin(slopex2*pi/180.) * g <<" "<< cos(slopex1*pi/180.) * g <<" " << -1*sin(slopex1*pi/180.)*cos(slopex2*pi/180.) * g << endln;
+                    << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " ";
+                s << -1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g <<" "<< cos(slopex1*pi/180.) * g <<" " << -1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g << endln;
                 es << numElems + 1<<" " <<numNodes - 3 <<" "<< numNodes - 2<<" "<< numNodes +2<<" "<<numNodes+1<<" "
                      <<numNodes  <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
                     << theMat->getTag() << endln;
@@ -2546,6 +2553,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "model BasicBuilder -ndm 3 -ndf 3" << endln << endln;
     s << "node " << numNodes + 1 << " 0.0 0.0 0.0" << endln;
     s << "node " << numNodes + 2 << " 0.0 0.0 0.0" << endln;
+    s << "node " << numNodes + 3 << " 0.0 0.0 0.0" << endln;
 
 
     theSP = new SP_Constraint(numNodes + 1, 0, 0.0, true);
@@ -2558,7 +2566,16 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
     theSP = new SP_Constraint(numNodes + 2, 1, 0.0, true);
     theDomain->addSP_Constraint(theSP);
-    s << "fix " << numNodes + 2 << " 0 1 0" << endln;
+    theSP = new SP_Constraint(numNodes + 2, 2, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    s << "fix " << numNodes + 2 << " 0 1 1" << endln;
+
+    theSP = new SP_Constraint(numNodes + 3, 0, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    theSP = new SP_Constraint(numNodes + 3, 1, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    s << "fix " << numNodes + 3 << " 1 1 0" << endln;
+
     s << endln;
 
 
@@ -2574,7 +2591,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     rcDOFconn(1) = 2;
     theMP = new MP_Constraint(1, numNodes + 2, Ccrconn, rcDOFconn, rcDOFconn);
     theDomain->addMP_Constraint(theMP); //TODO
-    s << "equalDOF " << 1 << " "<< numNodes + 2 << " 1 3" << endln;
+    s << "equalDOF " << 1 << " "<< numNodes + 2 << " 1" << endln;
+    s << "equalDOF " << 1 << " "<< numNodes + 3 << " 3" << endln;
 
 
 
@@ -2646,7 +2664,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     //element zeroLength [expr $nElemT+1]  $dashF $dashS -mat [expr $numLayers+1]  -dir 1
     theEle = new ZeroLength(numElems + 1, 3, numNodes + 1, numNodes + 2, x, y, 2, theViscousMats, directions); //TODO ?
     theDomain->addElement(theEle);
-    s << "element zeroLength "<<numElems + 1 <<" "<< numNodes + 1 <<" "<< numNodes + 2<<" -mat "<<dashMatTag<<"  -dir 1 3" << endln;
+    s << "element zeroLength "<<numElems + 1 <<" "<< numNodes + 1 <<" "<< numNodes + 2<<" -mat "<<dashMatTag<<"  -dir 1" << endln;
+    s << "element zeroLength "<<numElems + 2 <<" "<< numNodes + 1 <<" "<< numNodes + 3<<" -mat "<<dashMatTag<<"  -dir 3" << endln;
     s << "\n\n\n";
 
 
@@ -2721,7 +2740,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         s << "}" << endln << endln;
 
         s << "pattern Plain 11 $mSeriesx2 {"<<endln;
-        s << "    load 1  0.0 0.0 0.0 0.0" << endln;
+        s << "    load 1  0.0 0.0 1.0 0.0" << endln;
         s << "}" << endln << endln;
 
         // update the number of steps as well as the dt vector
