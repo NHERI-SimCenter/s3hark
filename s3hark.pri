@@ -37,8 +37,7 @@ LIBS += -L"$$_PRO_FILE_PWD_/lib"
 }
 
 
-SOURCES += $$PWD/main.cpp\
-        $$PWD/UI/MainWindow.cpp \
+SOURCES += $$PWD/UI/MainWindow.cpp \
         $$PWD/UI/RockOutcrop.cpp \
     $$PWD/UI/BonzaTableView.cpp \
     $$PWD/UI/InsertWindow.cpp \
