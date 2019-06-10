@@ -6,6 +6,8 @@ ProfileManager::ProfileManager(QWidget *parent) : QDialog(parent)
 
 }
 
+
+
 ProfileManager::ProfileManager(QTabWidget *tab,PostProcessor *postProcessort,QWidget *parent) :
     QDialog(parent), m_tab(tab),postProcessor(postProcessort)
 {
@@ -111,11 +113,14 @@ void ProfileManager::onTabBarClicked(int ind)
 
 void ProfileManager::onPostProcessorUpdated()
 {
-    updatePGAHtml();
+
+    int dim = postProcessor->checkDim();
+    if (dim==3) updatePGAHtml3D(); else updatePGAHtml();
     updateRuHtml();
-    updateGammaHtml();
+    if (dim==3) updateGammaHtml3D(); else updateGammaHtml();
     updaterupwpHtml();
-    updateDispHtml();
+    if (dim==3) updateDispHtml3D(); else updateDispHtml();
+
 
 
 
@@ -140,6 +145,7 @@ void ProfileManager::updatePGAHtml()
     // get file paths
     QFileInfo htmlInfo(pgaHtmlName);
     //QString dir = htmlInfo.path();
+
     QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/pga-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/Profile/pga.html");
     QFile::remove(newPath);
@@ -165,6 +171,54 @@ void ProfileManager::updatePGAHtml()
     stream << "yd = ['PGA'";
     for (int i=0;i<pga.size();i++)
         stream << ", " << pga[i];
+    stream << "]; \n";
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+
+
+}
+
+void ProfileManager::updatePGAHtml3D()
+{
+    // get file paths
+    QFileInfo htmlInfo(pgaHtmlName);
+    //QString dir = htmlInfo.path();
+
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/pga3D2D-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/pga.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    //QString insertedString = loadGMtoString();
+    QString insertedString;
+    QTextStream stream(&insertedString);
+    QVector<double> depths =  postProcessor->getDepths();
+    QVector<double> pga =  postProcessor->getPga();
+    QVector<double> pgax2 =  postProcessor->getPgax2();
+
+    stream << "xd = ['Depth'";
+    for (int i=0;i<depths.size();i++)
+        stream << ", " << depths[i];
+    stream << "]; \n";
+    stream << "ydx1 = ['PGA-x1'";
+    for (int i=0;i<pga.size();i++)
+        stream << ", " << pga[i];
+    stream << "]; \n";
+    stream << "ydx2 = ['PGA-x2'";
+    for (int i=0;i<pgax2.size();i++)
+        stream << ", " << pgax2[i];
     stream << "]; \n";
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
@@ -208,6 +262,59 @@ void ProfileManager::updateGammaHtml()
     for (int i=0;i<gamma.size();i++)
         stream << ", " << gamma[i];
     stream << ",NaN]; \n";
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+
+
+}
+
+void ProfileManager::updateGammaHtml3D()
+{
+    // get file paths
+    QFileInfo htmlInfo(gammaHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/gamma3D2D-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/gamma.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    //QString insertedString = loadGMtoString();
+    QString insertedString;
+    QTextStream stream(&insertedString);
+    QVector<double> depths =  postProcessor->getRuDepths();
+    // the coordinate system has be rotated
+    QVector<double> gamma13 =  postProcessor->getGammax12();
+    QVector<double> gamma12 =  postProcessor->getGammax13();
+    QVector<double> gamma23 =  postProcessor->getGammax23();
+
+    stream << "xd = ['Depth'";
+    for (int i=0;i<depths.size();i++)
+        stream << ", " << depths[i];
+    stream << "]; \n";
+    stream << "ydx1 = ['&gamma;12',NaN";
+    for (int i=0;i<gamma12.size();i++)
+        stream << ", " << gamma12[i];
+    stream << ",NaN]; \n";
+    stream << "ydx2 = ['&gamma;13',NaN";
+    for (int i=0;i<gamma13.size();i++)
+        stream << ", " << gamma13[i];
+    stream << ",NaN]; \n";
+    stream << "ydx3 = ['&gamma;23',NaN";
+        for (int i=0;i<gamma23.size();i++)
+            stream << ", " << gamma23[i];
+        stream << ",NaN]; \n";
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
     // write to index.html
@@ -306,6 +413,52 @@ void ProfileManager::updateDispHtml()
 
 }
 
+void ProfileManager::updateDispHtml3D()
+{
+    // get file paths
+    QFileInfo htmlInfo(gammaHtmlName);
+    //QString dir = htmlInfo.path();
+    QString tmpPath = QDir(rootDir).filePath("resources/ui/Profile/disp3D2D-template.html");
+    QString newPath = QDir(rootDir).filePath("resources/ui/Profile/disp.html");
+    QFile::remove(newPath);
+
+    // read template file into string
+    QFile file(tmpPath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray t = file.readAll();
+    QString text = QString(t);
+    file.close();
+
+
+    //QString insertedString = loadGMtoString();
+    QString insertedString;
+    QTextStream stream(&insertedString);
+    QVector<double> depths =  postProcessor->getDepths();
+    QVector<double> dispx1 =  postProcessor->getDisp();
+    QVector<double> dispx2 =  postProcessor->getDispx2();
+
+    stream << "xd = ['Depth'";
+    for (int i=0;i<depths.size();i++)
+        stream << ", " << depths[i];
+    stream << "]; \n";
+    stream << "ydx1 = ['maxDisp-x1'";
+    for (int i=0;i<dispx1.size();i++)
+        stream << ", " << dispx1[i];
+    stream << "]; \n";
+    stream << "ydx2 = ['maxDisp-x2'";
+    for (int i=0;i<dispx2.size();i++)
+        stream << ", " << dispx2[i];
+    stream << "]; \n";
+    text.replace(QString("//UPDATEPOINT"), insertedString);
+
+    // write to index.html
+    QFile newfile(newPath);
+    newfile.open(QIODevice::WriteOnly | QIODevice::Text);
+    newfile.write(text.toUtf8());
+    newfile.close();
+
+
+}
 
 
 void ProfileManager::updateRuHtml()

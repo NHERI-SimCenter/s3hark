@@ -20,6 +20,8 @@
 #include "PostProcessor.h"
 #include <math.h>
 #include <QStandardPaths>
+#include <QCheckBox>
+#include <QLabel>
 
 
 
@@ -68,6 +70,7 @@ public:
     void updatePostProcessor(PostProcessor *postProcessort);
     void setGMViewLoaded(){GMViewLoaded = true;}
     QVector<QVector<double>> getElemResVec(QString);
+    QCheckBox *dimCheckBox;
 
 signals:
     void configTabUpdated();
@@ -96,6 +99,12 @@ public slots:
     void updateLayerTab(QJsonObject,QJsonObject);
     void onConfigTabEdtFinished();
 
+    int getCurrentD() {return currentD;}
+    int getSimulationD () {return simulationD;}
+    void setCurrentD(int d) { currentD = d;}
+    void setSimulationD (int d) { simulationD = d;}
+    bool is2Dmotion(){ return dimCheckBox->isChecked() ? true : false; }
+
 
 private:
     QTabWidget* tab;
@@ -116,6 +125,7 @@ private:
     QWidget* PDMYWidget;
     QWidget* PDMY02Widget;
     QWidget* ManzariDafaliasWidget;
+    QWidget* J2BoundingWidget;
     QWidget* ElasticIsotropicWidget;
     QWidget* defaultWidget;
     QWidget* GMWidget;
@@ -156,6 +166,8 @@ private:
     QList<QString> listManzariDafaliasFEM = {"eSize", "Dr", "G0", "nu", "e_init", "Mc", "c", "lambda_c", "e0", "ksi", "P_atm", "m", "h0",
                                               "ch", "nb", "A0", "nd", "z_max", "cz", "Den",
                                         "hPerm","vPerm","uBulk"};
+    QList<QString> listJ2BoundingFEM = {"eSize", "Dr", "G", "K", "su", "rho", "h", "m", "k_in", "beta",
+                                        "hPerm","vPerm","uBulk"};
     QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;
     QVector<QLineEdit*> edtsPM4SandFEM;
@@ -164,6 +176,15 @@ private:
     QVector<QLineEdit*> edtsPDMYFEM;
     QVector<QLineEdit*> edtsPDMY02FEM;
     QVector<QLineEdit*> edtsManzariDafaliasFEM;
+    QVector<QLineEdit*> edtsJ2BoundingFEM;
+
+    QLineEdit* slopex1;
+    QLineEdit* slopex2;
+    QLabel* slopex1label;
+    QLabel* slopex2label;
+    QLabel* slopex1degreelabel;
+    QLabel* slopex2degreelabel;
+
 
     QString thisMatType;
     QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
@@ -195,6 +216,9 @@ private:
     int maxStepToShow = 300;
 
     QVector<QVector<double>> m_vStress;
+
+    int currentD = 2; // 2 is 2D, 3 is 3D
+    int simulationD = 2; // dim in previous simulation
 
 
 };

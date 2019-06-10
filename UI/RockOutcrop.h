@@ -14,6 +14,7 @@
 #include "SiteResponse.h"
 #include "SSSharkThread.h"
 #include <QStandardPaths>
+#include <QCheckBox>
 
 using namespace std::placeholders;
 
@@ -50,6 +51,8 @@ public:
     void cleanTable();
 
     void updateMesh(json &j);
+
+    int checkDimension();
 
 public slots:
 
@@ -136,6 +139,8 @@ private:// some of them were public
     double maxPGA;
 
     QThread *workerThread;
+
+    QString dimMsg = "";
 
  public:
     QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation); // qApp->applicationDirPath();//

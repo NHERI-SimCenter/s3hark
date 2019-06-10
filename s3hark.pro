@@ -14,7 +14,7 @@ TARGET = S3hark
 TEMPLATE = app
 
 
-
+SOURCES += $$PWD/main.cpp
 
 include(../SimCenterCommon/Common/Common.pri)
 

@@ -37,8 +37,7 @@ LIBS += -L"$$_PRO_FILE_PWD_/lib"
 }
 
 
-SOURCES += $$PWD/main.cpp\
-        $$PWD/UI/MainWindow.cpp \
+SOURCES += $$PWD/UI/MainWindow.cpp \
         $$PWD/UI/RockOutcrop.cpp \
     $$PWD/UI/BonzaTableView.cpp \
     $$PWD/UI/InsertWindow.cpp \
@@ -177,6 +176,7 @@ SOURCES += $$PWD/main.cpp\
     $$PWD/FEM/SolutionAlgorithm.cpp \
     $$PWD/FEM/SP_Constraint.cpp \
     $$PWD/FEM/SSPbrick.cpp \
+    $$PWD/FEM/SSPbrickUP.cpp \
     $$PWD/FEM/StandardStream.cpp \
     $$PWD/FEM/StaticAnalysis.cpp \
     $$PWD/FEM/StaticIntegrator.cpp \
@@ -364,6 +364,7 @@ HEADERS  += $$PWD/UI/MainWindow.h \
     $$PWD/FEM/SP_Constraint.h \
     $$PWD/FEM/SP_ConstraintIter.h \
     $$PWD/FEM/SSPbrick.h \
+    $$PWD/FEM/SSPbrickUP.h \
     $$PWD/FEM/StandardStream.h \
     $$PWD/FEM/StaticAnalysis.h \
     $$PWD/FEM/StaticIntegrator.h \

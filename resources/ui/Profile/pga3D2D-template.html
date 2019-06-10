@@ -1,0 +1,88 @@
+<html>
+
+    <head>
+        <link href="../../styles/c3.css" rel="stylesheet" type="text/css">
+        <style>
+            .chartcontainer {
+                background-color: rgb(255, 255, 255);
+                height: 88.5%;
+                width: 100%;
+                border: 1px solid white;
+            }
+    
+            #chart {
+                height: 100%;
+            }
+    
+            #topMargin {
+                height: 9%;
+            }
+    
+            
+        </style>
+    </head>
+    
+    <body>
+        <div id="topMargin">
+    
+        </div>
+    
+        <div class="chartContainer">
+            <div id="chart"></div>
+    
+        </div>
+    
+        <script src="../../js/d3.v5.min.js" charset="utf-8"></script>
+        <script src="../../js/c3.js"></script>
+    <script>
+        xd = ['Depth', 0, 1];
+        yd = ['PGA', 0, 0];
+        //UPDATEPOINT
+        var chart = c3.generate({
+            data: {
+                bindto: '#chart',
+                x: 'Depth',
+                columns: [
+                    xd,
+                    ydx1,
+                    ydx2
+                ]
+            },
+            spline: {
+                interpolation: {
+                    type: 'monotone', // 'cardinal' is default
+                },
+            },
+            padding: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+            },
+            legend: {
+                show: false,
+            },
+            axis: {
+                rotated: true,
+                x: {
+                    //label: { text: 'Depth(m)', position: 'inner-center' },
+                    tick: {
+                        count: 4,
+                        format: function (x) { return x.toFixed(2); }
+                    }
+
+                },
+                y: {
+                    //label: { text: 'PGA(g)', position: 'outer-middle' },
+                    tick: {
+                        count: 4,
+                        format: function (x) { return x.toFixed(2); }
+                    }
+
+                }
+            },
+        });
+    </script>
+</body>
+
+</html>

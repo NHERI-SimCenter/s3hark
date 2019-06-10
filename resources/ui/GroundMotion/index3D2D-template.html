@@ -48,7 +48,7 @@
             color: #ffffff;
             padding: 5px 10px;
         }
-        
+
         #nodeBtn {
             border: 1px solid #062e4e;
             background-color: #5f64ac;
@@ -119,7 +119,7 @@
 
                 },
                 y: {
-                    label: { text: 'γ', position: 'outer-middle' },
+                    label: { text: 'Vel (m/s)', position: 'outer-middle' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -154,8 +154,18 @@
                 function () {
                     chart.load({
                         columns: [
+                            xnew,
+                            ynewx1,
+                            ynewx2
+                        ]
+                    });
+                },
+                function () {
+                    chart.load({
+                        columns: [
                             time,
-                            eval("Strain" + elementID.toString())
+                            eval("n" + elementID.toString()+"x1"),
+                            eval("n" + elementID.toString()+"x2")
                         ]
                     });
                 },
@@ -199,15 +209,15 @@
 
     <div class="box">
 
-        <input class="btn" id="nodeBtn"  type="button" onclick="location.href='index.html';" value="Node" />
-        <input class="btn" id="eleBtn" style="border: 1px solid #fc0404; width: 60px;"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
+        <input class="btn" id="nodeBtn" style="border: 1px solid #fc0404; " type="button" onclick="location.href='index.html';" value="Node" />
+        <input class="btn" id="eleBtn"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
         &nbsp;&nbsp;&nbsp; 
-        <input class="btn" type="button" onclick="location.href='stress.html';" value="Stress" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='strain.html';"
-            value="Strain" />
-        <input class="btn"  type="button" onclick="location.href='stressstrain.html';" value="τ-γ" />
-        <input class="btn" style="width: 60px;" type="button" onclick="location.href='rupwp.html';" value="ruPWP" />
-        
+        <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='index.html';"
+            value="Vel" />
+        <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
+        <input class="btn" type="button" onclick="location.href='pwp.html';" value="PWP" />
+        <input class="btn" type="button" onclick="location.href='sa.html';" value="Sa" />
 
         <div>
             <div id="output"></div>

@@ -2,6 +2,8 @@
     <qresource prefix="/">
         <file>resources/images/left.png</file>
         <file>resources/images/right.png</file>
+        <file>resources/images/2D.png</file>
+        <file>resources/images/3D.png</file>
         <file>resources/styles/stylesheet.css</file>
         <file>resources/styles/profile.css</file>
         <file>resources/ui/PlotView.qml</file>
@@ -15,6 +17,7 @@
         <file>UI/PDMY.ui</file>
         <file>UI/PDMY02.ui</file>
         <file>UI/ManzariDafalias.ui</file>
+        <file>UI/J2Bounding.ui</file>
         <file>UI/ElasticIsotropic.ui</file>
         <file>UI/DefaultMatTab.ui</file>
         <file>UI/GroundMotion.ui</file>

@@ -232,8 +232,6 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
 
 
 
-
-
     // hide some buttons
     ui->nextPageBtn->hide();
     ui->prePageBtn->hide();
@@ -361,7 +359,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     if(!QDir(outputDir).exists())
         QDir().mkdir(outputDir);
 
-
+    //ui->tabWidget->hide();
 
 }
 
@@ -973,6 +971,11 @@ void RockOutcrop::on_reBtn_clicked()
 
 
     json basicSettings;
+
+    bool is3D2D = FEMtab->findChild<QCheckBox*>("shakeDimCheck")->isChecked();
+    basicSettings["simType"] = is3D2D ? "3D2D" : "2D1D";
+    basicSettings["slopex1"] = FEMtab->findChild<QLineEdit*>("slopex1")->text().toDouble();
+    basicSettings["slopex2"] = FEMtab->findChild<QLineEdit*>("slopex2")->text().toDouble();
     basicSettings["eSizeH"] = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
     basicSettings["eSizeV"] = FEMtab->findChild<QLineEdit*>("eSizeV")->text().toDouble();
     basicSettings["rockVs"] = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
@@ -1025,7 +1028,11 @@ void RockOutcrop::on_reBtn_clicked()
             }else if(list.at(MATERIAL-2).toString()=="ManzariDafalias")
             {//TODO: double check
                 DrInd = 1; hPermInd = 20; vPermInd = 21; uBulkInd = 22;
+            }else if(list.at(MATERIAL-2).toString()=="J2Bounding")
+            {//TODO: double check
+                DrInd = 1; hPermInd = 10; vPermInd = 11; uBulkInd = 12;
             }
+
 
             if(!list.at(LAYERNAME-2).toString().toStdString().compare("Rock"))
             {
@@ -1109,6 +1116,25 @@ void RockOutcrop::updateMesh(json &j)
     elementModel->refresh();
 }
 
+int RockOutcrop::checkDimension()
+{
+    if(theTabManager->is2Dmotion())//2D motion set in the configure tab
+    {
+        // check if there is PM4Sand or PM4Silt
+
+        int layerContaining2DOnlyModel = ui->tableView->m_sqlModel->has2DOnlyModel();
+        if (layerContaining2DOnlyModel>0)
+        {
+            dimMsg = "Layer "+ QString::number(layerContaining2DOnlyModel)+" contains material which can only be used in 2D simulation.";
+            return -1;
+        }
+        return 3; // 3D column
+    }else {
+        // check nd
+        return 2; // 2D column
+    }
+
+}
 
 
 void RockOutcrop::on_runBtn_clicked()
@@ -1116,10 +1142,15 @@ void RockOutcrop::on_runBtn_clicked()
     //cleanTable();cleanTable();
 
     int numLayers = ui->totalLayerLineEdit->text().toInt();
+    int simDim = checkDimension();
+
     if (numLayers<=1)
     {
         QMessageBox::information(this,tr("Soil err"), "You need to add at least one soil layer.", tr("OK."));
 
+    } else if(simDim < 0)
+    {
+        QMessageBox::information(this,tr("Dimension err"), dimMsg, tr("OK."));
     }
     else{
         QString openseespath = theTabManager->openseespath();;//"OpenSees";//theTabManager->openseespath();
@@ -1157,7 +1188,17 @@ void RockOutcrop::on_runBtn_clicked()
             {   // do FEA in opensees
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
-                srt->buildTcl();
+                if (simDim==3)
+                {
+                    theTabManager->setSimulationD(3);
+                    srt->buildTcl3D();
+                }
+                else
+                {
+                    theTabManager->setSimulationD(2);
+                    srt->buildTcl();
+                }
+
                 openseesProcess->start(openseespath,QStringList()<<tclName);
                 openseesErrCount = 1;
                 emit runBtnClicked();
@@ -1168,7 +1209,17 @@ void RockOutcrop::on_runBtn_clicked()
 
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
-                srt->buildTcl();
+                if (simDim==3)
+                {
+                    theTabManager->setSimulationD(3);
+                    srt->buildTcl3D();
+                }
+                else
+                {
+                    theTabManager->setSimulationD(2);
+                    srt->buildTcl();
+                }
+
                 QMessageBox::information(this,tr("Path error"), "Please specify OpenSees's path in the configure tab.", tr("OK."));
                 //QMessageBox::information(this,tr("Path error"), "OpenSees is not found in your environment. Analysis didn't run", tr("OK."));
                 ui->progressBar->hide();
@@ -1449,6 +1500,18 @@ json RockOutcrop::createMaterial(int tag, std::string matType, std::string param
         mat["z_max"] = atof(pars[17].c_str());
         mat["cz"] = atof(pars[18].c_str());
         mat["Den"] = atof(pars[19].c_str());
+
+    } else if (!matType.compare("J2Bounding"))
+    {
+        mat["Dr"] = atof(pars[1].c_str());
+        mat["G"] = atof(pars[2].c_str());
+        mat["K"] = atof(pars[3].c_str());
+        mat["su"] = atof(pars[4].c_str());
+        mat["rho"] = atof(pars[5].c_str());
+        mat["h"] = atof(pars[6].c_str());
+        mat["m"] = atof(pars[7].c_str());
+        mat["k_in"] = atof(pars[8].c_str());
+        mat["beta"] = atof(pars[9].c_str());
 
     }
     return mat;

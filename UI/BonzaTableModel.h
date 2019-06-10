@@ -117,6 +117,21 @@ public:
         return totalHeight;
     }
 
+    Q_INVOKABLE int has2DOnlyModel()
+    {
+        int layerContaining2D = 0;
+        QString matTypeTmp;
+        for (int i=0;i<this->rowCount() ;++i){
+            matTypeTmp = data(createIndex(i, MATERIAL)).toString();//commentednotsure
+            if(matTypeTmp == "PM4Sand" || matTypeTmp == "PM4Silt")
+            {
+                layerContaining2D = i+1;
+                break;
+            }
+        }
+        return layerContaining2D;
+    }
+
 
     Q_INVOKABLE void setActiveFromView(int row)
     {

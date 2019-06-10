@@ -30,8 +30,85 @@ int PostProcessor::getEleCount()
     return eleCount;
 }
 
+int PostProcessor::checkDim(){
+    QFile file(elementFileName);
+    file.open(QIODevice::ReadOnly); //| QIODevice::Text)
+    QTextStream in(&file);
+    while( !in.atEnd())
+    {
+        QString line = in.readLine();
+        QStringList list1 = line.split(' ');
+        if (list1.count()>7)
+            dim = 3;
+        else
+            dim = 2;
+        break;
+    }
+    return dim;
+}
+
+void PostProcessor::check3DStress()
+{
+    //stressFileName
+    QFile file(esmat3DFileName);
+    eleCount = 0;
+    file.open(QIODevice::ReadOnly); //| QIODevice::Text)
+    QTextStream in(&file);
+    QVector<int> ind;
+    int count = 1;
+    while( !in.atEnd())
+    {
+        QString line = in.readLine();
+        QStringList list1 = line.split(' ');
+        if (list1[1]=="PIMY" || list1[1]=="PDMY" || list1[1]=="PDMY02")
+        {
+            count += 7;
+            ind.append(count);
+        } else
+            count += 6;
+    }
+    file.close();
+
+
+    if (ind.size() > 0)
+    {
+        QFile stressFile(stressFileName);
+        eleCount = 0;
+        stressFile.open(QIODevice::ReadOnly); //| QIODevice::Text)
+        QTextStream instress(&stressFile);
+        QString stresstext;
+        QTextStream stressstream(&stresstext);
+        while( !instress.atEnd())
+        {
+            QString line = instress.readLine();
+            QStringList liststress = line.split(' ');
+            for (int i = ind.size()-1; i >= 0; i--) {
+                liststress.removeAt(ind[i]);
+            }
+            stressstream << liststress.join(" ") << "\n";
+        }
+        stressFile.close();
+
+
+        QFile::remove(stressFileName);
+        // write to index.html
+        QFile newfile(stressFileName);
+        if(newfile.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            newfile.write(stresstext.toUtf8());
+            newfile.close();
+        }
+    }
+
+
+}
+
+
 void PostProcessor::update()
 {
+    checkDim();
+    if (dim==3) check3DStress();
+
     calcDepths();
     calcRuDepths();
     calcPGA();
@@ -48,18 +125,34 @@ void PostProcessor::update()
 
 void PostProcessor::loadMotions()
 {
-    calcMotion("base", "vel");
-    calcMotion("base", "disp");
-    calcMotion("base", "acc");
-    calcMotion("surface", "vel");
-    calcMotion("surface", "disp");
-    calcMotion("surface", "acc");
+    if (dim==3)
+    {
+        calcMotion3D("base", "vel");
+        calcMotion3D("base", "disp");
+        calcMotion3D("base", "acc");
+        calcMotion3D("surface", "vel");
+        calcMotion3D("surface", "disp");
+        calcMotion3D("surface", "acc");
 
-    calcAllMotion("vel");
-    calcAllMotion("disp");
-    calcAllMotion("acc");
+        calcAllMotion("vel");
+        calcAllMotion("disp");
+        calcAllMotion("acc");
 
-    calcSa();
+        calcSa();
+    } else {
+        calcMotion("base", "vel");
+        calcMotion("base", "disp");
+        calcMotion("base", "acc");
+        calcMotion("surface", "vel");
+        calcMotion("surface", "disp");
+        calcMotion("surface", "acc");
+
+        calcAllMotion("vel");
+        calcAllMotion("disp");
+        calcAllMotion("acc");
+
+        calcSa();
+}
 }
 
 void PostProcessor::calcSa()
@@ -204,6 +297,58 @@ void PostProcessor::calcMotion(QString pos, QString motion)
     }
 }
 
+void PostProcessor::calcMotion3D(QString pos, QString motion)
+{
+    QString vaseVelFileName = analysisDir+"/out_tcl/"+pos+"."+motion;
+    QFile baseVelFile(vaseVelFileName);
+    QStringList *xv;
+    QStringList *yv;
+    QStringList *yvx2;
+    if(pos=="base")
+    {
+        if (motion == "vel")
+        {xv = xdBaseVel; yv = ydBaseVel;yvx2 = ydBaseVelx2; }
+        else if (motion == "acc")
+        {xv = xdBaseAcc; yv = ydBaseAcc;yvx2 = ydBaseAccx2;}
+        else // (motion == "disp")
+        {xv = xdBaseDisp; yv = ydBaseDisp;yvx2 = ydBaseDispx2;}
+    }else{
+        if (motion == "vel")
+        {xv = xdSurfaceVel; yv = ydSurfaceVel;yvx2 = ydSurfaceVelx2;}
+        else if (motion == "acc")
+        {xv = xdSurfaceAcc; yv = ydSurfaceAcc;yvx2 = ydSurfaceAccx2;}
+        else // (motion == "disp")
+        {xv = xdSurfaceDisp; yv = ydSurfaceDisp;yvx2 = ydSurfaceDispx2;}
+    }
+
+    if(xv && yv &&yvx2)
+    {xv->clear(); yv->clear(); yvx2->clear();}
+
+    if(baseVelFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&baseVelFile);
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList thisLine = line.split(" ");
+            if (thisLine.size()<2)
+                break;
+            else
+            {
+                thisLine.removeAll("");
+                if(thisLine.size()>1)
+                {
+                   xv->append(thisLine[0].trimmed());
+                   yv->append(thisLine[1].trimmed());
+                   yvx2->append(thisLine[3].trimmed());
+                }else
+                    break;
+
+            }
+
+        }
+        baseVelFile.close();
+    }
+}
+
 void PostProcessor::calcAllMotion(QString motion)
 {
     QString motionFileName;
@@ -251,20 +396,41 @@ void PostProcessor::calcAllMotion(QString motion)
             else
             {
                 //thisLine.removeAll("");
-                for (int i=0; i<thisLine.size();i++)// TODO: 3D?
+                int thisstep = dim==3 ? 8 : 4;
+                int thisind = 0 ;
+
+
+                // add time row to v
+                if (lineCount==1)
                 {
-                    if (lineCount==1)
+                    QVector<double> tmpV;
+                    v->append(tmpV);
+                }
+                (*v)[0].append((thisLine[0].trimmed().toDouble()));
+                thisind += 1;
+
+
+                // add motion rows to v
+                for (int i=1; (i+thisstep-1)<thisLine.size();i+=thisstep)// TODO: 3D?
+                {
+                    for (int j=i; j<i+4; j++)
                     {
-                        QVector<double> tmpV;
-                        v->append(tmpV);
+                        if (lineCount==1)
+                        {
+                            QVector<double> tmpV;
+                            v->append(tmpV);
+                        }
+                        (*v)[thisind].append((thisLine[j].trimmed().toDouble()));
+                        thisind += 1;
                     }
-                    (*v)[i].append((thisLine[i].trimmed().toDouble()));
                 }
             }
         }
         File.close();
     }
 }
+
+
 
 
 void PostProcessor::calcDepths()
@@ -331,6 +497,7 @@ void PostProcessor::calcPGA()
     //QString accFileName = accFileName;
     QFile accFile(accFileName);
     QVector<double> pga;
+    QVector<double> pgax2;
     if(accFile.open(QIODevice::ReadOnly)) {
         QTextStream in(&accFile);
         while(!in.atEnd()) {
@@ -342,22 +509,32 @@ void PostProcessor::calcPGA()
             {
                 thisLine.removeAll("");
                 QVector<double> thispga;
-                for (int i=1; i<thisLine.size();i+=4)// TODO: 3D?
+                QVector<double> thispgax2;
+                int thisstep = dim==3 ? 8 :4;
+                for (int i=1; i<thisLine.size();i+=thisstep)// TODO: 3D?
                 {
                     double tmp = fabs(thisLine[i].trimmed().toDouble());
                     thispga << tmp;
+                    double tmpx2 = fabs(thisLine[i+1].trimmed().toDouble());
+                    thispgax2 << tmpx2;
                 }
                 if(pga.size()!=thispga.size() && pga.size()<1)
                 {
                     for (int j=0;j<thispga.size();j++)
+                    {
                         pga << thispga[j];
+                        pgax2 << thispgax2[j];
+                    }
                 }
                 if (pga.size()==thispga.size())
                 {
                     for (int j=0;j<thispga.size();j++)
                     {
                         if (thispga[j]>pga[j])
+                        {
                             pga[j] = thispga[j];
+                            pgax2[j] = thispgax2[j];
+                        }
                     }
                 }
             }
@@ -366,9 +543,15 @@ void PostProcessor::calcPGA()
     }
 
     if (m_pga.size()>0)
+    {
         m_pga.clear();
+        m_pgax2.clear();
+    }
     for(int i=0;i<pga.size();i++)
+    {
         m_pga.append( pga[i] / g );
+        m_pgax2.append( pgax2[i] / g );
+    }
 
 
 
@@ -378,10 +561,20 @@ void PostProcessor::calcPGA()
     }
     QTextStream out(&saveFile);
 
+    QFile saveFilex2(pgaFileNamex2);
+    if (!saveFilex2.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+        qWarning("Couldn't open save file.");
+    }
+    QTextStream outx2(&saveFilex2);
+
 
     for (int i=0;i<m_pga.size();i++)
+    {
         out << QString::number(m_pga[i]) << "\n";
+        outx2 << QString::number(m_pgax2[i]) << "\n";
+    }
     saveFile.close();
+    saveFilex2.close();
 
 
 
@@ -395,6 +588,8 @@ void PostProcessor::calcGamma()
     QString FileName = strainFileName;
     QFile File(FileName);
     QVector<double> v;
+    QVector<double> v13;
+    QVector<double> v23;
     if(File.open(QIODevice::ReadOnly)) {
         QTextStream in(&File);
         while(!in.atEnd()) {
@@ -406,22 +601,46 @@ void PostProcessor::calcGamma()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
-                for (int i=3; i<thisLine.size();i+=3)// TODO: 3D?
+                QVector<double> thisv13;
+                QVector<double> thisv23;
+                int startpoint = dim==3 ? 4 : 3;
+                int step = dim==3 ? 6 : 3;
+                for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = fabs(thisLine[i].trimmed().toDouble());
                     thisv << tmp;
+                    if (dim==3)
+                    {
+                        thisv13 << fabs(thisLine[i+1].trimmed().toDouble());
+                        thisv23 << fabs(thisLine[i+2].trimmed().toDouble());
+                    }
+
                 }
                 if(v.size()!=thisv.size() && v.size()<1)
                 {
                     for (int j=0;j<thisv.size();j++)
+                    {
                         v << thisv[j];
+                        if (dim==3)
+                        {
+                            v13 << thisv13[j];
+                            v23 << thisv23[j];
+                        }
+                    }
                 }
                 if (v.size()==thisv.size())
                 {
                     for (int j=0;j<thisv.size();j++)
                     {
                         if (thisv[j]>v[j])
+                        {
                             v[j] = thisv[j];
+                            if (dim==3)
+                            {
+                                v13[j] = thisv13[j];
+                                v23[j] = thisv23[j];
+                            }
+                        }
                     }
                 }
             }
@@ -430,9 +649,21 @@ void PostProcessor::calcGamma()
     }
 
     if (m_gamma.size()>0)
+    {
         m_gamma.clear();
+        if (dim==3)
+        {
+            m_gamma13.clear();m_gamma23.clear();
+        }
+    }
     for(int i=0;i<v.size();i++)
+    {
         m_gamma.append( v[i] * 100 );
+        if (dim==3)
+        {
+            m_gamma13.append( v13[i] * 100 );m_gamma23.append( v23[i] * 100 );
+        }
+    }
 
 
 
@@ -450,7 +681,7 @@ void PostProcessor::calcGamma()
 }
 
 
-void PostProcessor::calcSigma()
+void PostProcessor::calcSigma()// actually tao, not sigma
 {
     QString FileName = stressFileName;
     QFile File(FileName);
@@ -466,7 +697,9 @@ void PostProcessor::calcSigma()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
-                for (int i=3; i<thisLine.size();i+=3)// TODO: 3D?
+                int startpoint = dim==3 ? 4 : 3;
+                int step = dim==3 ? 3 : 6;
+                for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = fabs(thisLine[i].trimmed().toDouble());
                     thisv << tmp;
@@ -517,6 +750,9 @@ void PostProcessor::calcDisp()
     QVector<double> v;
     QVector<double> v1;
     double thisDisp;
+    QVector<double> vx2;
+    QVector<double> v1x2;
+    double thisDispx2;
     if(File.open(QIODevice::ReadOnly)) {
         QTextStream in(&File);
         while(!in.atEnd()) {
@@ -528,17 +764,25 @@ void PostProcessor::calcDisp()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
-                for (int i=1; i<thisLine.size();i+=4)// TODO: 3D?
+                QVector<double> thisvx2;
+                int startpoint = dim==3 ? 1 : 1;
+                int step = dim==3 ? 8 : 4;
+                for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = (thisLine[i].trimmed().toDouble());
                     thisv << tmp;
+                    double tmpx2 = (thisLine[i+1].trimmed().toDouble());
+                    thisvx2 << tmpx2;
                 }
+
                 if(v.size()!=thisv.size() && v.size()<1)
                 {
                     for (int j=0;j<thisv.size();j++)
                     {
                         v1 << thisv[j];
                         v << 0.0;
+                        v1x2 << thisvx2[j];
+                        vx2 << 0.0;
                     }
                 }
                 if (v.size()==thisv.size())
@@ -548,6 +792,10 @@ void PostProcessor::calcDisp()
                         thisDisp = fabs(thisv[j]-thisv[0]);
                         if (thisDisp>v[j])
                             v[j] = thisDisp;
+
+                        thisDispx2 = fabs(thisvx2[j]-thisvx2[0]);
+                        if (thisDispx2>vx2[j])
+                            vx2[j] = thisDispx2;
                     }
                 }
             }
@@ -559,6 +807,11 @@ void PostProcessor::calcDisp()
         m_disp.clear();
     for(int i=0;i<v.size();i++)
         m_disp.append( v[i] );
+
+    if (m_dispx2.size()>0)
+        m_dispx2.clear();
+    for(int i=0;i<vx2.size();i++)
+        m_dispx2.append( vx2[i] );
 
 
 
@@ -573,6 +826,17 @@ void PostProcessor::calcDisp()
         out << QString::number(m_disp[i]) << "\n";
     saveFile.close();
 
+    QFile saveFilex2(dispMaxFileNamex2);
+    if (!saveFilex2.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+        qWarning("Couldn't open save file.");
+    }
+    QTextStream outx2(&saveFile);
+
+
+    for (int i=0;i<m_dispx2.size();i++)
+        outx2 << QString::number(m_dispx2[i]) << "\n";
+    saveFilex2.close();
+
 }
 
 
@@ -583,6 +847,7 @@ void PostProcessor::calcRu()
     QVector<double> v;
     QVector<double> v1;
     double thisValue;
+
 
     eleCount = getEleCount();
 
@@ -597,7 +862,9 @@ void PostProcessor::calcRu()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
-                for (int i=2; i<thisLine.size();i+=3)// TODO: 3D?
+                int startpoint = dim==3 ? 2 : 2;
+                int step = dim==3 ? 6 : 3;
+                for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = (thisLine[i].trimmed().toDouble());
                     thisv << tmp;
@@ -661,7 +928,9 @@ void PostProcessor::calcRupwp()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
-                for (int i=1; i<thisLine.size();i+=2)// TODO: 3D?
+                int startpoint = dim==3 ? 1 : 1;
+                int step = dim==3 ? 4 : 2;
+                for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = (thisLine[i].trimmed().toDouble());
                     thisv << tmp;
@@ -695,7 +964,10 @@ void PostProcessor::calcRupwp()
             {
                 thisLine.removeAll("");
                 QVector<double> thisv;
-                for (int i=2; i<thisLine.size();i+=3)// TODO: 3D?
+                // for PIMY, PDMY, PDMY02 in 3D, there are 7 stresses output, not 6!
+                int startpoint = dim==3 ? 2 : 2;
+                int step = dim==3 ? 6 : 3;
+                for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
                     double tmp = (thisLine[i].trimmed().toDouble());
                     thisv << tmp;
