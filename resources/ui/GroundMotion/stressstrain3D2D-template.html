@@ -86,11 +86,11 @@
 
 
 
-        xd = ['x', 150, 200, 200, 300, 1300];
+        xd = ['x012', 150, 200, 200, 300, 1300];
         yd = ['Random curve', 250, 500, 300, 700, 400];
         var chart = c3.generate({
             data: {
-                x: 'x',
+                x: 'x012',
                 columns: [
                     xd,
                     yd
@@ -156,10 +156,25 @@
                 },
                 
                 function () {
+                    y12 = "Element " + elementID.toString()+" (12)";
+                    y13 = "Element " + elementID.toString()+" (13)";
+                    y23 = "Element " + elementID.toString()+" (23)";
+                    x12 = "x" + elementID.toString()+"12";
+                    x13 = "x" + elementID.toString()+"13";
+                    x23 = "x" + elementID.toString()+"23";
                     chart.load({
+                        xs:{
+                            y12:x12,
+                            y13:x13,
+                            y23:x23,
+                        },
                         columns: [
-                            eval("Strain" + elementID.toString()),
-                            eval("Stress" + elementID.toString())
+                            eval("Strain12" + elementID.toString()),
+                            eval("Stress12" + elementID.toString()),
+                            eval("Strain13" + elementID.toString()),
+                            eval("Stress13" + elementID.toString()),
+                            eval("Strain23" + elementID.toString()),
+                            eval("Stress23" + elementID.toString()),
                         ]
                     });
                 },

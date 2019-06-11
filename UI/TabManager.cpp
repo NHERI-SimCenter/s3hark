@@ -1001,7 +1001,9 @@ void TabManager::updateStrainHtml()
     // get file paths
     QFileInfo htmlInfo(strainHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/strain-template.html");
+    QString tmpPath;
+    if (simulationD==3) tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/strain3D2D-template.html");
+    else tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/strain-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/strain.html");
     QFile::remove(newPath);
 
@@ -1035,7 +1037,9 @@ void TabManager::updateStressHtml()
     // get file paths
     QFileInfo htmlInfo(strainHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stress-template.html");
+    QString tmpPath;
+    if (simulationD==3) tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stress3D2D-template.html");
+    else tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stress-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stress.html");
     QFile::remove(newPath);
 
@@ -1068,7 +1072,9 @@ void TabManager::updateStressStrainHtml()
     // get file paths
     QFileInfo htmlInfo(strainHtmlName);
     //QString dir = htmlInfo.path();
-    QString tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrain-template.html");
+    QString tmpPath;
+    if (simulationD==3) tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrain3D2D-template.html");
+    else tmpPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrain-template.html");
     QString newPath = QDir(rootDir).filePath("resources/ui/GroundMotion/stressstrain.html");
     QFile::remove(newPath);
 
@@ -1997,11 +2003,32 @@ QString TabManager::loadEleResponse(QString motion)
             {
                 eleID -= 1;
                 //stream << "n1 = ['Node 1'";
-                stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
-                //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
-                for (int i=0; i<v[j].size(); i+=overStep)
-                    stream << ", "<<v[j][i];
-                stream <<"];" <<endl;
+                if(simulationD==2)
+                {
+                    stream << outTitle+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+                    //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                    for (int i=0; i<v[j].size(); i+=overStep)
+                        stream << ", "<<v[j][i];
+                    stream <<"];" <<endl;
+                }
+                else
+                {
+                    stream << outTitle+"12"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+" (12)'";
+                    //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                    for (int i=0; i<v[j].size(); i+=overStep)
+                        stream << ", "<<v[j][i];
+                    stream <<"];" <<endl;
+                    stream << outTitle+"23"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+" (23)'";
+                    //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                    for (int i=0; i<v[j+1].size(); i+=overStep)
+                        stream << ", "<<v[j+1][i];
+                    stream <<"];" <<endl;
+                    stream << outTitle+"13"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+" (13)'";
+                    //stream << "pwp"+QString::number(eleID)+" = ['Node marked by <'";
+                    for (int i=0; i<v[j+2].size(); i+=overStep)
+                        stream << ", "<<v[j+2][i];
+                    stream <<"];" <<endl;
+                }
             }
         }else{
 
@@ -2009,20 +2036,66 @@ QString TabManager::loadEleResponse(QString motion)
             for (int j=startind;j<vStress.size();j+=thisstep)
             {
                 eleID -= 1;
-
-                stream << "Stress"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
-                for (int i=0; i<vStress[j].size(); i+=overStep)
+                if(simulationD==2)
                 {
-                    stream << ", "<<vStress[j][i] ;
-                }
-                stream <<"];" <<endl;
+                    stream << "Stress"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+"'";
+                    for (int i=0; i<vStress[j].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStress[j][i] ;
+                    }
+                    stream <<"];" <<endl;
 
-                stream << "Strain"+QString::number(eleID)+" = ['x'";
-                for (int i=0; i<vStrain[j].size(); i+=overStep)
-                {
-                    stream << ", "<<vStrain[j][i] ;
+                    stream << "Strain"+QString::number(eleID)+" = ['x'";
+                    for (int i=0; i<vStrain[j].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStrain[j][i] ;
+                    }
+                    stream <<"];" <<endl;
+                }else {
+                    stream << "Stress12"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+" (12)'";
+                    for (int i=0; i<vStress[j].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStress[j][i] ;
+                    }
+                    stream <<"];" <<endl;
+                    stream << "Stress23"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+" (23)'";
+                    for (int i=0; i<vStress[j+1].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStress[j+1][i] ;
+                    }
+                    stream <<"];" <<endl;
+                    stream << "Stress13"+QString::number(eleID)+" = ['Element "+QString::number(eleID)+" (13)'";
+                    for (int i=0; i<vStress[j+2].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStress[j+2][i] ;
+                    }
+                    stream <<"];" <<endl;
+
+                   //stream << "Strain12"+QString::number(eleID)+" = ['Elementx "+QString::number(eleID)+" (12)'";
+                    stream << "Strain12"+QString::number(eleID)+" = ['x"+QString::number(eleID)+"12'";
+                    for (int i=0; i<vStrain[j].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStrain[j][i] ;
+                    }
+                    stream <<"];" <<endl;
+
+                    //stream << "Strain12"+QString::number(eleID)+" = ['Elementx "+QString::number(eleID)+" (13)'";
+                    stream << "Strain23"+QString::number(eleID)+" = ['x"+QString::number(eleID)+"23'";
+                    for (int i=0; i<vStrain[j+1].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStrain[j+1][i] ;
+                    }
+                    stream <<"];" <<endl;
+
+                    //stream << "Strain12"+QString::number(eleID)+" = ['Elementx "+QString::number(eleID)+" (23)'";
+                    stream << "Strain13"+QString::number(eleID)+" = ['x"+QString::number(eleID)+"13'";
+                    for (int i=0; i<vStrain[j+1].size(); i+=overStep)
+                    {
+                        stream << ", "<<vStrain[j+1][i] ;
+                    }
+                    stream <<"];" <<endl;
+
                 }
-                stream <<"];" <<endl;
             }
         }
     }

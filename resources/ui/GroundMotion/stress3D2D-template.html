@@ -86,22 +86,20 @@
 
 
 
-        xd = ['x', 150, 200, 200, 300, 1300];
-        yd = ['Random curve', 250, 500, 300, 700, 400];
+        xd = ['x', 1, 2, 3, 4, 5, 6];
+        yd = ['Demo motion 1', 70, 180, 190, 180, 80, 155];
         var chart = c3.generate({
             data: {
                 x: 'x',
                 columns: [
-                    xd,
-                    yd
+                    //xd,
+                    //yd
                 ],
                 empty: {
                     label: {
                         text: 'Click on one element to see results here.'
                     }
-                },
-                type: 'spline',
-                xSort: false
+                }
             },
             grid: {
                 x: {
@@ -113,7 +111,7 @@
             },
             axis: {
                 x: {
-                    label: { text: 'γ', position: 'outer-center' },
+                    label: { text: 'Time (s)', position: 'outer-center' },
                     tick: {
                         count: 10,
                         format: function (x) { return x.toFixed(2); }
@@ -150,16 +148,16 @@
         
         function showResultAt(elementID) {
             var queue = [
-                
                 function () {
                     chart.unload();
                 },
-                
                 function () {
                     chart.load({
                         columns: [
-                            eval("Strain" + elementID.toString()),
-                            eval("Stress" + elementID.toString())
+                            time,
+                            eval("Stress12" + elementID.toString()),
+                            eval("Stress13" + elementID.toString()),
+                            eval("Stress23" + elementID.toString())
                         ]
                     });
                 },
@@ -206,11 +204,14 @@
         <input class="btn" id="nodeBtn"  type="button" onclick="location.href='index.html';" value="Node" />
         <input class="btn" id="eleBtn" style="border: 1px solid #fc0404; width: 60px;"  type="button" style="width: 60px;" onclick="location.href='strain.html';" value="Element" />
         &nbsp;&nbsp;&nbsp; 
-        <input class="btn" type="button" onclick="location.href='stress.html';" value="τ" />
-        <input class="btn" type="button" onclick="location.href='strain.html';" value="γ" />
-        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='stressstrain.html';" value="τ-γ" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='stress.html';" value="τ" />
+        <input  class="btn" type="button" onclick="location.href='strain.html';"
+            value="γ" />
+        <input class="btn" type="button" onclick="location.href='stressstrain.html';" value="τ-γ" />
         <input class="btn" style="width: 60px;" t type="button" onclick="location.href='rupwp.html';" value="ruPWP" />
         
+        
+
         <div>
             <div id="output"></div>
         </div>
