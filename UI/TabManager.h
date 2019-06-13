@@ -214,6 +214,7 @@ private:
     bool GMViewLoaded = false;
 
     int maxStepToShow = 300;
+    int overStep = 1;
 
     QVector<QVector<double>> m_vStress;
 

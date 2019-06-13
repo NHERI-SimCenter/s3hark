@@ -622,7 +622,8 @@ void TabManager::writeGM()
                 for(int j=0;j<tV.size();j++)
                     streamTime << QString::number(tV[j].toDouble())+"\n";
                 for(int j=0;j<data.size();j++)
-                    stream << QString::number(data[j].toDouble(),'g',16)+"\n";
+                    stream << data[j].toString()+"\n";
+                    //stream << QString::number(data[j].toDouble(),'g',16)+"\n";
 
                 outFile.close();
                 outFileTime.close();
@@ -1221,7 +1222,9 @@ QString TabManager::loadGMtoString()
     QStringList *yd = postProcessor->getydBaseVel();
     QStringList *ydx2 = postProcessor->getydBaseVelx2();
 
-    int overStep = int(floor(xd->size()/maxStepToShow));
+    overStep = int(floor(xd->size()/maxStepToShow));
+    if (overStep < 1)
+        overStep = 1;
 
     stream << "xnew = ['x'";
     for (int i=0; i<xd->size(); i+=overStep)
@@ -1255,7 +1258,7 @@ QString TabManager::loadGMtoString()
     QStringList *ydSurfaceVel = postProcessor->getydSurfaceVel();
     QStringList *ydSurfaceVelx2 = postProcessor->getydSurfaceVelx2();
 
-    overStep = int(floor(xdSurfaceVel->size()/maxStepToShow));
+    //overStep = int(floor(xdSurfaceVel->size()/maxStepToShow));
     stream << "xSurfaceVel = ['x'";
     for (int i=0; i<xdSurfaceVel->size(); i+=overStep)
         stream << ", "<<xdSurfaceVel->at(i);
@@ -1487,10 +1490,10 @@ QString TabManager::loadMotions2String(QString motion)
     }
 
 
-    int overStep;
+    //int overStep;
     if(xdBase && ydBase)
     {
-        overStep = int(floor(xdBase->size()/maxStepToShow));
+        //overStep = int(floor(xdBase->size()/maxStepToShow));
         stream << "xnew = ['x'";
         for (int i=0; i<xdBase->size(); i+=overStep)
             stream << ", "<<xdBase->at(i);
@@ -1628,7 +1631,7 @@ QString TabManager::loadNodeResponse(QString motion)
 
     if(v->size()>0)
     {
-        int overStep = int(floor((*v)[0].size()/maxStepToShow));
+        //int overStep = int(floor((*v)[0].size()/maxStepToShow));
 
         stream << "time = ['x'";
         for (int i=0; i<(*v)[0].size(); i+=overStep)
@@ -1762,7 +1765,7 @@ QString TabManager::loadPWPResponse()
     if(v.size()>0)
     {
 
-        int overStep = int(floor(v[0].size()/maxStepToShow));
+        //int overStep = int(floor(v[0].size()/maxStepToShow));
         stream << "xnew = ['x'";
         for (int i=0; i<v[0].size(); i+=overStep)
             stream << ", "<<v[0][i];
@@ -1847,7 +1850,7 @@ QString TabManager::loadruPWPResponse()
     if(v.size()>0)
     {
 
-        int overStep = int(floor(v[0].size()/maxStepToShow));
+        //int overStep = int(floor(v[0].size()/maxStepToShow));
         stream << "time = ['x'";
         for (int i=0; i<v[0].size(); i+=overStep)
             stream << ", "<<v[0][i];
@@ -1974,7 +1977,7 @@ QString TabManager::loadEleResponse(QString motion)
 
     if(vStress.size()>0)
     {
-        int overStep = int(floor(vStress[0].size()/maxStepToShow));
+        //int overStep = int(floor(vStress[0].size()/maxStepToShow));
         stream << "time = ['x'";
         for (int i=0; i<vStress[0].size(); i+=overStep)
             stream << ", "<<vStress[0][i];
@@ -3107,7 +3110,8 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
         if (density=="")
             density = "2.0";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 1.0 1.0 1.0 "+ density +" 0.1 0.1 0.1 0 1.0e-7 1.0e-7 2.2e6");
+
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 80000.0 1.7333e+05 150.0 "+ density +" 20000.0 1.5 0.0 0.5 1.0e-7 1.0e-7 2.2e6");
     }
 
 }
