@@ -768,6 +768,29 @@
     </rect>
    </property>
   </widget>
+  <widget class="QLineEdit" name="evoid">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>240</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="evoid_2">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>240</y>
+     <width>57</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>void</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

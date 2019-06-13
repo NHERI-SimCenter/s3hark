@@ -163,8 +163,8 @@
   <widget class="QLabel" name="voidLabel">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>260</y>
+     <x>330</x>
+     <y>220</y>
      <width>59</width>
      <height>16</height>
     </rect>
@@ -255,8 +255,8 @@
   <widget class="QLineEdit" name="voidEdt">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>250</y>
+     <x>440</x>
+     <y>220</y>
      <width>113</width>
      <height>21</height>
     </rect>

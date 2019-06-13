@@ -313,6 +313,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 			double vPerm = l["vPerm"];
 			double hPerm = l["hPerm"];
 			double uBulk = l["uBulk"];
+            double evoid = l["void"];
             std::string color = l["color"];
 			std::string lname = l["name"];
 			if (!lname.compare("Rock"))
@@ -322,7 +323,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				continue;
 			}
 
-			double evoid = 0.0;
+            //double evoid = 0.0;
 			double rho_d = 0.0;
 			double rho_s = 0.0;
 			double Gs = 2.67;
@@ -344,7 +345,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				double emax = 0.8;
 				double emin = 0.5;
 				
-				evoid  = emax - Dr * (emax - emin);
+                //evoid  = emax - Dr * (emax - emin);
 				rho_d = Gs / (1 + evoid);
 				rho_s = rho_d *(1.0+evoid/Gs);
 
@@ -376,7 +377,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				double Fsed_min = mat["Fsed_min"];
 				double p_sedo = mat["p_sedo"];
 
-				evoid  = emax - thisDr * (emax - emin);
+                //evoid  = emax - thisDr * (emax - emin);
 				rho_d = Gs / (1 + evoid);
 				rho_s = rho_d *(1.0+evoid/Gs);
 
@@ -1846,6 +1847,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
             double vPerm = l["vPerm"];
             double hPerm = l["hPerm"];
             double uBulk = l["uBulk"];
+            double evoid = l["void"];
             std::string color = l["color"];
             std::string lname = l["name"];
             if (!lname.compare("Rock"))
@@ -1855,7 +1857,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 continue;
             }
 
-            double evoid = 0.0;
+            //double evoid = 0.0;
             double rho_d = 0.0;
             double rho_s = 0.0;
             double Gs = 2.67;
@@ -1876,7 +1878,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 s << "nDMaterial ElasticIsotropic " << matTag << " "<< E <<" " << " "<<poisson<<" "<<density<<endln;
                 double emax = 0.8;
                 double emin = 0.5;
-                evoid  = emax - Dr * (emax - emin);
+                //evoid  = emax - Dr * (emax - emin);
                 rho_d = Gs / (1 + evoid);
                 rho_s = rho_d *(1.0+evoid/Gs);
 
@@ -1908,7 +1910,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 double Fsed_min = mat["Fsed_min"];
                 double p_sedo = mat["p_sedo"];
 
-                evoid  = emax - thisDr * (emax - emin);
+                //evoid  = emax - thisDr * (emax - emin);
                 rho_d = Gs / (1 + evoid);
                 rho_s = rho_d *(1.0+evoid/Gs);
 
@@ -1970,7 +1972,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
                 double emax = 0.8;
                 double emin = 0.5;
-                evoid  = emax - Dr * (emax - emin);
+                //evoid  = emax - Dr * (emax - emin);
 
                 //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                 //TODO: PM4Silt->PIMY
@@ -2008,7 +2010,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
                 double emax = 0.8;
                 double emin = 0.5;
-                evoid  = emax - Dr * (emax - emin);
+                //evoid  = emax - Dr * (emax - emin);
 
                 //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                 //TODO: PM4Silt->PDMY
@@ -2024,7 +2026,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
                 double emax = 0.8;
                 double emin = 0.5;
-                evoid  = emax - Dr * (emax - emin);
+                //evoid  = emax - Dr * (emax - emin);
 
                 double thisDr = mat["Dr"];
                 double nd = 3;//mat["nd"];
@@ -2069,7 +2071,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
                             double emax = 0.8;
                             double emin = 0.5;
-                            evoid  = emax - Dr * (emax - emin);
+                            //evoid  = emax - Dr * (emax - emin);
 
                             double Dr = mat["Dr"];
                             double G0 = mat["G0"];
@@ -2101,7 +2103,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                         {
                             double emax = 0.8;
                             double emin = 0.5;
-                            evoid  = emax - Dr * (emax - emin);
+                            //evoid  = emax - Dr * (emax - emin);
 
                             double Dr = mat["Dr"];
                             double G = mat["G"];

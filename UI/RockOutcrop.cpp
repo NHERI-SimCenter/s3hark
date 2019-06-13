@@ -1006,31 +1006,31 @@ void RockOutcrop::on_reBtn_clicked()
             double eSize = atof(pars[0].c_str());
             int id = i;
 
-            int DrInd=0, hPermInd=0, vPermInd=0, uBulkInd=0;
+            int DrInd=0, hPermInd=0, vPermInd=0, uBulkInd=0, voidInd=0;
             if(list.at(MATERIAL-2).toString()=="Elastic")
             {
-                DrInd = 4; hPermInd = 6; vPermInd = 7; uBulkInd = 10;
+                DrInd = 4; hPermInd = 6; vPermInd = 7; uBulkInd = 10; voidInd = 5;
             }else if(list.at(MATERIAL-2).toString()=="PM4Sand")
             {
-                DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27;
+                DrInd = 1; hPermInd = 25; vPermInd = 26; uBulkInd = 27; voidInd = 28;
             }else if(list.at(MATERIAL-2).toString()=="PM4Silt")
             {
-                DrInd = 1; hPermInd = 27; vPermInd = 28; uBulkInd = 29;
+                DrInd = 1; hPermInd = 27; vPermInd = 28; uBulkInd = 29; voidInd = 30;
             }else if(list.at(MATERIAL-2).toString()=="PIMY")
             {//TODO: double check
-                DrInd = 1; hPermInd = 12; vPermInd = 13; uBulkInd = 14;
+                DrInd = 1; hPermInd = 12; vPermInd = 13; uBulkInd = 14; voidInd = 15;
             }else if(list.at(MATERIAL-2).toString()=="PDMY")
             {//TODO: double check
-                DrInd = 1; hPermInd = 24; vPermInd = 25; uBulkInd = 26;
+                DrInd = 1; hPermInd = 24; vPermInd = 25; uBulkInd = 26; voidInd = 27;
             }else if(list.at(MATERIAL-2).toString()=="PDMY02")
             {//TODO: double check
-                DrInd = 1; hPermInd = 26; vPermInd = 27; uBulkInd = 28;
+                DrInd = 1; hPermInd = 26; vPermInd = 27; uBulkInd = 28; voidInd = 29;
             }else if(list.at(MATERIAL-2).toString()=="ManzariDafalias")
             {//TODO: double check
-                DrInd = 1; hPermInd = 20; vPermInd = 21; uBulkInd = 22;
+                DrInd = 1; hPermInd = 20; vPermInd = 21; uBulkInd = 22; voidInd = 23;
             }else if(list.at(MATERIAL-2).toString()=="J2Bounding")
             {//TODO: double check
-                DrInd = 1; hPermInd = 10; vPermInd = 11; uBulkInd = 12;
+                DrInd = 1; hPermInd = 10; vPermInd = 11; uBulkInd = 12; voidInd = 13;
             }
 
 
@@ -1055,6 +1055,7 @@ void RockOutcrop::on_reBtn_clicked()
                 {"hPerm",thisFEMList.at(hPermInd).toDouble()},
                 {"vPerm",thisFEMList.at(vPermInd).toDouble()},
                 {"uBulk",thisFEMList.at(uBulkInd).toDouble()},
+                {"void",thisFEMList.at(voidInd).toDouble()},
             };
             material =  createMaterial(i+1, list.at(MATERIAL-2).toString().toStdString(),list.at(FEM-2).toString().toStdString());
             materials.push_back(material);

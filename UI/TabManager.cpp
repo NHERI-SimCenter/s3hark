@@ -319,10 +319,12 @@ void TabManager::init(QTabWidget* theTab){
     QLabel *rhoLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("rhoLabel");
     rhoLabelTmp->hide();
 
+    /*
     QLineEdit *voidEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("voidEdt");
     voidEdtTmp->hide();
     QLabel *voidLabelTmp= ElasticIsotropicWidget->findChild<QLabel*>("voidLabel");
     voidLabelTmp->hide();
+    */
 
     QLineEdit *DrEdtTmp= ElasticIsotropicWidget->findChild<QLineEdit*>("DrEdt");
     DrEdtTmp->hide();
@@ -2993,19 +2995,19 @@ void TabManager::checkDefaultFEM(QString thisMatType,const QModelIndex &index)
     if (thisMatType == "Elastic")
         numPars = 11;
     else if (thisMatType == "PM4Sand")
-        numPars = 28;
-    else if (thisMatType == "PM4Silt")
-        numPars = 30;
-    else if (thisMatType == "PIMY")
-        numPars = 15;
-    else if (thisMatType == "PDMY")
-        numPars = 27;
-    else if (thisMatType == "PDMY02")
         numPars = 29;
+    else if (thisMatType == "PM4Silt")
+        numPars = 31;
+    else if (thisMatType == "PIMY")
+        numPars = 16;
+    else if (thisMatType == "PDMY")
+        numPars = 28;
+    else if (thisMatType == "PDMY02")
+        numPars = 30;
     else if (thisMatType == "ManzariDafalias")
-        numPars = 23;
+        numPars = 24;
     else if (thisMatType == "J2Bounding")
-        numPars = 13;
+        numPars = 14;
     else
         numPars =0;
 
@@ -3062,7 +3064,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
         if (density=="")
             density = "2.0";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 500.0 0.45 "+ density +" 101.3 -1. 0.8 0.5 0.5 0.1 -1. -1. 250 -1. 33.0 0.3 2.0 -1. -1. 10. 1.5 0.01 -1. -1. "+"1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 500.0 0.45 "+ density +" 101.3 -1. 0.8 0.5 0.5 0.1 -1. -1. 250 -1. 33.0 0.3 2.0 -1. -1. 10. 1.5 0.01 -1. -1. "+"1.0e-7 1.0e-7 2.2e6 0.46");
         //  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
     }
     else if (thisMatType == "PM4Silt")
@@ -3070,7 +3072,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
         if (density=="")
             density = "2.0";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 100.0 1.0 500.0 0.45 "+ density +" 1.0 101.3 0.3 0.75 0.5 0.9 0.06 32.0 0.8 0.5 0.3 0.8 -1 -1 100.0 -1 3.0 4.0 0.01 2.0 "+"1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 100.0 1.0 500.0 0.45 "+ density +" 1.0 101.3 0.3 0.75 0.5 0.9 0.06 32.0 0.8 0.5 0.3 0.8 -1 -1 100.0 -1 3.0 4.0 0.01 2.0 "+"1.0e-7 1.0e-7 2.2e6 0.46");
         //  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
     }
     else if (thisMatType == "PIMY")
@@ -3079,7 +3081,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         if (density=="")
             density = "2.0";
         QString nd = "2";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 "+nd+" "+density+" 1.3e4 6.5e4 18 0.1 0 100. 0. 0 "+"1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 "+nd+" "+density+" 1.3e4 6.5e4 18 0.1 0 100. 0. 0 "+"1.0e-7 1.0e-7 2.2e6 0.47");
     }
     else if (thisMatType == "PDMY")
     {
@@ -3087,7 +3089,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         if (density=="")
             density = "2.0";
         QString nd = "2";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 "+nd+" "+density+" 5.5e4 1.5e5 29 0.1 80 0.5 29 0.21 0. 0. 10 0.02 1. 0.6 0.9 0.02 0.7 101 0.3 0 "+"1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 "+nd+" "+density+" 5.5e4 1.5e5 29 0.1 80 0.5 29 0.21 0. 0. 10 0.02 1. 0.6 0.9 0.02 0.7 101 0.3 0 "+"1.0e-7 1.0e-7 2.2e6 0.46");
         //  "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
     }
     else if (thisMatType == "PDMY02")
@@ -3096,14 +3098,14 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         if (density=="")
             density = "2.0";
         QString nd = "2";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 "+nd+" "+density+" 6e4 16e4 31 0.1 101 0.5 31 0.087 0.18 0.0 0.0 5. 3. 1. 0. 0.6 0.9 0.02 0.7 101 0.1 0 "+"1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 "+nd+" "+density+" 6e4 16e4 31 0.1 101 0.5 31 0.087 0.18 0.0 0.0 5. 3. 1. 0. 0.6 0.9 0.02 0.7 101 0.1 0 "+"1.0e-7 1.0e-7 2.2e6 0.46");
     }
     else if (thisMatType == "ManzariDafalias")
     {
         QString density = tableModel->data(tableModel->index(index.row(), DENSITY)).toString();
         if (density=="")
             density = "2.0";
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 125 0.05 0.8 1.25 0.712 0.019 0.934 0.7 100 0.01 7.05 0.968 1.1 0.704 3.5 4 600 "+ density +" 1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 125 0.05 0.8 1.25 0.712 0.019 0.934 0.7 100 0.01 7.05 0.968 1.1 0.704 3.5 4 600 "+ density +" 1.0e-7 1.0e-7 2.2e6 0.46");
     }
     else if (thisMatType == "J2Bounding")
     {
@@ -3111,7 +3113,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
         if (density=="")
             density = "2.0";
 
-        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 80000.0 1.7333e+05 150.0 "+ density +" 20000.0 1.5 0.0 0.5 1.0e-7 1.0e-7 2.2e6");
+        tableModel->setData(tableModel->index(currentRow, FEM), "2.0 0.47 80000.0 1.7333e+05 150.0 "+ density +" 20000.0 1.5 0.0 0.5 1.0e-7 1.0e-7 2.2e6 0.46");
     }
 
 }
