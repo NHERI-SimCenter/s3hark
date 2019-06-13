@@ -190,7 +190,7 @@ public:
         editor->addItem("PDMY");
         editor->addItem("PDMY02");
         editor->addItem("ManzariDafalias");
-        //editor->addItem("J2Bounding");
+        editor->addItem("J2Bounding");
         return editor;
     }
 

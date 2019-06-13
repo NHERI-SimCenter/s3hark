@@ -830,7 +830,7 @@ void PostProcessor::calcDisp()
     if (!saveFilex2.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qWarning("Couldn't open save file.");
     }
-    QTextStream outx2(&saveFile);
+    QTextStream outx2(&saveFilex2);
 
 
     for (int i=0;i<m_dispx2.size();i++)
