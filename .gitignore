@@ -50,7 +50,6 @@ VS/
 SiteResponse/bin/
 Backup
 Examples/out
-Examples/Verification
-Examples
+Examples/Verifications
 
 resources/backupfiles
