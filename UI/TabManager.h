@@ -104,6 +104,7 @@ public slots:
     void setCurrentD(int d) { currentD = d;}
     void setSimulationD (int d) { simulationD = d;}
     bool is2Dmotion(){ return dimCheckBox->isChecked() ? true : false; }
+    bool updateConfigureTabFromOutside(QString, QString);
 
 
 private:
@@ -147,27 +148,27 @@ private:
                                       "P_atm", "h0", "emax", "emin", "nb", "nd", "Ado",
                                       "z_max", "cz", "ce", "phic", "nu", "cgd", "cdr",
                                       "ckaf", "Q", "R", "m", "Fsed_min", "p_sedo",
-                                        "hPerm","vPerm","uBulk"};
+                                        "hPerm","vPerm","uBulk","evoid"};
     QList<QString> listPM4SiltFEM = {"eSize", "Dr", "S_u", "Su_Rat", "G_o", "h_po", "Den", "Su_factor", "P_atm",
                                       "nu", "nG", "h0", "eInit", "lambda", "phicv", "nb_wet", "nb_dry", "nd", "Ado", "ru_max", "z_max",
                                      "cz", "ce", "cgd", "ckaf", "m_m", "CG_consol",
-                                        "hPerm","vPerm","uBulk"};
+                                        "hPerm","vPerm","uBulk","evoid"};
     QList<QString> listPIMYFEM = {"eSize", "Dr", "nd", "rho", "refShearModul", "refBulkModul", "cohesi", "peakShearStra",
                                       "frictionAng", "refPress", "pressDependCoe", "noYieldSurf",
-                                        "hPerm","vPerm","uBulk"};
+                                        "hPerm","vPerm","uBulk","evoid"};
     QList<QString> listPDMYFEM = {"eSize", "Dr", "nd", "rho", "refShearModul", "refBulkModul", "frictionAng", "peakShearStra",
                                       "refPress", "pressDependCoe", "PTAng", "contrac", "dilat1", "dilat2", "liquefac1", "liquefac2", "liquefac3",
                                         "e", "cs1", "cs2", "cs3", "pa","c", "noYieldSurf",
-                                        "hPerm","vPerm","uBulk"};
+                                        "hPerm","vPerm","uBulk","evoid"};
     QList<QString> listPDMY02FEM = {"eSize", "Dr", "nd", "rho", "refShearModul", "refBulkModul", "frictionAng", "peakShearStra",
          "refPress", "pressDependCoe", "PTAng", "contrac1","contrac3", "dilat1", "dilat3", "contrac2", "dilat2", "liquefac1", "liquefac2",
            "e", "cs1", "cs2", "cs3", "pa","c", "noYieldSurf",
-           "hPerm","vPerm","uBulk"};
+           "hPerm","vPerm","uBulk","evoid"};
     QList<QString> listManzariDafaliasFEM = {"eSize", "Dr", "G0", "nu", "e_init", "Mc", "c", "lambda_c", "e0", "ksi", "P_atm", "m", "h0",
                                               "ch", "nb", "A0", "nd", "z_max", "cz", "Den",
-                                        "hPerm","vPerm","uBulk"};
+                                        "hPerm","vPerm","uBulk","evoid"};
     QList<QString> listJ2BoundingFEM = {"eSize", "Dr", "G", "K", "su", "rho", "h", "m", "k_in", "beta",
-                                        "hPerm","vPerm","uBulk"};
+                                        "hPerm","vPerm","uBulk","evoid"};
     QVector<QLineEdit*> edtsFEM;
     QVector<QLineEdit*> edtsElasticIsotropicFEM;
     QVector<QLineEdit*> edtsPM4SandFEM;
@@ -178,8 +179,8 @@ private:
     QVector<QLineEdit*> edtsManzariDafaliasFEM;
     QVector<QLineEdit*> edtsJ2BoundingFEM;
 
-    QLineEdit* slopex1;
-    QLineEdit* slopex2;
+    QLineEdit* slopex1=0;
+    QLineEdit* slopex2=0;
     QLabel* slopex1label;
     QLabel* slopex2label;
     QLabel* slopex1degreelabel;

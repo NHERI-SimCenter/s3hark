@@ -45,7 +45,7 @@ BonzaTableView::BonzaTableView(QWidget *parent) :
     this->setModel(m_sqlModel);
     this->hideColumn(0);
     this->hideColumn(FEM);
-    this->hideColumn(COLOR);
+    //this->hideColumn(COLOR);
     this->verticalHeader()->hide();
 
     this->setColumnHidden(1,true);
