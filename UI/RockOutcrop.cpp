@@ -41,9 +41,11 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
         newDir.mkpath(".");
     }
 
-
-    QDir resDir(QDir(rootDir).filePath("resources"));
-    resDir.removeRecursively();
+    if(!loadPreviousResults)
+    {
+        QDir resDir(QDir(rootDir).filePath("resources"));
+        resDir.removeRecursively();
+    }
 
     copyDir(QDir(qApp->applicationDirPath()).filePath("resources"),QDir(rootDir).filePath("resources"),true);
 
@@ -290,7 +292,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     {
         elementModel->clear();
         elementModel->refresh();
-        //loadFromJson(); // commenting this for frank,
+        if(loadPreviousResults) loadFromJson(); // commenting this for frank,
         //because he doesn't like previous analysis loaded by default
 
         if(ui->tableView->m_sqlModel->rowCount()<1)
@@ -411,6 +413,18 @@ void RockOutcrop::loadFromJson()
     QJsonDocument indoc = QJsonDocument::fromJson(in.toUtf8());
     QJsonObject inobj = indoc.object();
 
+
+
+
+    QJsonObject basicSettings = inobj["basicSettings"].toObject();
+    QString groundMotion = basicSettings["groundMotion"].toString();
+    theTabManager->updateGMPath(groundMotion);
+    QString OpenSeesPath = basicSettings["OpenSeesPath"].toString();
+    theTabManager->updateOpenSeesPath(OpenSeesPath);
+    QString slopex1 = QString::number(basicSettings["slopex1"].toDouble(), 'g', 16);
+    QString slopex2 = QString::number(basicSettings["slopex2"].toDouble(), 'g', 16);
+
+
     QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
     QJsonArray materials = inobj["materials"].toArray();
     for (int i=soilLayers.size()-1; i>=0; i--)
@@ -439,9 +453,12 @@ void RockOutcrop::loadFromJson()
             if (color=="")
                 color = QColor::fromRgb(QRandomGenerator::global()->generate()).name();
             valueList << name << thickness << density << vs << material << eSize << color;
-            ui->tableView->insertAtSilent(valueList,0);
+            //ui->tableView->insertAtSilent(valueList,0);
+            ui->tableView->insertAt(valueList,0);
 
         }
+
+
 
         theTabManager->updateLayerTab(l,mat);
 
@@ -449,18 +466,20 @@ void RockOutcrop::loadFromJson()
 
 
 
-    QJsonObject basicSettings = inobj["basicSettings"].toObject();
-    QString groundMotion = basicSettings["groundMotion"].toString();
-    theTabManager->updateGMPath(groundMotion);
-    QString OpenSeesPath = basicSettings["OpenSeesPath"].toString();
-    theTabManager->updateOpenSeesPath(OpenSeesPath);
+
+
+
 
     ui->gwtEdit->setText(QString::number(basicSettings["groundWaterTable"].toDouble()));
 
     ui->totalLayerLineEdit->setText(QString::number(soilLayers.size()));
 
+    theTabManager->updateConfigureTabFromOutside(slopex1, slopex2);
+
 
     ui->reBtn->click();
+
+
 
 }
 

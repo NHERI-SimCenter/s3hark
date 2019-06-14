@@ -603,9 +603,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                     << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " ";
                 slopex1 = slopex1 > 90 ? (180.-slopex1) : slopex1;
                 if (slopex1 <= 90)
-                    s<< -1.0 * g * sin(slopex1*pi/180.) <<" "<< g * cos(slopex1*pi/180.)  << endln;
+                    s<< std::to_string(-1.0 * g * sin(slopex1*pi/180.)) <<" "<< std::to_string(g * cos(slopex1*pi/180.))  << endln;
                 else
-                    s<< 1.0 * g * sin((180-slopex1)*pi/180.) <<" "<< g * cos((180-slopex1)*pi/180.)  << endln;
+                    s<< std::to_string(1.0 * g * sin((180-slopex1)*pi/180.)) <<" "<< std::to_string(g * cos((180-slopex1)*pi/180.))  << endln;
 				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << endln;
 
@@ -1736,6 +1736,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "# #########################################################" << "\n\n";
     s << "wipe \n\n";
 
+    s << "set g " << g << endln;
+    s << "set pi " << std::setprecision(22)  << pi << endln;
+
 
     // basic settings
     int numLayers = 0;
@@ -1774,6 +1777,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     std::vector<int> layerNumNodes;
     std::vector<double> layerElemSize;
     std::vector<int> dryNodes;
+
+    s << "set slopex1 " << slopex1 << endln;
+    s << "set slopex2 " << slopex2 << endln;
 
 
     s << "# ------------------------------------------ \n";
@@ -2187,7 +2193,44 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                     <<numNodes - 3 <<" "<<numNodes-2 <<" "<< numNodes -1<<" "<< numNodes <<" "
                       <<numNodes+1 <<" "<<numNodes+2<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
                     << theMat->getTag() << " " <<uBulk<< " 1.0 "<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " ";
-                s << -1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g <<" "<< cos(slopex1*pi/180.) * g <<" " << -1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g << endln;
+
+
+                double epsilon = 1.0e-19;
+                if (fabs(-1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g)<epsilon)
+                    s << std::setprecision(5) << 0.0 <<" ";
+                else s << std::setprecision(5) << -1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g <<" ";
+
+                if (fabs(cos(slopex1*pi/180.) * g)<epsilon)
+                    s << std::setprecision(5) << 0.0 <<" ";
+                else s << std::setprecision(5) << cos(slopex1*pi/180.) * g <<" ";
+
+                if (fabs(-1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g)<epsilon)
+                    s << std::setprecision(5) << 0.0 <<endln;
+                else s << std::setprecision(5) << -1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g <<endln;
+
+
+                /*
+                double epsilon = 1.0e-19;
+
+                if (fabs(-1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g)<epsilon)
+                    s << std::setprecision(16) << 0.0 <<" ";
+                else s << "[expr -1.0*sin($slopex1*$pi/180.) * cos($slopex2*$pi/180.) * $g]" <<" ";
+
+                if (fabs(cos(slopex1*pi/180.) * g)<epsilon)
+                    s << std::setprecision(16) << 0.0 <<" ";
+                else s <<  "[expr cos($slopex1*$pi/180.) * $g]" <<" ";
+
+                if (fabs(-1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g)<epsilon)
+                    s << std::setprecision(16) << 0.0 <<endln;
+                else s << "[expr -1.0*sin($slopex1*$pi/180.)*sin($slopex2*$pi/180.) * $g]" <<endln;
+                */
+
+
+
+                //s << std::setprecision(9) << std::to_string(-1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g) <<" "<< std::to_string(cos(slopex1*pi/180.) * g) <<" " << std::to_string(-1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g) << endln;
+                //s << std::setprecision(16) << -1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g <<" "<< cos(slopex1*pi/180.) * g <<" " << -1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g << endln;
+                //s << std::setprecision(16) << -1.0*sin(atan(slopex1)) * cos(atan(slopex2)) * g <<" "<< cos(atan(slopex1)) * g <<" " << -1.0*sin(atan(slopex1))*sin(atan(slopex2)) * g << endln;
+
                 /*
                 es << numElems + 1<<" " <<numNodes - 3 <<" "<< numNodes - 2<<" "<< numNodes +2<<" "<<numNodes+1<<" "
                      <<numNodes  <<" "<<numNodes-1<<" "<< numNodes + 3<<" "<< numNodes + 4<<" "
@@ -2768,9 +2811,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         //setParameter -value 1 -ele $elementTag hPerm $matTag
         double thishPerm = hPermVec[theEleTag-1];
         double thisvPerm = vPermVec[theEleTag-1];
-        s << "setParameter -value "<<thishPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" xPerm "<<endln;
-        s << "setParameter -value "<<thisvPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" yPerm "<<endln;
-        s << "setParameter -value "<<thishPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" zPerm "<<endln;
+        s << "setParameter -value "<<std::to_string(thishPerm/9.81)/*TODO*/<<" -ele "<< theEleTag<<" xPerm "<<endln;
+        s << "setParameter -value "<<std::to_string(thisvPerm/9.81)/*TODO*/<<" -ele "<< theEleTag<<" yPerm "<<endln;
+        s << "setParameter -value "<<std::to_string(thishPerm/9.81)/*TODO*/<<" -ele "<< theEleTag<<" zPerm "<<endln;
     }
     s << endln << endln << endln;
 

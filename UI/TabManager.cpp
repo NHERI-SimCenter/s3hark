@@ -868,6 +868,7 @@ void TabManager::initGMTab()
     QString rupwpHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/rupwp-template.html");
     QString strainHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/strain-template.html");
     QString stressHtmlNameTmp = QDir(rootDir).filePath("resources/ui/GroundMotion/stress-template.html");
+
     QFile file1(GMTabHtmlName);
     if(!file1.exists())
         QFile::copy(GMTabHtmlNameTmp, GMTabHtmlName);
@@ -889,6 +890,7 @@ void TabManager::initGMTab()
     QFile file7(stressHtmlName);
     if(!file7.exists())
         QFile::copy(stressHtmlNameTmp, stressHtmlName);
+
     GMView->reload();
 }
 
@@ -2406,6 +2408,8 @@ void TabManager::updateOpenSeesPath(QString path)
     edtsFEM[OpenSeesPathPos]->setText(path);
 }
 
+
+
 void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
 {
     QString name = l["name"].toString();
@@ -2415,6 +2419,7 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
     double hPermval = l["hPerm"].toDouble();
     double vPermval = l["vPerm"].toDouble();
     double uBulkval = l["uBulk"].toDouble();
+    double evoidval = l["void"].toDouble();
 
 
     // update element pars
@@ -2434,6 +2439,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= ElasticIsotropicWidget->findChild<QLineEdit*>("uBulkEdt");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= ElasticIsotropicWidget->findChild<QLineEdit*>("voidEdt");
+        evoid->setText(QString::number(evoidval,'g',16));
 
     } else if(matType=="PM4Sand")
     {
@@ -2448,6 +2455,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PM4SandWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= PM4SandWidget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     } else if(matType=="PM4Silt")
     {
         for (int i = 0; i < listPM4SiltFEM.size(); ++i) {
@@ -2461,6 +2470,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PM4SiltWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= PM4SiltWidget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     } else if(matType=="PIMY")
     {
         for (int i = 0; i < listPIMYFEM.size(); ++i) {
@@ -2474,6 +2485,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PIMYWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= PIMYWidget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     } else if(matType=="PDMY")
     {
         for (int i = 0; i < listPDMYFEM.size(); ++i) {
@@ -2487,6 +2500,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PDMYWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= PDMYWidget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     } else if(matType=="PDMY02")
     {
         for (int i = 0; i < listPDMY02FEM.size(); ++i) {
@@ -2500,6 +2515,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= PDMY02Widget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= PDMY02Widget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     } else if(matType=="ManzariDafalias")
     {
         for (int i = 0; i < listManzariDafaliasFEM.size(); ++i) {
@@ -2513,6 +2530,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= ManzariDafaliasWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= ManzariDafaliasWidget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     } else if(matType=="J2Bounding")
     {
         for (int i = 0; i < listJ2BoundingFEM.size(); ++i) {
@@ -2526,6 +2545,8 @@ void TabManager::updateLayerTab(QJsonObject l,QJsonObject mat)
         vPerm->setText(QString::number(vPermval,'g',16));
         QLineEdit *uBulk= J2BoundingWidget->findChild<QLineEdit*>("uBulk");
         uBulk->setText(QString::number(uBulkval,'g',16));
+        QLineEdit *evoid= J2BoundingWidget->findChild<QLineEdit*>("evoid");
+        evoid->setText(QString::number(evoidval,'g',16));
     }
 
     // send the signal to update FEM cell
@@ -3133,5 +3154,10 @@ void TabManager::onRunBtnClicked()
     }
     else
         tab->setCurrentIndex(3);
+}
+
+bool TabManager::updateConfigureTabFromOutside(QString slopex1val, QString slopex2val){
+     slopex1->setText(slopex1val);
+     slopex2->setText(slopex2val);
 }
 

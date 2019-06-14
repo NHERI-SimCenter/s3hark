@@ -104,6 +104,7 @@ public slots:
     void setCurrentD(int d) { currentD = d;}
     void setSimulationD (int d) { simulationD = d;}
     bool is2Dmotion(){ return dimCheckBox->isChecked() ? true : false; }
+    bool updateConfigureTabFromOutside(QString, QString);
 
 
 private:
@@ -178,8 +179,8 @@ private:
     QVector<QLineEdit*> edtsManzariDafaliasFEM;
     QVector<QLineEdit*> edtsJ2BoundingFEM;
 
-    QLineEdit* slopex1;
-    QLineEdit* slopex2;
+    QLineEdit* slopex1=0;
+    QLineEdit* slopex2=0;
     QLabel* slopex1label;
     QLabel* slopex2label;
     QLabel* slopex1degreelabel;
