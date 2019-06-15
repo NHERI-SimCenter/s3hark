@@ -12,10 +12,6 @@
 
 #### 3. Build <i>s<sup>3</sup>hark</i> by clicking Run in Qt Creator
 
-## How to Cite
-You can cite this software as follows:
-
-Charles Wang, Pedro Arduino & Frank McKenna (2019, June 13). NHERI-SimCenter/s3hark v1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.2619616
 
 ## Acknowledgement
 This material is based upon work supported by the National Science Foundation under Grant No. 1612843.
