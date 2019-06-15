@@ -1,8 +1,11 @@
 # <i>s<sup>3</sup>hark</i>
 <h2>A SimCenter Tool For Site Response Analysis</h2>
 
-![image](resources/images/SRT.png)
 
+
+[![DOI](https://zenodo.org/badge/146657292.svg)](https://zenodo.org/badge/latestdoi/146657292)
+
+![image](resources/images/SRT.png)
 
 ## Build instructions
 
@@ -11,6 +14,11 @@
 #### 2. Make sure you have fortran and c++ compilers installed.
 
 #### 3. Build <i>s<sup>3</sup>hark</i> by clicking Run in Qt Creator
+
+## How to Cite
+You can cite this software as follows:
+
+Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, & Michael Gardner. (2019, June 15). NHERI-SimCenter/s3hark: Release v1.0.1 (Version v1.0.1). Zenodo. http://doi.org/10.5281/zenodo.3246644
 
 
 ## Acknowledgement
