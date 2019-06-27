@@ -3159,5 +3159,7 @@ void TabManager::onRunBtnClicked()
 bool TabManager::updateConfigureTabFromOutside(QString slopex1val, QString slopex2val){
      slopex1->setText(slopex1val);
      slopex2->setText(slopex2val);
+
+     return 0;
 }
 
