@@ -486,7 +486,7 @@ void RockOutcrop::loadFromJson()
 
 void RockOutcrop::cleanTable()
 {
-    for (int i=0; i<ui->tableView->m_sqlModel->rowCount()+1;i++)
+    for (int i=0; i<ui->tableView->m_sqlModel->rowCount();i++)
         ui->tableView->removeOneRow(0);
 
     ui->tableView->cleanTable();
@@ -519,8 +519,82 @@ RockOutcrop::inputAppDataFromJSON(QJsonObject &jsonObject) {
     return true;
 }
 
+bool RockOutcrop::inputFromJSON(QJsonObject& inobj)
+{
+    cleanTable();
+    cleanTable();
 
-bool RockOutcrop::inputFromJSON(QJsonObject& inobj) {
+
+
+
+    QJsonObject basicSettings = inobj["basicSettings"].toObject();
+    QString groundMotion = basicSettings["groundMotion"].toString();
+    theTabManager->updateGMPath(groundMotion);
+    QString OpenSeesPath = basicSettings["OpenSeesPath"].toString();
+    theTabManager->updateOpenSeesPath(OpenSeesPath);
+    QString slopex1 = QString::number(basicSettings["slopex1"].toDouble(), 'g', 16);
+    QString slopex2 = QString::number(basicSettings["slopex2"].toDouble(), 'g', 16);
+
+
+    QJsonArray soilLayers = inobj["soilProfile"].toObject()["soilLayers"].toArray();
+    QJsonArray materials = inobj["materials"].toArray();
+    for (int i=soilLayers.size()-1; i>=0; i--)
+    {
+        QJsonObject l = soilLayers[i].toObject();
+        QString name = l["name"].toString();
+        QString color = l["color"].toString();
+        int id = l["id"].toInt();
+        QJsonObject mat = materials[i].toObject();
+        QString material = materials[i].toObject()["type"].toString();
+        double Dr = l["Dr"].toDouble();
+        double density = l["density"].toDouble();
+        double eSize = l["eSize"].toDouble();
+        double hPerm = l["hPerm"].toDouble();
+        double vPerm = l["vPerm"].toDouble();
+        double thickness = l["thickness"].toDouble();
+        double vs = l["vs"].toDouble();
+
+        if (i==soilLayers.size()-1)// Rock
+        {
+            QList<QVariant> valueListRock;
+            valueListRock << "Rock" << "-" << density << vs << DefaultEType << "-";
+            ui->tableView->insertAt(valueListRock,0);
+        }else{
+            QList<QVariant> valueList;
+            if (color=="")
+                color = QColor::fromRgb(QRandomGenerator::global()->generate()).name();
+            valueList << name << thickness << density << vs << material << eSize << color;
+            //ui->tableView->insertAtSilent(valueList,0);
+            ui->tableView->insertAt(valueList,0);
+
+        }
+
+
+
+        theTabManager->updateLayerTab(l,mat);
+
+    }
+
+
+
+
+
+
+
+    ui->gwtEdit->setText(QString::number(basicSettings["groundWaterTable"].toDouble()));
+
+    ui->totalLayerLineEdit->setText(QString::number(soilLayers.size()));
+
+    theTabManager->updateConfigureTabFromOutside(slopex1, slopex2);
+
+
+    ui->reBtn->click();
+
+
+}
+
+
+bool RockOutcrop::inputFromJSON_old(QJsonObject& inobj) {
 
     cleanTable();
     cleanTable();
