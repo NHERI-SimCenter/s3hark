@@ -29,7 +29,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // add SimCenter Header
     //
 
-    QString appName("s3hark");
+    //QString appName(QString("s") + QChar(0x00B3) + "hark");
+    QString appName = "<P><b><i><FONT COLOR='#000000' FONT SIZE = 4>";
+    appName.append(QString("s") + QChar(0x00B3) + "hark    &nbsp;&nbsp;&nbsp;&nbsp;🦈");
+    appName.append("</i></b></P></br>");
     HeaderWidget *header = new HeaderWidget();
     header->setHeadingText(appName);
     layout->addWidget(header);
@@ -249,7 +252,7 @@ void MainWindow::loadFile(const QString &fileName)
 
 void MainWindow::version()
 {
-    QString versionText("Version 1.0.0");
+    QString versionText("Version 1.1.0");
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     msgBox.setText(versionText);
