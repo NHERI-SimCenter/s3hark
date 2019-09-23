@@ -20,6 +20,14 @@ private slots:
     bool save();
     bool saveAs();
 
+    void about();
+    void manual();
+    void submitFeedback();
+    void submitFeatureRequest();
+    void version();
+    void copyright();
+    void cite();
+
 signals:
 
 private:

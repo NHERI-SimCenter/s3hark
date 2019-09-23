@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -100,7 +101,6 @@ void MainWindow::createActions() {
     fileMenu->addAction(exitAction);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    /*
     QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindow::version);
     QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
     QAction *manualAct = helpMenu->addAction(tr("&Manual"), this, &MainWindow::manual);
@@ -108,7 +108,6 @@ void MainWindow::createActions() {
     QAction *submitFeature = helpMenu->addAction(tr("&Submit Feature Request"), this, &MainWindow::submitFeatureRequest);
     QAction *citeAct = helpMenu->addAction(tr("&How to Cite"), this, &MainWindow::cite);
     QAction *copyrightAct = helpMenu->addAction(tr("&License"), this, &MainWindow::copyright);
-    */
 }
 
 
@@ -246,4 +245,127 @@ void MainWindow::loadFile(const QString &fileName)
     theRockOutcropWidget->inputFromJSON(jsonObj);
 
     setCurrentFile(fileName);
+}
+
+void MainWindow::version()
+{
+    QString versionText("Version 1.0.0");
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(versionText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
+}
+
+void MainWindow::cite()
+{
+    QString citeText("Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, & Michael Gardner. (2019, June 15). NHERI-SimCenter/s3hark: Release v1.0.1 (Version v1.0.1). Zenodo. http://doi.org/10.5281/zenodo.3246644");
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(citeText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
+}
+
+
+void MainWindow::about()
+{
+    QString aboutText("A SimCenter Tool For Site Response Analysis");
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(aboutText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
+}
+
+
+void MainWindow::submitFeedback()
+{
+    QString feedbackURL("https://docs.google.com/forms/d/e/1FAIpQLSfh20kBxDmvmHgz9uFwhkospGLCeazZzL770A2GuYZ2KgBZBA/viewform");
+    QDesktopServices::openUrl(QUrl(feedbackURL, QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
+}
+
+void MainWindow::manual()
+{
+    QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/EE_UQ");
+    QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
+}
+
+void MainWindow::submitFeatureRequest()
+{
+    QString featureRequestURL("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
+    QDesktopServices::openUrl(QUrl(featureRequestURL, QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
+}
+
+void MainWindow::copyright()
+{
+  QMessageBox msgBox;
+  QString copyrightText = QString("\
+                          <p>\
+                          The source code is licensed under a BSD 2-Clause License:<p>\
+                          \"Copyright (c) 2017-2018, The Regents of the University of California (Regents).\"\
+                          All rights reserved.<p>\
+                          <p>\
+                          Redistribution and use in source and binary forms, with or without \
+                          modification, are permitted provided that the following conditions are met:\
+                          <p>\
+                          1. Redistributions of source code must retain the above copyright notice, this\
+                          list of conditions and the following disclaimer.\
+                          \
+                          \
+                          2. Redistributions in binary form must reproduce the above copyright notice,\
+                          this list of conditions and the following disclaimer in the documentation\
+                          and/or other materials provided with the distribution.\
+                          <p>\
+                          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\
+                          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\
+                          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\
+                          DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR\
+                          ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\
+                          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\
+                          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND\
+          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\
+          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\
+          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\
+          <p>\
+          The views and conclusions contained in the software and documentation are those\
+          of the authors and should not be interpreted as representing official policies,\
+          either expressed or implied, of the FreeBSD Project.\
+          <p>\
+          REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, \
+          THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\
+          THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS \
+          PROVIDED \"AS IS\". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,\
+          UPDATES, ENHANCEMENTS, OR MODIFICATIONS.\
+          <p>\
+          ------------------------------------------------------------------------------------\
+          <p>\
+          The compiled binary form of this application is licensed under a GPL Version 3 license.\
+          The licenses are as published by the Free Software Foundation and appearing in the LICENSE file\
+          included in the packaging of this application. \
+          <p>\
+          ------------------------------------------------------------------------------------\
+          <p>\
+          This software makes use of the QT packages (unmodified): core, gui, widgets and network\
+                                                                   <p>\
+                                                                   QT is copyright \"The Qt Company Ltd&quot; and licensed under the GNU Lesser General \
+                                                                   Public License (version 3) which references the GNU General Public License (version 3)\
+    <p>\
+    The licenses are as published by the Free Software Foundation and appearing in the LICENSE file\
+    included in the packaging of this application. \
+    <p>\
+    ");
+
+  QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+  msgBox.setText(copyrightText);
+  QGridLayout *layout = (QGridLayout*)msgBox.layout();
+  layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+  msgBox.exec();
+
 }
