@@ -14,10 +14,12 @@ TARGET = S3hark
 TEMPLATE = app
 
 
-SOURCES += $$PWD/main.cpp
+SOURCES += $$PWD/main.cpp \
+           $$PWD/UI/MainWindow.cpp \
+
+HEADERS  += $$PWD/UI/MainWindow.h
 
 include(../SimCenterCommon/Common/Common.pri)
-
 include(./s3hark.pri)
 
 
