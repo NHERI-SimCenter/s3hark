@@ -292,7 +292,7 @@ RockOutcrop::RockOutcrop(QWidget *parent) :
     {
         elementModel->clear();
         elementModel->refresh();
-        if(loadPreviousResults) loadFromJson(); // commenting this for frank,
+        if(loadPreviousResults) loadFromJson(); // this is for frank,
         //because he doesn't like previous analysis loaded by default
 
         if(ui->tableView->m_sqlModel->rowCount()<1)
@@ -1004,7 +1004,7 @@ void RockOutcrop::on_gwtEdit_textChanged(const QString &newGWT)
 
 bool RockOutcrop::outputToJSON(QJsonObject &root)
 {
-
+    on_reBtn_clicked();
 
     QString in;
     QFile inputFile(srtFileName);
