@@ -18,7 +18,7 @@
 ## How to Cite
 You can cite this software as follows:
 
-Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, & Michael Gardner. (2019, June 15). NHERI-SimCenter/s3hark: Release v1.0.1 (Version v1.0.1). Zenodo. http://doi.org/10.5281/zenodo.3246644
+Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, Michael Gardner, & Pedro Arduino. (2019, September 27). NHERI-SimCenter/s3hark: Release v1.1.1 (Version v1.1.1). Zenodo. http://doi.org/10.5281/zenodo.3463594
 
 
 ## Acknowledgement
