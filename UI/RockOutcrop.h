@@ -143,7 +143,7 @@ private:// some of them were public
 
     QString dimMsg = "";
 
-    bool loadPreviousResults = true;
+    bool loadPreviousResults = false;
 
  public:
     QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation); // qApp->applicationDirPath();//
