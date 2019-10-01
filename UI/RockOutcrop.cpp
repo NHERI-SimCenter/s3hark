@@ -407,6 +407,14 @@ void RockOutcrop::loadFromJson()
             ui->tableView->setTotalHeight(0);
             ui->totalHeight->setText("0");
             ui->totalLayerLineEdit->setText("1");
+
+
+            QList<QVariant> valueList;
+            valueList << "Layer 1" << DefaultThickness << DefaultDensity << DefaultVs << DefaultEType << DefaultESize << "#64B5F6";
+            ui->tableView->insertAt(valueList,0);
+            ui->totalHeight->setText(QString::number(DefaultThickness));
+            ui->totalLayerLineEdit->setText("2");
+
         }
     }
 
