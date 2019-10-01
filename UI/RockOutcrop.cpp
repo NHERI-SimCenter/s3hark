@@ -426,8 +426,10 @@ void RockOutcrop::loadFromJson()
 
     QJsonObject basicSettings = inobj["basicSettings"].toObject();
     QString groundMotion = basicSettings["groundMotion"].toString();
+    if(groundMotion=="") groundMotion = "Input the path of a ground motion file. ";
     theTabManager->updateGMPath(groundMotion);
     QString OpenSeesPath = basicSettings["OpenSeesPath"].toString();
+    if(OpenSeesPath=="") OpenSeesPath = "Input the full path of OpenSees excutable. ";
     theTabManager->updateOpenSeesPath(OpenSeesPath);
     QString slopex1 = QString::number(basicSettings["slopex1"].toDouble(), 'g', 16);
     QString slopex2 = QString::number(basicSettings["slopex2"].toDouble(), 'g', 16);
