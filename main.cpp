@@ -2,23 +2,115 @@
 #include <QApplication>
 #include <QChar>
 #include <QFile>
+#include <QDir>
+#include <QDebug>
+#include <QStandardPaths>
+#include <QTime>
+
+static QString logFilePath;
+static bool logToFile = false;
+
+void customMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QHash<QtMsgType, QString> msgLevelHash({{QtDebugMsg, "Debug"}, {QtInfoMsg, "Info"}, {QtWarningMsg, "Warning"}, {QtCriticalMsg, "Critical"}, {QtFatalMsg, "Fatal"}});
+    QByteArray localMsg = msg.toLocal8Bit();
+    QTime time = QTime::currentTime();
+    QString formattedTime = time.toString("hh:mm:ss.zzz");
+    QByteArray formattedTimeMsg = formattedTime.toLocal8Bit();
+    QString logLevelName = msgLevelHash[type];
+    QByteArray logLevelMsg = logLevelName.toLocal8Bit();
+
+    if (logToFile) {
+        QString txt = QString("%1 %2: %3 (%4)").arg(formattedTime, logLevelName, msg,  context.file);
+        QFile outFile(logFilePath);
+        outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+        QTextStream ts(&outFile);
+        ts << txt << endl;
+        outFile.close();
+    } else {
+        fprintf(stderr, "%s %s: %s (%s:%u, %s)\n", formattedTimeMsg.constData(), logLevelMsg.constData(), localMsg.constData(), context.file, context.line, context.function);
+        fflush(stderr);
+    }
+
+    if (type == QtFatalMsg)
+        abort();
+}
 
 int main(int argc, char *argv[])
 {
+    //
+    //Setting Core Application Name, Organization, Version and Google Analytics Tracking Id
+    //
+
+    QCoreApplication::setApplicationName("s3hark");
+    QCoreApplication::setOrganizationName("SimCenter");
+    QCoreApplication::setApplicationVersion("1.1.0");
+
+    //
+    // set up logging of output messages for user debugging
+    //
+
+    // create dir for log file if none yet exists
+    logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+            + QDir::separator() + QCoreApplication::applicationName();
+
+    QDir dirWork(logFilePath);
+    if (!dirWork.exists())
+        if (!dirWork.mkpath(logFilePath)) {
+            qDebug() << "s3hark - main - could not create directory for log file";
+        }
+
+    // remove old log file as want to append to an empty file
+    logFilePath = logFilePath + QDir::separator() + QString("debug.log");
+    QFile debugFile(logFilePath);
+    debugFile.remove();
+
+    QByteArray envVar = qgetenv("QTDIR");       //  check if the app is run in Qt Creator
+
+    if (envVar.isEmpty())
+        logToFile = true;
+
+    qInstallMessageHandler(customMessageOutput);
+
+    qDebug() << "s3hark logFile: " << logFilePath;
+
+    //
+    // window scaling
+    //
+
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+    //
+    // regular Qt startup
+    //
+
     QApplication a(argc, argv);
 
     MainWindow m;
     m.setWindowTitle(QString("s") + QChar(0x00B3) + "hark - Site-specific Seismic Hazard Analysis & Research Kit" );
     m.show();
 
+    //
+    // show the main window, set styles & start the event loop
+    //
 
-    QFile file(":/styleCommon/common_experimental.qss");
+#ifdef Q_OS_WIN
+    QFile file(":/styleCommon/stylesheetWIN.qss");
+#endif
+
+#ifdef Q_OS_MACOS
+    QFile file(":/styleCommon/stylesheetMAC.qss");
+#endif
+
+#ifdef Q_OS_LINUX
+    QFile file(":/styleCommon/stylesheetMAC.qss");
+#endif
 
     if(file.open(QFile::ReadOnly)) {
-      QString styleSheet = QLatin1String(file.readAll());
-
-      a.setStyleSheet(styleSheet);
-      file.close();
+        a.setStyleSheet(file.readAll());
+        file.close();
+    } else {
+        qDebug() << "could not open stylesheet";
     }
 
     return a.exec();
