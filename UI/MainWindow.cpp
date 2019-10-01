@@ -263,7 +263,7 @@ void MainWindow::version()
 
 void MainWindow::cite()
 {
-    QString citeText("Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, & Michael Gardner. (2019, June 15). NHERI-SimCenter/s3hark: Release v1.0.1 (Version v1.0.1). Zenodo. http://doi.org/10.5281/zenodo.3246644");
+    QString citeText("Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, Michael Gardner, & Pedro Arduino. (2019, September 27). NHERI-SimCenter/s3hark: Release v1.1.1 (Version v1.1.1). Zenodo. http://doi.org/10.5281/zenodo.3463594");
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     msgBox.setText(citeText);
@@ -294,7 +294,7 @@ void MainWindow::submitFeedback()
 
 void MainWindow::manual()
 {
-    QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/EE_UQ");
+    QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/s3hark");
     QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
     //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
 }
@@ -312,7 +312,7 @@ void MainWindow::copyright()
   QString copyrightText = QString("\
                           <p>\
                           The source code is licensed under a BSD 2-Clause License:<p>\
-                          \"Copyright (c) 2017-2018, The Regents of the University of California (Regents).\"\
+                          \"Copyright (c) 2017-2019, The Regents of the University of California (Regents).\"\
                           All rights reserved.<p>\
                           <p>\
                           Redistribution and use in source and binary forms, with or without \

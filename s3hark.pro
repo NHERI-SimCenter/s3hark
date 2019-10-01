@@ -10,8 +10,16 @@ CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = S3hark
+TARGET = s3hark
 TEMPLATE = app
+
+win32 {
+    RC_ICONS = icons/NHERI-s3hark-Icon.ico
+} else {
+    mac {
+    ICON = icons/NHERI-s3hark-Icon.icns
+    }
+}
 
 
 SOURCES += $$PWD/main.cpp \
