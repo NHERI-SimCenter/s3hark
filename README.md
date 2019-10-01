@@ -1,9 +1,7 @@
 # <i>s<sup>3</sup>hark</i>
 <h2>A SimCenter Tool For Site Response Analysis</h2>
 
-
-
-[![DOI](https://zenodo.org/badge/146657292.svg)](https://zenodo.org/badge/latestdoi/146657292)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3463594.svg)](https://doi.org/10.5281/zenodo.3246641)
 
 ![image](resources/images/SRT.png)
 
