@@ -2378,12 +2378,14 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
         currentWidget = defaultWidget;
 
 
-    for (int j=tab->count();j>0;j--)
+    for (int j=tab->count();j>1;j--)
         tab->removeTab(j-1);
-    tab->insertTab(0,FEMWidget,"Configure");
+    //tab->insertTab(0,FEMWidget,"Configure");
     tab->insertTab(1,currentWidget,"Layer properties");
     tab->insertTab(2,GMView,"Response");
     tab->setCurrentIndex(1);
+
+
 
     /*
     QList<QVariant> infos = tableView->getRowInfo(currentRow);
