@@ -252,7 +252,7 @@ void MainWindow::loadFile(const QString &fileName)
 
 void MainWindow::version()
 {
-    QString versionText("Version 1.1.0");
+    QString versionText("Version 1.1.1");
     QMessageBox msgBox;
     QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     msgBox.setText(versionText);
