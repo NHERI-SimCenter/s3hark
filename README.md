@@ -5,9 +5,13 @@
 
 ![image](resources/images/SRT.png)
 
-## Build instructions
+## Instructions for users
 
-#### 1. Make sure the paths of your blas and lapack are set correctly in s3hark.pro and s3hark.pri 
+Download the application and user manual from [here](https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community/SimCenter/Software/s3hark).
+
+## Instructions for developers: how to build
+
+#### 1. Make sure the paths of your blas and lapack are set correctly in s3hark.pri 
 
 #### 2. Make sure you have fortran and c++ compilers installed.
 
