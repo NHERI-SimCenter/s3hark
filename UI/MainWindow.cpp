@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //QString appName(QString("s") + QChar(0x00B3) + "hark");
     QString appName = "<P><b><i><FONT COLOR='#000000' FONT SIZE = 4>";
-    appName.append(QString("s") + QChar(0x00B3) + "hark    &nbsp;&nbsp;&nbsp;&nbsp;🦈");
+    appName.append(QString("S") + QChar(0x00B3) + "HARK    &nbsp;&nbsp;&nbsp;&nbsp;🦈");
     appName.append("</i></b></P></br>");
     HeaderWidget *header = new HeaderWidget();
     header->setHeadingText(appName);
