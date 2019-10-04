@@ -5,6 +5,44 @@
 
 ![image](resources/images/SRT.png)
 
+## What is <i>s<sup>3</sup>hark</i>
+
+<i>s<sup>3</sup>hark</i> is the acronym of site-specific seismic hazard analysis and research kit.
+This tool focuses on simulating wave propagation along soil depth using finite element (FE) method.
+The intended audience for <i>s<sup>3</sup>hark</i> is researchers and practitioners interested in 
+performing site-specific analysis of soil in response to earthquakes, and educators interested in 
+teaching site response analysis in their classes. The tool provides a friendly interface for users
+to input and modify soil layers using tables, while the built soil profile and the FE mesh being
+visualized simultaneously. Results including accelation, velocity, displacement, porepressure, spectral acceleration, etc., 
+are visulized for the soil profile and for each node as well, from which the user can comprehense the 
+wave propogation and liquefaction conditions along the soil depth.
+
+Features of <i>s<sup>3</sup>hark</i> include:
+* 2D and 3D elements for dynamic analysis of fluid saturated porous media
+* Advanced linear / nonlinear soil material models
+* Total stress / effective stress analysis
+* Bi-directional motions
+* Flat / slope freefield analysis
+* Finite rigidity of the bedrock
+
+
+Available material models:
+
+
+| Material models        | Usage           | Status  |
+| ------------- |:-------------:| -----:|
+| ElasticIsotropic     | 2D/3D | ✓ |
+| PM4Sand      | 2D      |   ✓|
+| PM4Silt | 2D      |    ✓ |
+| PressureIndependMultiYield | 2D/3D      |    ✓ |
+| PressureDependMultiYield | 2D/3D      |    ✓ |
+| PressureDependMultiYield02 | 2D/3D      |    ✓ |
+| ManzariDafalias | 2D/3D      |    ✓ |
+| Borja-Amies | 3D      |    ✓ |
+
+
+
+
 ## Instructions for users
 
 Download the application and user manual from [here](https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community/SimCenter/Software/s3hark).
