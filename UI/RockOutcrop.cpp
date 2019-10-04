@@ -600,6 +600,7 @@ bool RockOutcrop::inputFromJSON(QJsonObject& inobj)
 
     ui->reBtn->click();
 
+    return true;
 
 }
 
