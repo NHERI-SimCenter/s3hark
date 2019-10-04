@@ -15,7 +15,7 @@ teaching site response analysis in their classes. The tool provides a friendly i
 to input and modify soil layers using tables, while the built soil profile and the FE mesh being
 visualized simultaneously. Results including accelation, velocity, displacement, porepressure, spectral acceleration, etc., 
 are visulized for the soil profile and for each node as well, from which the user can comprehense the 
-wave propogation and liquefaction conditions along the soil depth.
+wave propogation and liquefaction status along the soil depth.
 
 Features of <i>s<sup>3</sup>hark</i> include:
 * 2D and 3D elements for dynamic analysis of fluid saturated porous media
