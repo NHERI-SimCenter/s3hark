@@ -1235,6 +1235,13 @@ int RockOutcrop::checkDimension()
         return 3; // 3D column
     }else {
         // check nd
+        int layerContaining3DOnlyModel = ui->tableView->m_sqlModel->has3DOnlyModel();
+        if (layerContaining3DOnlyModel>0)
+        {
+            dimMsg = "Layer "+ QString::number(layerContaining3DOnlyModel)+" contains material (J2Bounding) which can only be used in 3D simulation.";
+            return -1;
+        }
+
         return 2; // 2D column
     }
 
