@@ -132,6 +132,21 @@ public:
         return layerContaining2D;
     }
 
+    Q_INVOKABLE int has3DOnlyModel()
+    {
+        int layerContaining3D = 0;
+        QString matTypeTmp;
+        for (int i=0;i<this->rowCount() ;++i){
+            matTypeTmp = data(createIndex(i, MATERIAL)).toString();//commentednotsure
+            if(matTypeTmp == "J2Bounding")
+            {
+                layerContaining3D = i+1;
+                break;
+            }
+        }
+        return layerContaining3D;
+    }
+
 
     Q_INVOKABLE void setActiveFromView(int row)
     {
