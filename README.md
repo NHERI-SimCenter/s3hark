@@ -28,7 +28,7 @@ Features of <i>s<sup>3</sup>hark</i> include:
 
 Available material models:
 
-<div align="center">
+
 | Material models        | Usage           | Status  |
 | ------------- |:-------------:| -----:|
 | ElasticIsotropic     | 2D/3D | ✓ |
@@ -39,7 +39,7 @@ Available material models:
 | PressureDependMultiYield02 | 2D/3D      |    ✓ |
 | ManzariDafalias | 2D/3D      |    ✓ |
 | Borja-Amies | 3D      |    ✓ |
-</div >
+
 
 
 
