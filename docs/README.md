@@ -3,7 +3,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3463594.svg)](https://doi.org/10.5281/zenodo.3246641)
 
-![image](resources/images/SRT.png)
+<img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/images/SRT.png" alt="s3hark"/>
 
 ## What is <i>s<sup>3</sup>hark</i>
 
@@ -17,43 +17,6 @@ visualized simultaneously. Results including acceleration, velocity, displacemen
 are visualized for the soil profile and for each node as well, from which the user can comprehend the 
 wave propagation and liquefaction status along the soil depth.
 
-Features of <i>s<sup>3</sup>hark</i> include:
-* 2D and 3D elements for dynamic analysis of fluid saturated porous media
-* Advanced linear / nonlinear soil material models
-* Total stress / effective stress analysis
-* Bi-directional motions
-* Flat / slope free field analysis
-* Finite rigidity of the bedrock
-
-
-Available material models:
-
-
-| Material models        | Usage           | Status  |
-| ------------- |:-------------:| -----:|
-| ElasticIsotropic     | 2D/3D | ✓ |
-| PM4Sand      | 2D      |   ✓|
-| PM4Silt | 2D      |    ✓ |
-| PressureIndependMultiYield | 2D/3D      |    ✓ |
-| PressureDependMultiYield | 2D/3D      |    ✓ |
-| PressureDependMultiYield02 | 2D/3D      |    ✓ |
-| ManzariDafalias | 2D/3D      |    ✓ |
-| Borja-Amies | 3D      |    ✓ |
-
-
-
-
-## Instructions for users
-
-Download the application and user manual from [here](https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community/SimCenter/Software/s3hark).
-
-## Instructions for developers: how to build
-
-#### 1. Make sure the paths of your blas and lapack are set correctly in s3hark.pri 
-
-#### 2. Make sure you have fortran and c++ compilers installed.
-
-#### 3. Build <i>s<sup>3</sup>hark</i> by clicking Run in Qt Creator
 
 ## How to Cite
 You can cite this software as follows:
