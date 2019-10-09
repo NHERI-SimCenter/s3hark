@@ -15,6 +15,7 @@
 #include "SSSharkThread.h"
 #include <QStandardPaths>
 #include <QCheckBox>
+#include <QDesktopServices>
 
 using namespace std::placeholders;
 

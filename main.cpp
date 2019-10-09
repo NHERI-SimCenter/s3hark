@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QTime>
+#include <QSplashScreen>
+#include <QDesktopWidget>
 
 static QString logFilePath;
 static bool logToFile = false;
@@ -83,12 +85,36 @@ int main(int argc, char *argv[])
     //
     // regular Qt startup
     //
-
     QApplication a(argc, argv);
+
+    // with a splash
+    QSplashScreen *splash = new QSplashScreen;
+    splash->setPixmap(QPixmap("/Users/simcenter/Codes/SimCenter/s3hark/docs/images/start.png"));
+    splash->showMessage("Loading...   ", Qt::AlignRight);
+    splash->show();
+    QDateTime n=QDateTime::currentDateTime();
+    /*
+     * // block the whole thing
+    QDateTime now;
+    do{
+        now=QDateTime::currentDateTime();
+    } while (n.secsTo(now)<=1);
+    */
+
+    //sleep
+    for(int i=0;i<500;i++)
+    {
+        splash->repaint();
+    }
+
 
     MainWindow m;
     m.setWindowTitle(QString("S") + QChar(0x00B3) + "HARK - Site-Specific Seismic Hazard Analysis & Research Kit" );
     m.show();
+
+    m.move ((QApplication::desktop()->width() - m.width())/2,(QApplication::desktop()->height() - m.height())/2);
+    splash->finish(&m);
+    delete splash;
 
     //
     // show the main window, set styles & start the event loop

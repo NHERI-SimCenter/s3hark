@@ -34,7 +34,10 @@ void TabManager::onTabBarClicked(int tabinx)
     {
         GMView->reload();
         GMViewLoaded = true;
+        tab->setCurrentIndex(tabinx);
     }
+
+
     //emit onTabBarClickedFinished();
     //elementModel->reSetActive();
     //emit GMView->loadFinished(true);
@@ -54,6 +57,9 @@ void TabManager::onElementDataChanged(QModelIndex,QModelIndex)
 void TabManager::init(QTabWidget* theTab){
     this->tab = theTab;
     //tab->setTabsClosable(true);
+
+
+
 
 
     QUiLoader uiLoader;
@@ -104,6 +110,11 @@ void TabManager::init(QTabWidget* theTab){
     //GMView->reload();
 
     tab->addTab(GMView,"Response");
+
+
+
+
+
 
 
     /*
@@ -366,6 +377,21 @@ void TabManager::init(QTabWidget* theTab){
     setPM4SandToolTps();
 
     writeGM();
+
+
+    /*
+    // load ground motion view from html
+    quickstart = new QWebEngineView(this);
+    quickstart->load(QUrl("https://nheri-simcenter.github.io/s3hark/#/start"));
+    QString qsHtmlName_true = QDir(rootDir).filePath(qsHtmlName);
+    QWebChannel *qsWebChannel   = new QWebChannel(quickstart->page());
+    quickstart->page()->setWebChannel(qsWebChannel);
+    quickstart->page()->load(QUrl::fromLocalFile(QFileInfo(qsHtmlName_true).absoluteFilePath()));
+    quickstart->show();
+    //quickstart->reload();
+    tab->addTab(quickstart,"Quick start");
+    */
+
 
 
 }
@@ -2380,9 +2406,11 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
 
     for (int j=tab->count();j>1;j--)
         tab->removeTab(j-1);
-    //tab->insertTab(0,FEMWidget,"Configure");
+    //tab->insertTab(0,FEMWidget,"Quickstart");
+    //tab->insertTab(1,FEMWidget,"Configure");
     tab->insertTab(1,currentWidget,"Layer properties");
     tab->insertTab(2,GMView,"Response");
+    //tab->insertTab(3,quickstart,"Quick start");
     tab->setCurrentIndex(1);
 
 

@@ -47,7 +47,6 @@ Available material models:
 
 [Quick start](https://nheri-simcenter.github.io/s3hark/#/start)
 
-
 ## Instructions for developers: how to build
 
 #### 1. Make sure the paths of your blas and lapack are set correctly in s3hark.pri 

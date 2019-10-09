@@ -132,6 +132,7 @@ private:
     QWidget* GMWidget;
     QWidget* FEMWidget;
 
+    QWebEngineView *quickstart;
     QWebEngineView *GMView;
     QString GMPathStr;
 
@@ -188,6 +189,7 @@ private:
 
 
     QString thisMatType;
+    QString qsHtmlName = QDir(rootDir).filePath("resources/ui/QS/start.html");
     QString GMTabHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/index.html");
     QString accHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/acc.html");
     QString dispHtmlName = QDir(rootDir).filePath("resources/ui/GroundMotion/disp.html");
