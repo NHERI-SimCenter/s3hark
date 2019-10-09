@@ -29,8 +29,8 @@ Click the '+' button on the top of the table to add a soil layer.
 
 ## Run the analysis
 
-Make sure the following two paths have been set correctly in the Configure tab:
+Make sure the following two paths have been set correctly in the [Configure tab](configure):
 * OpenSees executable path 
 * Ground motion file path 
 
-Click the 'Analyze' button to start the simulation.
+Click the 'Analyze' button to start the simulation. 
