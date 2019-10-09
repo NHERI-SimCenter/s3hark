@@ -45,7 +45,8 @@ Available material models:
 
 ## Instructions for users
 
-Download the application and user manual from [here](https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community/SimCenter/Software/s3hark).
+[Quick start](https://nheri-simcenter.github.io/s3hark/#/start)
+
 
 ## Instructions for developers: how to build
 
