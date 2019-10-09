@@ -1,3 +1,6 @@
+
+&nbsp; &nbsp; <img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/images/logo.png" alt="logo"/>
+
 - Introduction
 
   - [Overview](README.md)
