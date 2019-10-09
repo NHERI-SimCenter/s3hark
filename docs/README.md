@@ -5,7 +5,7 @@
 
 <img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/images/SRT.png" alt="s3hark"/>
 
-## What is <i>s<sup>3</sup>hark</i>
+### What is <i>s<sup>3</sup>hark</i>
 
 <i>s<sup>3</sup>hark</i> is the acronym of site-specific seismic hazard analysis and research kit.
 This tool focuses on simulating wave propagation along soil depth using finite element (FE) method.
@@ -17,14 +17,3 @@ visualized simultaneously. Results including acceleration, velocity, displacemen
 are visualized for the soil profile and for each node as well, from which the user can comprehend the 
 wave propagation and liquefaction status along the soil depth.
 
-
-## How to Cite
-You can cite this software as follows:
-
-Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Adam Zsarnoczay, Wael Elhaddad, Michael Gardner, & Pedro Arduino. (2019, September 27). NHERI-SimCenter/s3hark: Version 1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.3463594
-
-## Acknowledgement
-This material is based upon work supported by the National Science Foundation under Grant No. 1612843.
-
-## Contact
-Charles Wang, NHERI SimCenter, UC Berkeley, c_w@berkeley.edu
