@@ -17,19 +17,19 @@ Single click at a sell will make a soil layer selected, which will highlight the
 
 Meanwhile the layer will be highlighted by red box in the profile graphic. 
 
-Meanwhile the 'Layer properties' tab will be activated.
+Meanwhile the `Layer properties` tab will be activated.
 
-To added a soil layer, you can click the '+' button above the table. 
+To added a soil layer, you can click the `+` button above the table. 
 
 A new layer will be added to the bottom of the current selected layer.
 
-To deleted a selected layer, just click the '-' button.
+To deleted a selected layer, just click the `-` button.
 
-The 'GWT' is for you to set up the ground water value.
+The `GWT` is for you to set up the ground water value.
 
-'Height' and 'Total Layer' are not allowed to edit, they will be calculated automatically. 
+`Height` and `Total Layer` are not allowed to edit, they will be calculated automatically. 
 
 Double click a cell to edit in the table. 
 
-If you change the 'Material' of a layer, the 'Layer properties' will change correspondingly. 
+If you change the `Material` of a layer, the `Layer properties will change correspondingly. 
 
