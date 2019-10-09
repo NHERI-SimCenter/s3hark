@@ -45,7 +45,7 @@ Available material models:
 
 ## Instructions for users
 
-[Quick start](https://nheri-simcenter.github.io/s3hark/#/start)
+[Quick start](https://nheri-simcenter.github.io/s3hark)
 
 ## Instructions for developers: how to build
 
