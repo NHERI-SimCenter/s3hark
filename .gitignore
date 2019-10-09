@@ -51,10 +51,22 @@ SiteResponse/bin/
 Backup
 Examples/out
 Examples/Verifications
+#Examples
 
 resources/backupfiles
 
+SiteResponse/EffectiveFEModel-backup.h
+SiteResponse/EffectiveFEModel-backup.cpp
 
+resources/ui/DinoRun/assets/default_100_percent-backup
+resources/ui/DinoRun/assets/default_100_percent/*.psd
 
+FEM/ManzariDafalias*
+FEM/MultiYieldSurface*
+FEM/PressureDependMultiYield*
+FEM/PressureIndependMultiYield*
+FEM/T2Vector*
 
+Doc
 
+resources/styles/dark.qss
