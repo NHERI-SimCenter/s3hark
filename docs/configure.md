@@ -16,7 +16,7 @@ If 1D shaking motion provided, <i>s<sup>3</sup>hark</i> automatically treat the 
 
 
 The second demo is SRT-GM-Input-Style3-2D.json, which contains the shaking motion in two directions (2D shaking). 
-If you select this files as the input motion, your tab will look like the one shown below.
+If you select this file as the input motion, your tab will look like the one shown below.
 
 <img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/images/configure-2d.png" alt="configure"/>
 
