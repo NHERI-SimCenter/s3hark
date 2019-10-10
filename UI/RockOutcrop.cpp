@@ -1282,7 +1282,7 @@ void RockOutcrop::on_runBtn_clicked()
 
         if(rockEmpty || !srtjsonFile.exists())
         {
-            int msg = QMessageBox::information(this,tr("Path error"), "You need to specify rock motion file's path in the configure tab.", tr("OK, I'll do it."), tr("Turtorial"));
+            int msg = QMessageBox::information(this,tr("Path error"), "You need to specify rock motion file's path in the configure tab.", tr("OK, I'll do it."), tr("Tutorial"));
             if(msg==1)
             {
                 QString link = "https://nheri-simcenter.github.io/s3hark/#/start";
@@ -1337,7 +1337,7 @@ void RockOutcrop::on_runBtn_clicked()
                     srt->buildTcl();
                 }
 
-                int msg = QMessageBox::information(this,tr("Path error"), "Please specify the correct path of OpenSees in the Configure tab.", tr("OK, I'll do it."), tr("Turtorial"));
+                int msg = QMessageBox::information(this,tr("Path error"), "Please specify the correct path of OpenSees in the Configure tab.", tr("OK, I'll do it."), tr("Tutorial"));
                 //QMessageBox::information(this,tr("Path error"), "OpenSees is not found in your environment. Analysis didn't run", tr("OK."));
                 if(msg==1)
                 {

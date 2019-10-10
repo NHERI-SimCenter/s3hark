@@ -1,5 +1,5 @@
 
-&nbsp; &nbsp; <img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/images/logo.png" alt="logo"/>
+&nbsp; &nbsp; <a href="https://nheri-simcenter.github.io/s3hark"><img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/images/logo.png" alt="logo"/></a>
 
 - Introduction
 
