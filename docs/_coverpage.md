@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/NHERI-SimCenter/s3hark/master/docs/_media/s3hark.ico" height="100" alt="analysis"/>
 
-# s3hark <small>1.1.1</small>
+# <i>s<sup>3</sup>hark</i> <small>1.1.1</small>
 
 > Site-specific seismic hazard analysis and research kit.
 
