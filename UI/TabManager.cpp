@@ -379,18 +379,20 @@ void TabManager::init(QTabWidget* theTab){
     writeGM();
 
 
-    /*
+
     // load ground motion view from html
     quickstart = new QWebEngineView(this);
-    quickstart->load(QUrl("https://nheri-simcenter.github.io/s3hark/#/start"));
+    quickstart->load(QUrl("https://gitter.im/s3hark/community"));
+    /*
     QString qsHtmlName_true = QDir(rootDir).filePath(qsHtmlName);
     QWebChannel *qsWebChannel   = new QWebChannel(quickstart->page());
     quickstart->page()->setWebChannel(qsWebChannel);
     quickstart->page()->load(QUrl::fromLocalFile(QFileInfo(qsHtmlName_true).absoluteFilePath()));
+    */
     quickstart->show();
     //quickstart->reload();
-    tab->addTab(quickstart,"Quick start");
-    */
+    tab->addTab(quickstart,"Chat");
+
 
 
 
@@ -2410,8 +2412,9 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
     //tab->insertTab(1,FEMWidget,"Configure");
     tab->insertTab(1,currentWidget,"Layer properties");
     tab->insertTab(2,GMView,"Response");
-    //tab->insertTab(3,quickstart,"Quick start");
+    tab->insertTab(3,quickstart,"Chat");
     tab->setCurrentIndex(1);
+
 
 
 
@@ -3170,7 +3173,7 @@ void TabManager::setDefaultFEM(QString thisMatType,const QModelIndex &index)
 }
 
 void TabManager::onRunBtnClicked()
-{
+{/*
     if (tab->count()<4)
     {
         // init the dino view
@@ -3184,6 +3187,7 @@ void TabManager::onRunBtnClicked()
     }
     else
         tab->setCurrentIndex(3);
+        */
 }
 
 bool TabManager::updateConfigureTabFromOutside(QString slopex1val, QString slopex2val){
