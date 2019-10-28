@@ -58,7 +58,7 @@ Available material models:
 ## How to Cite
 You can cite this software as follows:
 
-Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Adam Zsarnoczay, Wael Elhaddad, Michael Gardner, & Pedro Arduino. (2019, September 27). NHERI-SimCenter/s3hark: Version 1.1.0 (Version v1.1.0). Zenodo. http://doi.org/10.5281/zenodo.3463594
+Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Adam Zsarnoczay, Wael Elhaddad, Michael Gardner, & Pedro Arduino. (2019, October 11). NHERI-SimCenter/s3hark: Release v1.1.2 (Version 1.1.2). Zenodo. http://doi.org/10.5281/zenodo.3483211
 
 ## Acknowledgement
 This material is based upon work supported by the `National Science Foundation` under Grant No. 1612843.
