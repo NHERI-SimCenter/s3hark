@@ -22,7 +22,7 @@
 - Others
 
   - [How to Cite](others.md)
-  - [Acknowledgement](Acknowledgement.md)
+  - [Acknowledgement](acknowledgement.md)
   - [Contact](contact.md)
 
 
