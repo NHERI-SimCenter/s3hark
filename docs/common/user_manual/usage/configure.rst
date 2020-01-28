@@ -51,8 +51,8 @@ If you select this file as the input motion, your tab will look like the one sho
 
 	Configuration with a bi-directional shaking motion
 
-You can see <i>s<sup>3</sup>hark</i> detected the file you provided is a 2D shaking, 
-<i>s<sup>3</sup>hark</i> automatically treat the problem as a 3D problem. 
+You can see |s3harkName| detected the file you provided is a 2D shaking, 
+|s3harkName| automatically treat the problem as a 3D problem. 
 3D elements will be used. The slope diagram is plotted in :numref:`slope-3d`:
 
 
