@@ -46,7 +46,7 @@ When the user add or delete a soil layer, this graphic will refresh.
 FE Mesh Graphic
 ---------------------
 The second graphic on the left shows the finite element mesh and profile plots. 
-Upon the finish of the analysis, selecting any of the tabs on the right inside this graphic (i.e, PGA, :math:`\gamma`max, maxDisp, maxRu, maxRuPWP) 
+Upon the finish of the analysis, selecting any of the tabs on the right inside this graphic (i.e., PGA, :math:`\gamma max`, maxDisp, maxRu, maxRuPWP) 
 will show various results from the simulation at the mesh points.
 
 Operations Area
