@@ -380,18 +380,21 @@ void TabManager::init(QTabWidget* theTab){
 
 
 
-    // load ground motion view from html
+    // load chat view from html
+    /*
     quickstart = new QWebEngineView(this);
     quickstart->load(QUrl("https://gitter.im/s3hark/community"));
-    /*
+    /-*
     QString qsHtmlName_true = QDir(rootDir).filePath(qsHtmlName);
     QWebChannel *qsWebChannel   = new QWebChannel(quickstart->page());
     quickstart->page()->setWebChannel(qsWebChannel);
     quickstart->page()->load(QUrl::fromLocalFile(QFileInfo(qsHtmlName_true).absoluteFilePath()));
-    */
+    *-/
     quickstart->show();
     //quickstart->reload();
     tab->addTab(quickstart,"Chat");
+    */
+
 
 
 
