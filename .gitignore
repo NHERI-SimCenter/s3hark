@@ -44,7 +44,7 @@ VS/
 *.out
 *.fig
 *.user
-
+*.psd
 
 
 SiteResponse/bin/
@@ -70,3 +70,14 @@ FEM/T2Vector*
 Doc
 
 resources/styles/dark.qss
+
+docs/activatesphinx
+docs/web
+docs/_build
+docs-docsify
+
+Examples
+icons
+
+*.pyc
+
