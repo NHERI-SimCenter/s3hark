@@ -19,3 +19,12 @@ td{
     border: 0px solid white;
     background-color: white;
 }
+
+.img-container-in-sidebar {
+    border: 10px solid white
+}
+
+.img-in-sidebar {
+    max-width: 100%;
+    height: auto;
+}

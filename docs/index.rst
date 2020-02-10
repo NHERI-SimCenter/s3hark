@@ -11,7 +11,7 @@ Site-specific Seismic Hazard Analysis & Research Kit (|appName|)
   :width: 700
   :alt: SRT
 
-What is |appName|
+What is |appName| 
 ---------------------------
 |appName| is the acronym of site-specific seismic hazard analysis and research kit. 
 This tool focuses on simulating wave propagation along soil depth using finite element (FE) method. 
@@ -41,7 +41,7 @@ Available material models
 
    * - Material models
      - Usage
-     - Development Status
+     - Development status
    * - ElasticIsotropic
      - 2D/3D
      - ✓
@@ -75,12 +75,13 @@ Available material models
    :maxdepth: 1
    :numbered: 2
 
-   
+   common/license
    common/user_manual/installation/installation
    common/user_manual/quickstart/quickstart
-   common/user_manual/usage/configure
    common/user_manual/usage/usage
-   common/license
+   common/user_manual/examples/examples
+   common/user_manual/bugs
+   
 
 
 .. _lbl-technical-manual:
@@ -98,10 +99,13 @@ Available material models
 
 .. toctree::
    :caption: Developer Manual
-   :maxdepth: 2
+   :maxdepth: 1
    :numbered: 2
 
    common/developer_manual/how_to_build/how_to_build
+   common/developer_manual/architecture/architecture
+   common/developer_manual/how_to_extend/how_to_extend
+   common/developer_manual/coding_style/coding_style
 
 
 How to cite
