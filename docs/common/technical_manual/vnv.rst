@@ -291,7 +291,7 @@ in Figures :numref:`s3hark3DMatTabs_1`, :numref:`s3hark3DMatTabs_2`, :numref:`s3
 
 .. _s3hark3DMatTabs_4:                             
                                       
-.. figure:: ../../images/layer43D.png  
+.. figure:: ../../images/layer43D.png 
    :align: center                     
    :figclass: align-center   
 
@@ -310,5 +310,6 @@ as shown in :numref:`s3hark3DColumnResults`.
    :align: center                     
    :figclass: align-center   
 
-   Compare with OpenSees
+   Compare with OpenSees 
 
+.. bibliography:: references.bib

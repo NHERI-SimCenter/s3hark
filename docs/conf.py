@@ -111,6 +111,7 @@ html_theme = 'press'
 html_theme_options = {
 	'logo_only': True,
 	'style_nav_header_background': '#000000', #64B5F6 #607D8B
+    'analytics_id': 'UA-158130480-5'
 }
 
 html_logo = '_static/images/SimCenter_s3hark_logo.png'
@@ -125,7 +126,12 @@ html_css_files = [
 # you need to modify custom.js for different git channels
 html_js_files = [
     'custom.js',
-	'https://sidecar.gitter.im/dist/sidecar.v1.js'
-]
+	'https://sidecar.gitter.im/dist/sidecar.v1.js',
+    'https://www.googletagmanager.com/gtag/js?id=UA-158130480-5'
+    ]
 
-show_simcenter_logo = True
+
+html_context = {
+    'show_simcenter_logo': True,
+    'simcenter_logo': '_static/images/SimCenter_logo.png'
+    }
