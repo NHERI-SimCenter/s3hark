@@ -113,7 +113,7 @@ html_theme_options = {
 	'style_nav_header_background': '#000000', #64B5F6 #607D8B
 }
 
-html_logo = 'common/SimCenter_s3hark_logo.png'
+html_logo = '_static/images/SimCenter_s3hark_logo.png'
 
 numfig = True
 numfig_secnum_depth = 2
@@ -127,3 +127,5 @@ html_js_files = [
     'custom.js',
 	'https://sidecar.gitter.im/dist/sidecar.v1.js'
 ]
+
+show_simcenter_logo = True

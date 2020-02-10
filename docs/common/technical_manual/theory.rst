@@ -39,51 +39,47 @@ Hence, soil in general must be looked at as a one (dry soil) or two (saturated s
 multiphase (partially saturated soil) material whose state is to be described by the stresses and displacements (velocities) within each phase. 
 There are still great uncertainties on how to deal analytically with partly saturated soils. 
 Attention is therefore restricted in the following to dry and fully saturated soils. 
-The stresses carried by the soil skeleton are conventionally called "effective stresses" in the soil mechanics literature (see e.g., Terzaghi (1943]), 
+The stresses carried by the soil skeleton are conventionally called "effective stresses" in the soil mechanics literature 
+(see e.g., :cite:`terzaghi1943theoretical`), 
 and those in the fluid phase are called the "pore fluid pressures".
 
 In a saturated soil, when free drainage conditions prevail, the steady state pore-fluid pressures 
 depend only on the hydraulic conditions and are independent of the soil skeleton response to external loads. 
 Therefore, in that case, a single phase continuum description of soil behavior is certainly adequate. 
-Similarly, a si~gle phase description is also adequate when no drainage (i.e., no flow) conditions prevail. 
+Similarly, a single phase description is also adequate when no drainage (i.e., no flow) conditions prevail. 
 However, in intermediate cases in which some flow can take place, there is an interaction between the skeleton strains and the pore-fluid flow. 
 The solution of these problems requires that soil behavior be analyzed by incorporating the effects of the transient flow of the pore-fluid through the voids, 
 and therefore requires that a two phase continuum formulation be available for porous media. 
-Such a theory was first developed by Biot [add references] for an elastic porous medium.
+Such a theory was first developed by Biot :cite:`biot1955theory` for an elastic porous medium.
 However, it is observed experimentally that the stress-strain strength behavior of the soil skeleton is strongly non-linear, anisotropic, hysteretic and path-dependent.
 An extension to the Biot's theory into the non-linear anelastic range is therefore necessary in order to analyze the transient response of soil deposits. 
 This extension has acquired considerable importance in recent years due to the increased concern with the dynamic behavior of saturated soil deposits and 
 associated liquefaction of saturated sand deposits under seismic loading conditions. 
-Such an extension of Biot's formulation [add reference header] has been developed in recent years. 
-In the extended theory, soil is viewed as a multi-phase medium (Green and Naghdi [add reference here], and Eringen and Ingram [add reference]). 
+Such an extension of Biot's formulation :cite:`prevost1980mechanics` has been developed in recent years. 
+In the extended theory, soil is viewed as a multi-phase medium (Green and Naghdi :cite:`green1965dynamical`, 
+and Eringen and Ingram :cite:`eringen1965continuum,ingram1967continuum`). 
 General mixture results can be shown through formal linearization of the field and constitutive equations, 
 to reduce to Biot's linear poroelastic model.
-
-.. comment::
-
+ 
+.. 
     Kinematics
-    --------------------------------------------------------------
+    --------------------------------------------------------------  
     Soil is viewed herein as a mixture consisting of m (:math:`1 \leq m \leq 2`) deformable media,
     each of which is regarded as a continuum (for saturated soils m=2), and each following its own motion.
     Is is assumed that at any time :math:`t` each place :math:`\boldsymbol{x}` of the mixture is occupied simultaneously by :math:`m` different particles 
     :math:`\boldsymbol{X}^1`, :math:`\boldsymbol{X}^2`, ..., :math:`\boldsymbol{X}^m`, one for each constituent.
     As in single-phase theory, to each constituent is assigned a fixed but otherwise arbitrary reference configuration, and a motion
-    
-    .. math::
 
-        \boldsymbol{x} = \boldsymbol{x}^\alpha(\boldsymbol{X}^\alpha, t) \;\;\;\;\;\;\;\;  \alpha = 1,...,m
-
+    .. math::   
+        \boldsymbol{x} = \boldsymbol{x}^\alpha(\boldsymbol{X}^\alpha, t) \;\;\;\;\;\;\;\;  \alpha = 1,...,m 
     where :math:`\boldsymbol{X}^\alpha` denotes the position of the :math:`\alpha^{th}` constituent in its reference configuration, 
     and :math:`x` the spatial position occupied at time :math:`t` by the particle labeled :math:`\alpha`.
     For simplicity in the following, both the reference and current configurations of each constituent are referred to rectangular Cartesian axes. 
     Capital and lower case letters are used for the indices on coordinates and tensors referred to the undeformed and deformed configuration, respectively. 
-    The usual continuity and differentiability assumptions are made for the deformation function :math:`\boldsymbol{x}^\alpha`, and the following restrictions are imposed
-
-    .. math::
-
+    The usual continuity and differentiability assumptions are made for the deformation function :math:`\boldsymbol{x}^\alpha`, and the following restrictions are imposed  
+    .. math::   
         det|\boldsymbol{x}_a^{\alpha}, A|=f^\alpha(\boldsymbol{X}^\alpha, t); det|\boldsymbol{x}_a^{\alpha}, b|> 0 
-        \;\;\;\;\;\;\;\; \alpha = 1,...,m 
-
+        \;\;\;\;\;\;\;\; \alpha = 1,...,m   
     for physically possible motions, in which det denotes the determinant and a comma (,) a partial derivative. 
     The velocity and acceleration of 
 
@@ -128,7 +124,7 @@ the principle of effective stress is written in index notation as
     \sigma = \sigma^{\prime} - \alpha p
 
 The parameter :math:`\alpha` is Biot's coefficient. 
-In 1941, it is defined as [add reference]
+In 1941, it is defined as :cite:`biot1941general`
 
 .. math::
     :label: eq:biot_1
@@ -137,7 +133,7 @@ In 1941, it is defined as [add reference]
 
 where :math:`K` is the drained bulk modulus of the porous media, 
 and :math:`1/H` is the poroelastic expansion coefficient.
-In 1957, this parameter was redefined by Biot and Willis [add reference]
+In 1957, this parameter was redefined by Biot and Willis :cite:`biot1957elastic`
 in terms of jacketed compressibility and unjackedted compressibility.
 
 .. math::
