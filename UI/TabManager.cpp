@@ -2415,7 +2415,7 @@ void TabManager::onTableViewClicked(const QModelIndex &index){
     //tab->insertTab(1,FEMWidget,"Configure");
     tab->insertTab(1,currentWidget,"Layer properties");
     tab->insertTab(2,GMView,"Response");
-    tab->insertTab(3,quickstart,"Chat");
+    //tab->insertTab(3,quickstart,"Chat");
     tab->setCurrentIndex(1);
 
 
