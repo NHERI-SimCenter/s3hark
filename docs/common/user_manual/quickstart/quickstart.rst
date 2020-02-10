@@ -5,9 +5,8 @@ Quick start
 ================================
 
 
-
-Download and Install |appName|
--------------------------------------------------
+Download and Install |appName| 
+------------------------------------------------
 
 The app is `here <https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community/SimCenter/Software/s3hark>`_ if you haven't got it. 
 Follow the instruction :ref:`here <lbl-installation>`  to download and install the application.
@@ -15,7 +14,7 @@ Follow the instruction :ref:`here <lbl-installation>`  to download and install t
 
 .. _installOpenSees:
 
-Download and Install OpenSees
+Download and Install OpenSees 
 -------------------------------------------------
 
 The current version of |appName| utilizes OpenSees as its backend. Its internal backend is being developed and will be available in next release. 
@@ -29,18 +28,18 @@ Read through that page, then download and install the correct versions of OpenSe
 Remember the installation path of OpenSees. 
 
 Download input motion files
--------------------------------------------------
+------------------------------------------------
 
-Click `this <https://nheri-simcenter.github.io/s3hark/DemoGM.zip>`_ link to download demos for input rock motion files. 
+Click :download:`this link <../../../_static/files/DemoGM.zip>` to download demos for input rock motion files. 
 
 Unzip the downloaded file, and you'll see two json demos: one is for 1D shaking, the other is for bi-directional shaking. 
 You can use either one.
 
 
-Add soil layers
+Add soil layers 
 -------------------------------------------------
 
-Click the '+' button on the top of the table to add a soil layer.
+Click the '+' button on the top of the table to add a soil layer. 
 
 
 Run the analysis
@@ -50,6 +49,7 @@ Make sure the following two paths have been set correctly in the :ref:`Configure
 
 * OpenSees executable path 
 * Ground motion file path 
+
 
 
 Click the 'Analyze' button to start the simulation. 
