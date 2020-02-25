@@ -16,7 +16,7 @@ INCLUDEPATH += /usr/local/opt/lapack/include \
 #        /usr/local/opt/lapack/lib/liblapack.3.8.0.dylib \
 #        /usr/local/opt/lapack/lib/liblapacke.3.8.0.dylib \
 #        -L/usr/local/lib -L/usr/lib  -lm -ldl -lgfortran
-LIBS += -llapack -lblas
+LIBS += -llapack
 }
 
 win32: {
