@@ -1051,6 +1051,12 @@ bool RockOutcrop::outputToJSON(QJsonObject &root)
 
 }
 
+void RockOutcrop::on_killBtn_clicked()
+{
+    openseesProcess->kill();
+    emit signalProgress(0);
+    ui->progressBar->hide();
+}
 
 void RockOutcrop::on_reBtn_clicked()
 {
@@ -1062,7 +1068,7 @@ void RockOutcrop::on_reBtn_clicked()
     double GWT = ui->tableView->getGWT();
 
     json root = {
-        {"name","Configureation of Site Response Analysis of A Demo Site"},
+        {"name","Configuration of Site Response Analysis of A Demo Site"},
         {"author","SimCenter Site Response Tool"}
     };
 
@@ -1278,14 +1284,14 @@ void RockOutcrop::on_runBtn_clicked()
         bool openseesEmpty = openseespath=="" || openseespath=="Input the full path of OpenSees excutable.";
         bool rockEmpty = rockmotionpath=="" || rockmotionpath=="Input the path of a ground motion file.";
 
-        QFile srtjsonFile(rockmotionpath);
+        QFile rocMojsonFile(rockmotionpath);
 
-        if(rockEmpty || !srtjsonFile.exists())
-        {
+        if(rockEmpty || !rocMojsonFile.exists())
+        {   // didn't find rock motion file
             int msg = QMessageBox::information(this,tr("Path error"), "You need to specify rock motion file's path in the configure tab.", tr("OK, I'll do it."), tr("Tutorial"));
             if(msg==1)
             {
-                QString link = "https://nheri-simcenter.github.io/s3hark/#/start";
+                QString link = "https://nheri-simcenter.github.io/s3hark-Documentation/common/user_manual/quickstart/quickstart.html";
                 QDesktopServices::openUrl(QUrl(link));
             }
             theTabManager->getTab()->setCurrentIndex(0);

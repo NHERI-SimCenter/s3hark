@@ -90,6 +90,8 @@ private slots:
 
     void on_reBtn_clicked();
 
+    void on_killBtn_clicked();
+
     void on_runBtn_clicked();
 
     json createMaterial(int tag, std::string matType, std::string parameters);
