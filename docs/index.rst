@@ -30,7 +30,7 @@ Features of |appName|
 * Total stress / effective stress analysis
 * Bi-directional motions
 * Flat / slope free field analysis
-* Finite rigidity of the bedrock
+* Finite rigidity of the bedrock 
 
 
 Available material models
@@ -129,3 +129,4 @@ not necessarily reflect the views of the National Science Foundation.
 Contact
 ---------------------------
 Charles Wang, NHERI SimCenter, University of California, Berkeley, c_w@berkeley.edu
+
