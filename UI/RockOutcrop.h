@@ -155,6 +155,7 @@ private:// some of them were public
     QString outputDir = QDir(analysisDir).filePath("out_tcl");
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
     QString evtjFileName =  QDir(analysisDir).filePath("EVENT-SRT.json");
+    QString femLog = QDir(analysisDir).filePath("fem.log");
 
 
 

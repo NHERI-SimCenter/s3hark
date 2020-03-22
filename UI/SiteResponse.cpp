@@ -5,9 +5,8 @@
 #include <functional>
 #include <sstream>
 #include <string>
-#include "StandardStream.h"
-#include "FileStream.h"
-#include "OPS_Stream.h"
+
+
 
 
 // these must be defined here!!
@@ -17,15 +16,33 @@ OPS_Stream *opserrPtr = &ferr;
 OPS_Stream *opsoutPtr = &sserr;
 
 
-
-SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::string outDir, std::function<void(double)> callbackFunction ) :
+SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::string outDir,std::string femLog, std::function<void(double)> callbackFunction ) :
     m_configureFile(configureFile),
     m_analysisDir(anaDir),
-    m_outputDir(outDir)
+    m_outputDir(outDir),
+    m_femLog(femLog)
+{
+    m_callbackFunction = callbackFunction;
+    init(configureFile,anaDir,outDir);
+    model->setCallback(true);
+}
 
+SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::string outDir,std::string femLog) :
+    m_configureFile(configureFile),
+    m_analysisDir(anaDir),
+    m_outputDir(outDir),
+    m_femLog(femLog)
+{
+    init(configureFile,anaDir,outDir);
+}
+
+
+void SiteResponse::init(std::string configureFile,std::string anaDir,std::string outDir)
 {
 
-    m_callbackFunction = callbackFunction;
+    // set fem log
+    ferr_true = new FileStream(m_femLog.c_str());
+    opserrPtr = ferr_true;
 
     //./siteresponse ../test/siteLayering.loc -bbp ../test/9130326.nwhp.vel.bbp out thisLog
     // read the layering file
@@ -67,7 +84,6 @@ SiteResponse::SiteResponse(std::string configureFile,std::string anaDir,std::str
     }
 
 }
-
 void SiteResponse::buildTcl()
 {
     bool runAnalysis = false;

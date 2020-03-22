@@ -1309,8 +1309,9 @@ void RockOutcrop::on_runBtn_clicked()
 
             if(openseesExefile.exists())
             {   // do FEA in opensees
+
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                                     analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
+                                                     analysisDir.toStdString(),outputDir.toStdString(),femLog.toStdString(), m_callbackptr);
                 if (simDim==3)
                 {
                     theTabManager->setSimulationD(3);
@@ -1331,7 +1332,10 @@ void RockOutcrop::on_runBtn_clicked()
                 //emit runBtnClicked();
 
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                                     analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
+                                                     analysisDir.toStdString(),
+                                                     outputDir.toStdString(),
+                                                     femLog.toStdString(),
+                                                     m_callbackptr );
                 if (simDim==3)
                 {
                     theTabManager->setSimulationD(3);
@@ -1394,7 +1398,7 @@ void RockOutcrop::refreshRun(double step) {
 void RockOutcrop::onInternalFEAInvoked()
 {
 
-    SSSharkThread *shark = new SSSharkThread(srtFileName,analysisDir,outputDir, this);
+    SSSharkThread *shark = new SSSharkThread(srtFileName,analysisDir,outputDir,femLog, this);
     connect(shark,SIGNAL(updateProgress(double)), this, SLOT(onInternalFEAUpdated(double)));
     shark->start();
 }

@@ -16,14 +16,17 @@ signals:
 
 public:
     explicit SSSharkThread(QObject *parent = nullptr);
-    SSSharkThread(QString srtFileNametmp,QString analysisDirtmp,QString outputDirtmp,QObject *parent = nullptr);
+    SSSharkThread(QString srtFileNametmp,QString analysisDirtmp,QString outputDirtmp,QString femLog,QObject *parent = nullptr);
 
     void updateProgressBar(double step){emit updateProgress(step);}
     std::function<void(double)> m_callbackFunction = std::bind(&SSSharkThread::updateProgressBar,this, _1);
 
     void run() override {
         SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                             analysisDir.toStdString(),outputDir.toStdString(), m_callbackFunction );
+                                             analysisDir.toStdString(),
+                                             outputDir.toStdString(),
+                                             femLog.toStdString(),
+                                             m_callbackFunction );
         srt->run();
     }
 
@@ -32,6 +35,7 @@ private:
     QString analysisDir ;
     QString outputDir ;
     QString srtFileName ;
+    QString femLog ;
 
 
 };
