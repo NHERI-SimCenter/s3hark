@@ -54,6 +54,9 @@ public:
     //double pi = 3.1415926535897;
     const long double pi = 3.141592653589793238462643383279L;
 
+    bool callback = false;
+    void setCallback(bool cal) {callback = cal;}
+
 
 private:
 	Domain *theDomain;

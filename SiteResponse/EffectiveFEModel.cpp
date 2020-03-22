@@ -1586,7 +1586,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(100.0 * analysisCount / remStep);
+                        if (callback) m_callbackFunction(100.0 * analysisCount / remStep);
                     }
                 }
                 else
@@ -1596,7 +1596,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                 }
             }
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";
@@ -1634,7 +1634,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(currentTime/finalTime *100.);
+                        if (callback) m_callbackFunction(currentTime/finalTime *100.);
                     }
 
                     currentTime = theDomain->getCurrentTime();
@@ -1643,7 +1643,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";
@@ -3439,7 +3439,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(100.0 * analysisCount / remStep);
+                        if (callback) m_callbackFunction(100.0 * analysisCount / remStep);
                     }
                 }
                 else
@@ -3449,7 +3449,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 }
             }
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";
@@ -3489,7 +3489,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(currentTime/finalTime *100.);
+                        if (callback) m_callbackFunction(currentTime/finalTime *100.);
                     }
 
                     currentTime = theDomain->getCurrentTime();
@@ -3498,7 +3498,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";
