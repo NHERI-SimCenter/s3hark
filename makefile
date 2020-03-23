@@ -33,6 +33,8 @@ clean:
 	rm -f $(SRTlib)
 	(cd FEM; make clean)
 	(cd SiteResponse; make clean)
+	(cd UI; rm -rf *.o)
+	(cd bin; rm -rf s3hark; rm -rf *.dSYM)
 	
 tidy:
 	rm -f $(source)/bin/siteresponse
