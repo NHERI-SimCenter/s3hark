@@ -14,12 +14,12 @@
 class SiteResponse {
 
 public:
-    SiteResponse(std::string configureFile,std::string anaDir,std::string outDir,std::string femLog = "fem.log", std::function<void(double)> callbackFunction=0);
-    SiteResponse(std::string configureFile,std::string anaDir,std::string outDir,std::string femLog = "fem.log");
+    SiteResponse(std::string configureFile,std::string anaDir,std::string outDir,std::string femLog, std::function<void(double)> callbackFunction);
+    SiteResponse(std::string configureFile,std::string anaDir,std::string outDir,std::string femLog);
 	~SiteResponse();
 
     void init(std::string configureFile,std::string anaDir,std::string outDir);
-    void run();
+    int run();
     void buildTcl();
     void buildTcl3D();
 

@@ -11,7 +11,7 @@
 
 // these must be defined here!!
 StandardStream sserr;
-FileStream ferr("log");
+FileStream ferr("fem.log");
 OPS_Stream *opserrPtr = &ferr;
 OPS_Stream *opsoutPtr = &sserr;
 
@@ -80,6 +80,7 @@ void SiteResponse::init(std::string configureFile,std::string anaDir,std::string
         model->setTclOutputDir(outDir);
         model->setConfigFile(configureFile);
 
+
         //buildTcl();
     }
 
@@ -96,10 +97,13 @@ void SiteResponse::buildTcl3D()
     model->buildEffectiveStressModel3D(runAnalysis);
 }
 
-void SiteResponse::run()
+int SiteResponse::run()
 {
     bool runAnalysis = true;
-    model->buildEffectiveStressModel2D(runAnalysis);
+    if (model->buildEffectiveStressModel2D(runAnalysis)!=100)
+        return -1;
+    else
+        return 1;
 }
 
 
