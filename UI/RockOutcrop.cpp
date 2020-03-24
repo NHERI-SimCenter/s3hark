@@ -1051,6 +1051,12 @@ bool RockOutcrop::outputToJSON(QJsonObject &root)
 
 }
 
+void RockOutcrop::on_killBtn_clicked()
+{
+    openseesProcess->kill();
+    emit signalProgress(0);
+    ui->progressBar->hide();
+}
 
 void RockOutcrop::on_reBtn_clicked()
 {
@@ -1062,7 +1068,7 @@ void RockOutcrop::on_reBtn_clicked()
     double GWT = ui->tableView->getGWT();
 
     json root = {
-        {"name","Configureation of Site Response Analysis of A Demo Site"},
+        {"name","Configuration of Site Response Analysis of A Demo Site"},
         {"author","SimCenter Site Response Tool"}
     };
 
@@ -1082,9 +1088,12 @@ void RockOutcrop::on_reBtn_clicked()
     basicSettings["slopex2"] = FEMtab->findChild<QLineEdit*>("slopex2")->text().toDouble();
     basicSettings["eSizeH"] = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
     basicSettings["eSizeV"] = FEMtab->findChild<QLineEdit*>("eSizeV")->text().toDouble();
-    basicSettings["rockVs"] = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
-    basicSettings["rockDen"] = FEMtab->findChild<QLineEdit*>("RockDen")->text().toDouble();
-    basicSettings["dashpotCoeff"] = FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
+
+    double rockVs_tmp = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
+    double rockDen_tmp = FEMtab->findChild<QLineEdit*>("RockDen")->text().toDouble();
+    basicSettings["rockVs"] = rockVs_tmp;
+    basicSettings["rockDen"] = rockDen_tmp;
+    basicSettings["dashpotCoeff"] = rockVs_tmp*rockDen_tmp;// FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
     basicSettings["dampingCoeff"] = FEMtab->findChild<QLineEdit*>("VisC")->text().toDouble();
     basicSettings["groundMotion"] = FEMtab->findChild<QLineEdit*>("GMPath")->text().toStdString();
     basicSettings["OpenSeesPath"] = FEMtab->findChild<QLineEdit*>("openseesPath")->text().toStdString();
@@ -1144,6 +1153,11 @@ void RockOutcrop::on_reBtn_clicked()
                 double rockDenTmp = list.at(DENSITY-2).toDouble();
                 root["basicSettings"]["rockVs"] = rockVsTmp;
                 root["basicSettings"]["rockDen"] = rockDenTmp;
+                root["basicSettings"]["dashpotCoeff"] = rockVsTmp*rockDenTmp;
+
+                double esizeH_tmp = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
+                double area_tmp = is3D2D ? esizeH_tmp*esizeH_tmp : esizeH_tmp*1.0;
+                root["basicSettings"]["dampingCoeff"] = area_tmp*rockVsTmp*rockDenTmp;
             }
 
             layer = {
@@ -1278,14 +1292,14 @@ void RockOutcrop::on_runBtn_clicked()
         bool openseesEmpty = openseespath=="" || openseespath=="Input the full path of OpenSees excutable.";
         bool rockEmpty = rockmotionpath=="" || rockmotionpath=="Input the path of a ground motion file.";
 
-        QFile srtjsonFile(rockmotionpath);
+        QFile rocMojsonFile(rockmotionpath);
 
-        if(rockEmpty || !srtjsonFile.exists())
-        {
+        if(rockEmpty || !rocMojsonFile.exists())
+        {   // didn't find rock motion file
             int msg = QMessageBox::information(this,tr("Path error"), "You need to specify rock motion file's path in the configure tab.", tr("OK, I'll do it."), tr("Tutorial"));
             if(msg==1)
             {
-                QString link = "https://nheri-simcenter.github.io/s3hark/#/start";
+                QString link = "https://nheri-simcenter.github.io/s3hark-Documentation/common/user_manual/quickstart/quickstart.html";
                 QDesktopServices::openUrl(QUrl(link));
             }
             theTabManager->getTab()->setCurrentIndex(0);
@@ -1303,8 +1317,9 @@ void RockOutcrop::on_runBtn_clicked()
 
             if(openseesExefile.exists())
             {   // do FEA in opensees
+
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                                     analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
+                                                     analysisDir.toStdString(),outputDir.toStdString(),femLog.toStdString(), m_callbackptr);
                 if (simDim==3)
                 {
                     theTabManager->setSimulationD(3);
@@ -1325,7 +1340,10 @@ void RockOutcrop::on_runBtn_clicked()
                 //emit runBtnClicked();
 
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                                     analysisDir.toStdString(),outputDir.toStdString(), m_callbackptr );
+                                                     analysisDir.toStdString(),
+                                                     outputDir.toStdString(),
+                                                     femLog.toStdString(),
+                                                     m_callbackptr );
                 if (simDim==3)
                 {
                     theTabManager->setSimulationD(3);
@@ -1388,7 +1406,7 @@ void RockOutcrop::refreshRun(double step) {
 void RockOutcrop::onInternalFEAInvoked()
 {
 
-    SSSharkThread *shark = new SSSharkThread(srtFileName,analysisDir,outputDir, this);
+    SSSharkThread *shark = new SSSharkThread(srtFileName,analysisDir,outputDir,femLog, this);
     connect(shark,SIGNAL(updateProgress(double)), this, SLOT(onInternalFEAUpdated(double)));
     shark->start();
 }

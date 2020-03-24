@@ -1553,10 +1553,11 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     if(doAnalysis)
     {
 
-        bool useSubstep = false;
+        bool useSubstep = true;
+        int stepLag = 2;
 
         if(!useSubstep)
-        {
+        {   // no substepping
             double totalTime = dT * nSteps;
             int success = 0;
 
@@ -1586,7 +1587,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(100.0 * analysisCount / remStep);
+                        if (callback) m_callbackFunction(100.0 * analysisCount / remStep);
                     }
                 }
                 else
@@ -1596,7 +1597,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                 }
             }
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";
@@ -1606,35 +1607,46 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
             opsout.flush();
             opsout << endln;
         } else { // substep
-            opserr << "Analysis started:" << endln;
+            opserr << "Analysis started (substepping):" << endln;
             double finalTime = dT * remStep;
             int success = 0;
             double currentTime = 0.;
             std::stringstream progressBar;
+            int currentProgress = 0;
+            int remStept = 0;
+            double timeMaker = 0.;
+
             while(fabs(success)<1 && currentTime < finalTime )
             {
+
                 int subStep = 0;
                 success = theTransientAnalysis->analyze(1, dT);
                 if(fabs(success)>0)
-                {
-                    success = subStepAnalyze(dT/2., subStep, theTransientAnalysis);
+                {   // analysisi failed at currenttime
+
+                    success = subStepAnalyze(dT/2., subStep+1, theTransientAnalysis);
                 } else {
-                    int currentProgress = int(currentTime/finalTime *100.);
-                    int remStept = 100-currentProgress;
-                    if (currentProgress % 5 == 0 && currentProgress > 5)
+                    currentProgress = int(currentTime/finalTime *100.);
+                    if (currentProgress > timeMaker)
                     {
-                        progressBar << "\r[";
-                        for (int ii = 0; ii < currentProgress/5; ii++)
-                            progressBar << "-";
-                        progressBar << " 🚌  ";
-                        for (int ii = 0; ii < remStept/5; ii++)
-                            progressBar << ".";
+                        timeMaker += 1;
+                        //std::cout << currentProgress << endln;
+                        remStept = 100-currentProgress;
+                        if (currentProgress % stepLag == 0 && currentProgress > stepLag)
+                        {
+                            progressBar << "\r[";
+                            for (int ii = 0; ii < currentProgress/stepLag; ii++)
+                                progressBar << "-";
+                            progressBar << " 🚌  ";
+                            for (int ii = 0; ii < remStept/stepLag; ii++)
+                                progressBar << ".";
 
-                        progressBar << "]  " << currentProgress << "%";
-                        opsout << progressBar.str().c_str();
-                        opsout.flush();
+                            progressBar << "]  " << currentProgress << "%";
+                            opsout << progressBar.str().c_str();
+                            opsout.flush();
 
-                        m_callbackFunction(currentTime/finalTime *100.);
+                            if (callback) m_callbackFunction(currentTime/finalTime *100.);
+                        }
                     }
 
                     currentTime = theDomain->getCurrentTime();
@@ -1643,9 +1655,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
-            for (int ii = 0; ii < 20; ii++)
+            for (int ii = 0; ii < 100/stepLag; ii++)
                 progressBar << "-";
 
             progressBar << "]  🚌   100%\n";
@@ -1660,7 +1672,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     }
 
 
-	return 0;
+    return 100;
 }
 
 
@@ -3439,7 +3451,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(100.0 * analysisCount / remStep);
+                        if (callback) m_callbackFunction(100.0 * analysisCount / remStep);
                     }
                 }
                 else
@@ -3449,7 +3461,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 }
             }
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";
@@ -3489,7 +3501,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                         opsout << progressBar.str().c_str();
                         opsout.flush();
 
-                        m_callbackFunction(currentTime/finalTime *100.);
+                        if (callback) m_callbackFunction(currentTime/finalTime *100.);
                     }
 
                     currentTime = theDomain->getCurrentTime();
@@ -3498,7 +3510,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
             opserr << "Site response analysis done..." << endln;
-            m_callbackFunction(100.0);
+            if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 20; ii++)
                 progressBar << "-";

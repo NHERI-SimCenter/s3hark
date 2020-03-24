@@ -23,6 +23,7 @@ MINCLUDE = -I/usr/include -I/usr/local/opt/lapack/include -I/usr/local/include/c
 
 FEMlib  = $(source)/lib/libFEM.a
 SRTlib  = $(source)/lib/libSRT.a
+s3harklib  = $(source)/lib/libS3hark.a
 
 .f.o:
 	$(FF) -c $(FFOPTFLAG) $(LINCLUDE) $<

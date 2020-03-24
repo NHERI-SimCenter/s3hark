@@ -90,6 +90,8 @@ private slots:
 
     void on_reBtn_clicked();
 
+    void on_killBtn_clicked();
+
     void on_runBtn_clicked();
 
     json createMaterial(int tag, std::string matType, std::string parameters);
@@ -153,6 +155,7 @@ private:// some of them were public
     QString outputDir = QDir(analysisDir).filePath("out_tcl");
     QString srtFileName = QDir(analysisDir).filePath("SRT.json");
     QString evtjFileName =  QDir(analysisDir).filePath("EVENT-SRT.json");
+    QString femLog = QDir(analysisDir).filePath("fem.log");
 
 
 

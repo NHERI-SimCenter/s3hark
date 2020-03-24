@@ -21,7 +21,8 @@ td{
 }
 
 .img-container-in-sidebar {
-    border: 15px solid white
+    border: 15px solid white;
+    max-width: 60%;
 }
 
 .img-in-sidebar {

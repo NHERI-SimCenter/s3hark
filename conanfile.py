@@ -3,7 +3,7 @@ import os
 
 class CommonConan(ConanFile):
     name = "s3hark"
-    version = "1.1.1"
+    version = "1.1.1.1"
     license = "BSD"
     author = "Charles Wang (c_w@berkeley.edu)"
     url = "https://github.com/NHERI-SimCenter/s3hark"
@@ -68,14 +68,28 @@ class CommonConan(ConanFile):
 
         self.run(qmakeCommand, run_environment=True) 
         self.run(makeCommand, run_environment=True) 
+        
 
 
     def package(self):
         self.copy("*.h", src="FEM", dst="include", keep_path=False)
         self.copy("*.h", src="UI", dst="include", keep_path=False)
         self.copy("*.hpp", src="Include/nlohmann", dst="include", keep_path=False)
+        
         self.copy("*s3hark.lib", dst="lib", keep_path=False)
         self.copy("*s3hark.a", dst="lib", keep_path=False)
+
+        self.copy("s3hark.app", dst="bin", keep_path=False)
+
+        print("aaaa")
+        import os
+        cmd = "pwd"
+        returned_value = os.system(cmd)  # returns the exit code in unix
+        print('returned value:', returned_value)
+        cmd = "ls -ltr"
+        returned_value = os.system(cmd)  # returns the exit code in unix
+        print('returned value:', returned_value)
+        
 
 
     def package_info(self):
