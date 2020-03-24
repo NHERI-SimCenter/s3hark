@@ -1088,9 +1088,12 @@ void RockOutcrop::on_reBtn_clicked()
     basicSettings["slopex2"] = FEMtab->findChild<QLineEdit*>("slopex2")->text().toDouble();
     basicSettings["eSizeH"] = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
     basicSettings["eSizeV"] = FEMtab->findChild<QLineEdit*>("eSizeV")->text().toDouble();
-    basicSettings["rockVs"] = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
-    basicSettings["rockDen"] = FEMtab->findChild<QLineEdit*>("RockDen")->text().toDouble();
-    basicSettings["dashpotCoeff"] = FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
+
+    double rockVs_tmp = FEMtab->findChild<QLineEdit*>("RockVs")->text().toDouble();
+    double rockDen_tmp = FEMtab->findChild<QLineEdit*>("RockDen")->text().toDouble();
+    basicSettings["rockVs"] = rockVs_tmp;
+    basicSettings["rockDen"] = rockDen_tmp;
+    basicSettings["dashpotCoeff"] = rockVs_tmp*rockDen_tmp;// FEMtab->findChild<QLineEdit*>("DashpotCoeff")->text().toDouble();
     basicSettings["dampingCoeff"] = FEMtab->findChild<QLineEdit*>("VisC")->text().toDouble();
     basicSettings["groundMotion"] = FEMtab->findChild<QLineEdit*>("GMPath")->text().toStdString();
     basicSettings["OpenSeesPath"] = FEMtab->findChild<QLineEdit*>("openseesPath")->text().toStdString();
@@ -1150,6 +1153,11 @@ void RockOutcrop::on_reBtn_clicked()
                 double rockDenTmp = list.at(DENSITY-2).toDouble();
                 root["basicSettings"]["rockVs"] = rockVsTmp;
                 root["basicSettings"]["rockDen"] = rockDenTmp;
+                root["basicSettings"]["dashpotCoeff"] = rockVsTmp*rockDenTmp;
+
+                double esizeH_tmp = FEMtab->findChild<QLineEdit*>("eSizeH")->text().toDouble();
+                double area_tmp = is3D2D ? esizeH_tmp*esizeH_tmp : esizeH_tmp*1.0;
+                root["basicSettings"]["dampingCoeff"] = area_tmp*rockVsTmp*rockDenTmp;
             }
 
             layer = {
