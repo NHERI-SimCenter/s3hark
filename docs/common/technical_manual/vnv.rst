@@ -10,7 +10,13 @@ Verification and Validation
 ----------------------
 
 A 2D free field effective stress analysis is performed by |s3harkName|
-and demonstrated here.  The results are verified against FLAC and
+and demonstrated in this section. 
+The simulation is described in a json file, which can be downloaded from 
+:download:`this link <../../_static/files/2D/2D1D_analysis.json>`. 
+This file can be loaded by |s3harkName| to build the analysis automatically.
+The ground motion used in this simulation can be downloaded from 
+:download:`here <../../_static/files/2D/SRT-GM-Input-Style3-full.json>`.
+The results are verified against FLAC and
 Plaxis.  The soil column being analyzed is 6 meters high sitting on a
 rock.  The ground water table is at 2 meters below the soil surface.
 In the column, there are a total of three soil layers. Each layer is
@@ -147,7 +153,7 @@ Gregor Vilhar at PLAXIS BV, Chaofeng Wang at UC, Berkeley contributed to the ver
 
 
 A 3D free field effective stress analysis is performed by |s3harkName|
-and demonstrated here.  The results are verified against OpenSees.  
+and demonstrated in this section.  The results are verified against OpenSees.  
 The soil column being analyzed is 30 meters high sitting on a
 rock.  The ground water table is at 2 meters below the soil surface.
 In the column, there are a total of three soil layers. Each layer is
@@ -182,7 +188,11 @@ The slope parameters are set to be
    Soil layers of a 3D column     
 
 
-The simulation is described in a json file, which can be downloaded from :download:`this link <../../_static/files/s3hark-demo-3D-slope.json>`.
+The ground motion used in this simulation can be downloaded from 
+:download:`here <../../_static/files/3D/SRT-GM-Input-yerbaNSvelocity-2DShaking.json>`.
+The simulation itself is described in a json file, which can be downloaded from 
+:download:`this link <../../_static/files/3D/s3hark-demo-3D-slope.json>`.
+This file can be loaded by |s3harkName| to build the analysis automatically.
 It includes all the configurations, the soil table and parameters for each layer - all the information needed to reproduce the simulation.
 In |s3harkName|, go to the menu and choose to open and load this json file into the application, 
 You'll see the detailed properties of the material in each soil layer as those shown 
