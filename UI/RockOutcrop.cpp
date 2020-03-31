@@ -533,6 +533,7 @@ bool RockOutcrop::inputFromJSON(QJsonObject& inobj)
 {
     cleanTable();
     cleanTable();
+    cleanTable();
 
 
 
