@@ -642,7 +642,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	s << "# 2.1 Apply fixities at base              \n\n";
 	SP_Constraint *theSP;
-	int sizeTheSPtoRemove = 2 ; // for 3D it's 8;
+    int sizeTheSPtoRemove = 2 ; // for 3D2D it's 8, for 3D1D it's 4;
 	ID theSPtoRemove(sizeTheSPtoRemove); // these fixities should be removed later on if compliant base is used
 
 	theSP = new SP_Constraint(1, 0, 0.0, true);
@@ -665,10 +665,11 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	s << "# 2.2 Apply periodic boundary conditions    \n\n";
 	MP_Constraint *theMP;
-	int crrdim = 2 ;//For 3D it's 3;
+    int crrdim = 2 ;//For 3D it's 3;  TODO
 	Matrix Ccr(crrdim, crrdim);
 	ID rcDOF(crrdim);
 	// TODO: get clarified about the dimensions of Crr and rfDOF
+    // Confirmed for 2D:
 	Ccr(0, 0) = 1.0;
 	Ccr(1, 1) = 1.0; 
 	rcDOF(0) = 0;
@@ -751,7 +752,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	// create analysis objects - I use static analysis for gravity
 	AnalysisModel *theModel = new AnalysisModel();
     CTestNormDispIncr *theTest = new CTestNormDispIncr(1.0e-4, 35, 1);
-    EquiSolnAlgo *theSolnAlgo = new NewtonRaphson();
+    EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);
     // 2. test NormDispIncr 1.0e-7 30 1
     //EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton)
     //StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
@@ -774,6 +775,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     //theAnalysis = new StaticAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator); // *
 
     theAnalysis->setConvergenceTest(*theTest);
+
+    //doAnalysis = true;
 
 	int converged;
 	if(doAnalysis)
@@ -1078,6 +1081,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "\n\n\n";
 	
 
+    theDomain->Print(opserr);
+
 	s << "setTime 0.0" << endln;
 	s << "wipeAnalysis" << endln;
 	s << "remove recorders" << endln << endln << endln;
@@ -1127,7 +1132,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     // using a stress input with the dashpot
 	if (theMotionX->isInitialized())
 	{
-		LoadPattern *theLP = new LoadPattern(1, vis_C);
+        LoadPattern *theLP = new LoadPattern(10, vis_C);
         theLP->setTimeSeries(theMotionX->getVelSeries());
 
 		NodalLoad *theLoad;
@@ -1139,7 +1144,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 		//load(3) = 0.0;
 
 		//theLoad = new NodalLoad(1, numNodes + 2, load, false); theLP->addNodalLoad(theLoad);
-		theLoad = new NodalLoad(1, 1, load, false);
+        theLoad = new NodalLoad(99999999, 1, load, false);
 		theLP->addNodalLoad(theLoad);
 		theDomain->addLoadPattern(theLP);
 
@@ -1180,7 +1185,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	// create analysis objects - I use static analysis for gravity
 	theModel = new AnalysisModel();
-	theTest = new CTestNormDispIncr(1.0e-4, 35, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
+    theTest = new CTestNormDispIncr(1.0e-4, 35, 0);                    // 2. test NormDispIncr 1.0e-7 30 1
 	theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton) 
 	//StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
     //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
@@ -1272,24 +1277,26 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "# ------------------------------------------------------------\n\n";
 
 
+    double recDT = 0.001;
+
 	// Record the response at the surface
 	std::string outFile = theOutputDir + PATH_SEPARATOR + "surface.acc";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	outFile = theOutputDir + PATH_SEPARATOR + "surface.vel";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	outFile = theOutputDir + PATH_SEPARATOR + "surface.disp";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
-    double recDT = 0.005;
-    s << "set recDT 0.001" << endln;
+
+    s << "set recDT " << recDT << endln;
     s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
     s<< "eval \"recorder Node -file out_tcl/surface.acc -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  accel\""<<endln;// 1 2
     s<< "eval \"recorder Node -file out_tcl/surface.vel -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3 vel\""<<endln;// 3
@@ -1305,18 +1312,20 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	outFile = theOutputDir + PATH_SEPARATOR + "base.acc";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	outFile = theOutputDir + PATH_SEPARATOR + "base.vel";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	outFile = theOutputDir + PATH_SEPARATOR + "base.disp";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
+
+
 
     s<< "eval \"recorder Node -file out_tcl/base.disp -time -dT $recDT -node 1 -dof 1 2 3  disp\""<<endln;// 1 2
     s<< "eval \"recorder Node -file out_tcl/base.acc -time -dT $recDT -node 1 -dof 1 2 3  accel\""<<endln;// 1 2
@@ -1348,24 +1357,24 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	outFile = theOutputDir + PATH_SEPARATOR + "displacement.out";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	outFile = theOutputDir + PATH_SEPARATOR + "velocity.out";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	outFile = theOutputDir + PATH_SEPARATOR + "acceleration.out";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "accel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	dofToRecord.resize(1);
 	dofToRecord(0) = 2;
 	outFile = theOutputDir + PATH_SEPARATOR + "porePressure.out";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
+    theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, recDT, true, NULL);
 	theDomain->addRecorder(*theRecorder);
 
     s<< "eval \"recorder Node -file out_tcl/displacement.out -time -dT $recDT -nodeRange 1 "<<numNodes<<" -dof 1 2  disp\""<<endln;
@@ -1382,13 +1391,13 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	const char* eleArgs = "stress";
 	outFile = theOutputDir + PATH_SEPARATOR + "stress.out";
 	theOutputStream2 = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new ElementRecorder(&elemsToRecord, &eleArgs, 1, true, *theDomain, *theOutputStream2, motionDT, NULL);
+    theRecorder = new ElementRecorder(&elemsToRecord, &eleArgs, 1, true, *theDomain, *theOutputStream2, recDT, NULL);
 	theDomain->addRecorder(*theRecorder);
 
 	const char* eleArgsStrain = "strain";
 	outFile = theOutputDir + PATH_SEPARATOR + "strain.out";
 	theOutputStream2 = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
-	theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, motionDT, NULL);
+    theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, recDT, NULL);
 	theDomain->addRecorder(*theRecorder);
 
     s<< "recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  stress 3"<<endln;
@@ -1539,16 +1548,13 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	ns.close();
 	es.close();
 
+    // write domain
+    OPS_Stream* theOutputStreamAll;
+    theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
+    theDomain->Print(*theOutputStreamAll);
+    opserr << theOutputStreamAll;
+    delete theOutputStreamAll;
 
-
-
-	/*
-	OPS_Stream* theOutputStreamAll;
-	theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
-	theDomain->Print(*theOutputStreamAll);
-	opserr << theOutputStreamAll;
-	delete theOutputStreamAll;
-	*/
 
     if(doAnalysis)
     {
@@ -1670,6 +1676,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     } else{
         std::cout << "tcl file built." << std::endl;
     }
+
+    theDomain->removeRecorders();
+
 
 
     return 100;
@@ -3526,7 +3535,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     } else{
         std::cout << "tcl file built." << std::endl;
     }
-
+    theDomain->removeRecorders();
 
     return 0;
 }
