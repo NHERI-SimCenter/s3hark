@@ -37,6 +37,17 @@
 #include "RCM.h"
 #include "DOF_Numberer.h"
 #include "BandGenLinSolver.h"
+#include <PlainHandler.h>
+//#include <SparseGenColLinSolver.h>
+/*
+#include <SuperLU.h>
+#include <SparseGenColLinSOE.h>
+#include <KrylovNewton.h>
+#include <KrylovAccelerator.h>
+#include <AcceleratedNewton.h>
+*/
+
+
 
 #include "LinearSOE.h"
 #include "NodeIter.h"

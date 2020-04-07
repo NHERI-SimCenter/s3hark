@@ -1726,6 +1726,13 @@ int SiteResponseModel::trueRun()
 
     theDomain->removeRecorders();
 
+    // write domain
+    OPS_Stream* theOutputStreamAll;
+    theOutputStreamAll = new DataFileStream("/Users/simcenter/Codes/SimCenter/s3hark/bin/s3hark.out", OVERWRITE, 2, 0, false, 6, false);
+    theDomain->Print(*theOutputStreamAll);
+    opserr << theOutputStreamAll;
+    delete theOutputStreamAll;
+
     return 100;
 
 }
@@ -1761,6 +1768,8 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationA
 
 int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 {
+    m_doAnalysis = doAnalysis;
+
     Vector zeroVec(3);
     zeroVec.Zero();
 
@@ -2130,12 +2139,15 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                 //TODO: PM4Silt->PDMY02
                 //TODO: deal with noYieldSurf
+                //theMat = new PressureDependMultiYield02(matTag,nd,rho,refShearModul,refBulkModul,frictionAng,
+                //       peakShearStra, refPress,  pressDependCoe,PTAng,contrac1,contrac3,  dilat1,dilat3,20,0,
+                //              contrac2, dilat2,liquefac1,liquefac2,e,cs1,cs2,cs3,pa);
                 theMat = new PressureDependMultiYield02(matTag,nd,rho,refShearModul,refBulkModul,frictionAng,
-                       peakShearStra, refPress,  pressDependCoe,PTAng,contrac1,contrac3,  dilat1,dilat3,20,0,
-                              contrac2, dilat2,liquefac1,liquefac2,e,cs1,cs2,cs3,pa);
-                s << "nDMaterial PressureDependMultiYield02 "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "<<refBulkModul<<" "<<frictionAng<<" "<<peakShearStra<<" "<<
-                        refPress<<" "<<pressDependCoe<<" "<<PTAng<<" "<<contrac1<<" "<<contrac3<<" "<<dilat1<<" "<<dilat3<<" 20 "<<contrac2<<" "<<dilat2<<" "<<liquefac1<<" "<<liquefac2
-                          <<" "<<e<<" "<<cs1<<" "<<cs2<<" "<<cs3<<" "<<pa<<" "<<endln;
+                       peakShearStra, refPress,  pressDependCoe,PTAng,contrac1,contrac3,  dilat1,dilat3,20);
+                s << "nDMaterial PressureDependMultiYield02 "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "
+                  <<refBulkModul<<" "<<frictionAng<<" "<<peakShearStra<<" "<<refPress<<" "<<pressDependCoe<<" "
+                 <<PTAng<<" "<<contrac1<<" "<<contrac3<<" "<<dilat1<<" "<<dilat3<<" 20 "<<contrac2<<" "<<dilat2
+                 <<" "<<liquefac1<<" "<<liquefac2<<" "<<e<<" "<<cs1<<" "<<cs2<<" "<<cs3<<" "<<pa<<" "<<endln;
             }
             else if(!matType.compare("ManzariDafalias"))
                         {
@@ -2514,22 +2526,31 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "puts \"Finished with elastic gravity analysis...\"" << endln << endln;
 
     // create analysis objects - I use static analysis for gravity
-    AnalysisModel *theModel = new AnalysisModel();
-    CTestNormDispIncr *theTest = new CTestNormDispIncr(1.0e-4, 35, 1);
-    EquiSolnAlgo *theSolnAlgo = new NewtonRaphson();
+    //AnalysisModel *
+    theModel = new AnalysisModel();
+    //CTestNormDispIncr *
+    theTest = new CTestNormDispIncr(1.0e-4, 35, 1);
+    //EquiSolnAlgo *
+    theSolnAlgo = new NewtonRaphson();
     // 2. test NormDispIncr 1.0e-7 30 1
     //EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton)
     //StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
-    TransientIntegrator* theIntegrator = new Newmark(gamma, beta);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
-    ConstraintHandler* theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
+    //TransientIntegrator*
+    theIntegrator = new Newmark(gamma, beta);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+    //ConstraintHandler*
+    theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
     //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
     //theHandler = new TransformationConstraintHandler(); // *
-    RCM *theRCM = new RCM();
-    DOF_Numberer *theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
-    BandGenLinSolver *theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
-    LinearSOE *theSOE = new BandGenLinSOE(*theSolver);
+    //RCM *
+    theRCM = new RCM();
+    //DOF_Numberer *
+    theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
+    //BandGenLinSolver *
+    theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
+    //LinearSOE *
+    theSOE = new BandGenLinSOE(*theSolver);
 
-    DirectIntegrationAnalysis* theAnalysis;												   // 7. analysis    Transient
+    //DirectIntegrationAnalysis* theAnalysis;												   // 7. analysis    Transient
     theAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator, theTest);
 
     //VariableTimeStepDirectIntegrationAnalysis* theAnalysis;
@@ -2933,15 +2954,15 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         theLPz->setTimeSeries(theMotionZ->getVelSeries());
 
         NodalLoad *theLoad;
-        int numLoads = 4; // for 3D it's 4, for 2D it's 3
+        int numLoads = 3; // for 3D it's 4, for 2D it's 3
         Vector load(numLoads);
         load(0) = 1.0;
         load(1) = 0.0;
         load(2) = 0.0;
-        load(3) = 0.0;
+        //load(3) = 0.0;
 
         //theLoad = new NodalLoad(1, numNodes + 2, load, false); theLP->addNodalLoad(theLoad);
-        theLoad = new NodalLoad(99999998, 1, load, false);
+        theLoad = new NodalLoad(99999998, numNodes + 2, load, false);
         theLP->addNodalLoad(theLoad);
         theDomain->addLoadPattern(theLP);
 
@@ -2950,9 +2971,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         loadz(0) = 0.0;
         loadz(1) = 0.0;
         loadz(2) = 1.0;
-        loadz(3) = 0.0;
+        //loadz(3) = 0.0;
 
-        theLoadz = new NodalLoad(99999999, 1, loadz, false);
+        theLoadz = new NodalLoad(99999999, numNodes + 3, loadz, false);
         theLPz->addNodalLoad(theLoadz);
         theDomain->addLoadPattern(theLPz);
 
@@ -2994,21 +3015,23 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     //s << "system SparseGeneral" << endln;//BandGeneral
 
 
-    // create analysis objects - I use static analysis for gravity
+    // create analysis objects - 3D solver
     theModel = new AnalysisModel();
-    theTest = new CTestNormDispIncr(1.0e-3, 55, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
+    theTest = new CTestNormDispIncr(1.0e-3, 55, 0);                    // 2. test NormDispIncr 1.0e-7 30 1
     theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton)
+    //Accelerator *theAccel = new KrylovAccelerator(3, 0);theSolnAlgo = new AcceleratedNewton(*theTest, theAccel, 0);
     //StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
     //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
     // *
     //TransientIntegrator* theIntegrator = new Newmark(5./6., 4./9.);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
     //theIntegrator = new Newmark(0.5, 0.25);// * Newmark(0.5, 0.25)
     theHandler = new TransformationConstraintHandler();
-    //theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
-    theRCM = new RCM();
-    theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
-    theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
-    theSOE = new BandGenLinSOE(*theSolver);
+    //theHandler = new PenaltyConstraintHandler(1.0e14, 1.0e14);          // 1. constraints Penalty 1.0e15 1.0e15
+    theRCM = new RCM(false);theNumberer = new DOF_Numberer(*theRCM);    // 4. numberer RCM (another option: Plain)
+    //theHandler = new PlainHandler();
+    theSolver = new BandGenLinLapackSolver();  theSOE = new BandGenLinSOE(*theSolver);// 5. system BandGeneral (TODO: switch to SparseGeneral)
+    //theSolver = new SuperLU(0, 0, 6, 6, 'N');theSOE = new SparseGenColLinSOE(*theSolver);
+
 
 
     //VariableTimeStepDirectIntegrationAnalysis* theAnalysis;
@@ -3022,7 +3045,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
     double gamma_dynm = 0.5;
     double beta_dynm = 0.25;
-    TransientIntegrator* theTransientIntegrator = new Newmark(gamma_dynm, beta_dynm);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+    //TransientIntegrator*
+    theTransientIntegrator = new Newmark(gamma_dynm, beta_dynm);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
     //theTransientIntegrator->setConvergenceTest(*theTest);
 
     // setup Rayleigh damping   TODO: calcualtion of these paras
@@ -3043,10 +3067,10 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         //opserr << "f1 = " << natFreq << "    f2 = " << 5.0 * natFreq << endln;
         opserr << "a0 = " << a0 << "    a1 = " << a1 << endln;
     }
-    theDomain->setRayleighDampingFactors(a0, 0.0, a1, 0.0);
+    //theDomain->setRayleighDampingFactors(a0, 0.0, a1, 0.0);
     
 
-    DirectIntegrationAnalysis* theTransientAnalysis;
+    //DirectIntegrationAnalysis* theTransientAnalysis;
     theTransientAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theTransientIntegrator, theTest);
 
     //VariableTimeStepDirectIntegrationAnalysis *theTransientAnalysis;
@@ -3135,7 +3159,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     nodesToRecord.resize(1);
     nodesToRecord(0) = 1;
 
-    dofToRecord.resize(1);
+    dofToRecord.resize(3);
     dofToRecord(0) = 0; dofToRecord(1) = 1; dofToRecord(2) = 2; 
 
     outFile = theOutputDir + PATH_SEPARATOR + "base.acc";
@@ -3470,9 +3494,12 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
-    
+    m_dT = dT;
+    m_nSteps = nSteps;
+    m_remStep = remStep;
+    return trueRun();
 
-    
+    /*
    //doAnalysis = true;
 
         if(doAnalysis)
@@ -3612,6 +3639,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theDomain->removeRecorders();
 
     return 100;
+    */
 }
 
 

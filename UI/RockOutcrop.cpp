@@ -1344,6 +1344,10 @@ void RockOutcrop::on_runBtn_clicked()
                 emit runBtnClicked();
 
             } else {// internal FEA
+                if (simDim==3) theTabManager->setSimulationD(3);
+                else theTabManager->setSimulationD(2);
+
+
                 emit signalInvokeInternalFEA();
                 //emit runBtnClicked();
 
@@ -1419,6 +1423,7 @@ bool RockOutcrop::refreshRun(double step) {
         QMessageBox::information(this,tr("s3hark Information"), "Analysis in s3hark is done.", tr("OK."));
         */
 
+        on_killBtn_clicked();
 
         postProcessor = new PostProcessor(outputDir);
         profiler->updatePostProcessor(postProcessor);
@@ -1438,7 +1443,7 @@ bool RockOutcrop::refreshRun(double step) {
         emit signalProgress(100);
         ui->progressBar->hide();
 
-        on_killBtn_clicked();
+
 
     }
     return true;

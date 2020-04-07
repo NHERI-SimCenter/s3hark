@@ -91,7 +91,7 @@ void SiteResponse::init(std::string configureFile,std::string anaDir,std::string
             motionZ.setMotion(motionZFN.c_str());
             bbpOName = "out";
             //model = new SiteResponseModel("3D", &motionX, &motionZ, m_callbackFunction);
-            model = new SiteResponseModel("3D", &motionX, &motionZ);
+            model = new SiteResponseModel("3D", &motionX, &motionZ, m_callbackFunction);
             //model = new SiteResponseModel("2D", &motionX);
             model->setOutputDir(outDir);
             model->setAnalysisDir(anaDir);
