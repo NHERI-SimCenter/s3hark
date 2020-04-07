@@ -26,6 +26,26 @@
 
 #include "DirectIntegrationAnalysis.h"
 
+#include "AnalysisModel.h"
+#include "CTestNormDispIncr.h"
+#include "StaticAnalysis.h"
+#include "DirectIntegrationAnalysis.h"
+#include "EquiSolnAlgo.h"
+#include "StaticIntegrator.h"
+#include "TransientIntegrator.h"
+#include "ConstraintHandler.h"
+#include "RCM.h"
+#include "DOF_Numberer.h"
+#include "BandGenLinSolver.h"
+
+#include "LinearSOE.h"
+#include "NodeIter.h"
+#include "ElementIter.h"
+#include "DataFileStream.h"
+#include "Recorder.h"
+#include "UniaxialMaterial.h"
+#include "ElementStateParameter.h"
+
 #define MAX_FREQUENCY 50.0
 #define NODES_PER_WAVELENGTH 10
 
@@ -35,8 +55,10 @@ public:
 	SiteResponseModel();
 	SiteResponseModel(SiteLayering, std::string, OutcropMotion*, OutcropMotion*);
 	SiteResponseModel(SiteLayering, std::string, OutcropMotion*);
-    SiteResponseModel(std::string, OutcropMotion*,std::function<void(double)>);
+    SiteResponseModel(std::string, OutcropMotion*,std::function<bool(double)>);
+    SiteResponseModel(std::string, OutcropMotion*, OutcropMotion *, std::function<bool(double)>);
     SiteResponseModel(std::string , OutcropMotion *);
+    SiteResponseModel(std::string , OutcropMotion *, OutcropMotion *);
 	~SiteResponseModel();
 
 	int   buildEffectiveStressModel2D(bool doAnalysis);
@@ -50,12 +72,14 @@ public:
     int subStepAnalyze(double dT, int subStep, DirectIntegrationAnalysis* theTransientAnalysis);
 
 
-    std::function<void(double)> m_callbackFunction;
+    std::function<bool(double)> m_callbackFunction;
     //double pi = 3.1415926535897;
     const long double pi = 3.141592653589793238462643383279L;
 
     bool callback = false;
     void setCallback(bool cal) {callback = cal;}
+    void setForward(bool f) {forward = f;}
+    int trueRun();
 
 
 private:
@@ -68,6 +92,26 @@ private:
     std::string 	theConfigFile;
     std::string     theTclOutputDir;
     std::string     theAnalysisDir;
+    bool forward = true;
+    bool m_doAnalysis = false;
+
+    // 2D solver
+    std::vector<double> dt;
+    AnalysisModel *theModel;
+    CTestNormDispIncr *theTest;
+    EquiSolnAlgo *theSolnAlgo;
+    TransientIntegrator* theIntegrator;// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+    ConstraintHandler* theHandler;          // 1. constraints Penalty 1.0e15 1.0e15
+    RCM *theRCM;
+    DOF_Numberer *theNumberer;                                 // 4. numberer RCM (another option: Plain)
+    BandGenLinSolver *theSolver;                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
+    LinearSOE *theSOE;
+    DirectIntegrationAnalysis* theAnalysis;         // static    2D
+    DirectIntegrationAnalysis* theTransientAnalysis;// dynamic   2D
+    TransientIntegrator* theTransientIntegrator;
+    double m_dT;
+    int m_nSteps;
+    int m_remStep;
 
 
 };

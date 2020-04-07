@@ -46,8 +46,8 @@ public:
     bool copyFiles(QString &destDir);
 
     // callback setups
-    void refreshRun(double step);
-    std::function<void(double)> m_callbackptr = std::bind(&RockOutcrop::refreshRun,this, _1);
+    bool refreshRun(double step);
+    std::function<bool(double)> m_callbackptr = std::bind(&RockOutcrop::refreshRun,this, std::placeholders::_1);
 
     bool copyDir(const QDir& from, const QDir& to, bool cover) ;
     void cleanTable();
@@ -147,6 +147,8 @@ private:// some of them were public
     QString dimMsg = "";
 
     bool loadPreviousResults = true;
+
+    SSSharkThread *shark;
 
  public:
     QString rootDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation); // qApp->applicationDirPath();//

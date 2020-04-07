@@ -32,25 +32,7 @@
 #include "PathTimeSeries.h"
 #include "LoadPattern.h"
 #include "NodalLoad.h"
-#include "AnalysisModel.h"
-#include "CTestNormDispIncr.h"
-#include "StaticAnalysis.h"
-#include "DirectIntegrationAnalysis.h"
-#include "EquiSolnAlgo.h"
-#include "StaticIntegrator.h"
-#include "TransientIntegrator.h"
-#include "ConstraintHandler.h"
-#include "RCM.h"
-#include "DOF_Numberer.h"
-#include "BandGenLinSolver.h"
 
-#include "LinearSOE.h"
-#include "NodeIter.h"
-#include "ElementIter.h"
-#include "DataFileStream.h"
-#include "Recorder.h"
-#include "UniaxialMaterial.h"
-#include "ElementStateParameter.h"
 
 #include "SSPbrick.h"
 #include "SSPquad.h"
@@ -80,6 +62,7 @@
 #include "ViscousMaterial.h"
 #include "ZeroLength.h"
 #include "SingleDomParamIter.h"
+#include "PressureDependMultiYield02.h"
 
 #include "Information.h"
 #include <vector> 
@@ -140,7 +123,7 @@ SiteResponseModel::SiteResponseModel(SiteLayering layering, std::string modelTyp
 	}
 }
 
-SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX, std::function<void(double)> callbackFunction) : theModelType(modelType),
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX, std::function<bool(double)> callbackFunction) : theModelType(modelType),
 																											 theMotionX(motionX),
                                                                                                              theOutputDir(".")
 {
@@ -156,11 +139,44 @@ SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motio
 	}
 }
 
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX, OutcropMotion *motionZ, std::function<bool(double)> callbackFunction) : theModelType(modelType),
+                                                                                                             theMotionX(motionX),
+                                                                                                             theMotionZ(motionZ),
+                                                                                                             theOutputDir(".")
+{
+    if (theMotionX->isInitialized() && theMotionX->isInitialized())
+    {
+        theDomain = new Domain();
+        m_callbackFunction = callbackFunction;
+    }
+    else
+    {
+        opserr << "No motion is specified. Program exited." << endln;
+        exit(-1);
+    }
+}
+
 SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX) : theModelType(modelType),
                                                                                                              theMotionX(motionX),
                                                                                                              theOutputDir(".")
 {
     if (theMotionX->isInitialized())
+    {
+        theDomain = new Domain();
+    }
+    else
+    {
+        opserr << "No motion is specified. Program exited." << endln;
+        exit(-1);
+    }
+}
+
+SiteResponseModel::SiteResponseModel(std::string modelType, OutcropMotion *motionX, OutcropMotion *motionZ) : theModelType(modelType),
+                                                                                                             theMotionX(motionX),
+                                                                                                             theMotionZ(motionZ),
+                                                                                                             theOutputDir(".")
+{
+    if (theMotionX->isInitialized() && theMotionX->isInitialized())
     {
         theDomain = new Domain();
     }
@@ -181,6 +197,8 @@ SiteResponseModel::~SiteResponseModel()
 
 int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 {
+    m_doAnalysis = doAnalysis;
+
 	Vector zeroVec(3);
 	zeroVec.Zero();
 
@@ -750,22 +768,31 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "puts \"Finished with elastic gravity analysis...\"" << endln << endln;
 
 	// create analysis objects - I use static analysis for gravity
-	AnalysisModel *theModel = new AnalysisModel();
-    CTestNormDispIncr *theTest = new CTestNormDispIncr(1.0e-4, 35, 1);
-    EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);
+    //AnalysisModel *
+    theModel = new AnalysisModel();
+    //CTestNormDispIncr *
+    theTest = new CTestNormDispIncr(1.0e-4, 35, 1);
+    //EquiSolnAlgo *
+    theSolnAlgo = new NewtonRaphson(*theTest);
     // 2. test NormDispIncr 1.0e-7 30 1
     //EquiSolnAlgo *theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton)
     //StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
-    TransientIntegrator* theIntegrator = new Newmark(gamma, beta);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
-    ConstraintHandler* theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
+    //TransientIntegrator*
+    theIntegrator = new Newmark(gamma, beta);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+    //ConstraintHandler*
+    theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
     //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
     //theHandler = new TransformationConstraintHandler(); // *
-	RCM *theRCM = new RCM();
-	DOF_Numberer *theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
-	BandGenLinSolver *theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
-	LinearSOE *theSOE = new BandGenLinSOE(*theSolver);
+    //RCM *
+    theRCM = new RCM();
+    //DOF_Numberer *
+    theNumberer = new DOF_Numberer(*theRCM);                                 // 4. numberer RCM (another option: Plain)
+    //BandGenLinSolver *
+    theSolver = new BandGenLinLapackSolver();                            // 5. system BandGeneral (TODO: switch to SparseGeneral)
+    //LinearSOE *
+    theSOE = new BandGenLinSOE(*theSolver);
 
-    DirectIntegrationAnalysis* theAnalysis;												   // 7. analysis    Transient
+    //DirectIntegrationAnalysis* theAnalysis;												   // 7. analysis    Transient
     theAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theIntegrator, theTest);
 
 	//VariableTimeStepDirectIntegrationAnalysis* theAnalysis;
@@ -1081,7 +1108,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "\n\n\n";
 	
 
-    theDomain->Print(opserr);
+    //theDomain->Print(opserr);
 
 	s << "setTime 0.0" << endln;
 	s << "wipeAnalysis" << endln;
@@ -1116,7 +1143,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "# 5.1 Apply the rock motion                                    \n";
 	s << "# ------------------------------------------------------------\n\n";
 	int numSteps = 0;
-	std::vector<double> dt;
+    //std::vector<double> dt;
 
 
     double dT = 0.0005; // This is the time step in solution
@@ -1214,7 +1241,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	double gamma_dynm = 0.5;
 	double beta_dynm = 0.25;
-	TransientIntegrator* theTransientIntegrator = new Newmark(gamma_dynm, beta_dynm);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
+    //TransientIntegrator* theTransientIntegrator
+    theTransientIntegrator = new Newmark(gamma_dynm, beta_dynm);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
 	//theTransientIntegrator->setConvergenceTest(*theTest);
 
 	// setup Rayleigh damping   TODO: calcualtion of these paras
@@ -1242,7 +1270,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	}
 	theDomain->setRayleighDampingFactors(a0, a1, 0.0, 0.0);
 
-	DirectIntegrationAnalysis* theTransientAnalysis;
+    //DirectIntegrationAnalysis* theTransientAnalysis;
 	theTransientAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theTransientIntegrator, theTest);
 
 	//VariableTimeStepDirectIntegrationAnalysis *theTransientAnalysis;
@@ -1308,7 +1336,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	nodesToRecord(0) = 1;
 	
 	dofToRecord.resize(1);
-	dofToRecord(0) = 0; // only record the x dof
+	dofToRecord(0) = 0; dofToRecord(1) = 1; dofToRecord(2) = 2; 
 
 	outFile = theOutputDir + PATH_SEPARATOR + "base.acc";
 	theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
@@ -1548,13 +1576,32 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	ns.close();
 	es.close();
 
+    /*
     // write domain
     OPS_Stream* theOutputStreamAll;
     theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
     theDomain->Print(*theOutputStreamAll);
     opserr << theOutputStreamAll;
     delete theOutputStreamAll;
+    */
 
+
+    m_dT = dT;
+    m_nSteps = nSteps;
+    m_remStep = remStep;
+
+
+    //return 100;
+    return trueRun();
+}
+
+int SiteResponseModel::trueRun()
+{
+    bool doAnalysis = m_doAnalysis;
+
+    double dT = m_dT;
+    int nSteps = m_nSteps;
+    int remStep = m_remStep;
 
     if(doAnalysis)
     {
@@ -1592,7 +1639,6 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                         progressBar << "]  " << (int)(100 * analysisCount / remStep) << "%";
                         opsout << progressBar.str().c_str();
                         opsout.flush();
-
                         if (callback) m_callbackFunction(100.0 * analysisCount / remStep);
                     }
                 }
@@ -1622,7 +1668,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
             int remStept = 0;
             double timeMaker = 0.;
 
-            while(fabs(success)<1 && currentTime < finalTime )
+            while(fabs(success)<1 && currentTime < finalTime && forward)
             {
 
                 int subStep = 0;
@@ -1651,7 +1697,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                             opsout << progressBar.str().c_str();
                             opsout.flush();
 
-                            if (callback) m_callbackFunction(currentTime/finalTime *100.);
+                            if (callback && forward)
+                                forward = m_callbackFunction(double(currentTime/finalTime *100.));
                         }
                     }
 
@@ -1661,7 +1708,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
             opserr << "Site response analysis done..." << endln;
-            if (callback) m_callbackFunction(100.0);
+            if (callback && forward) m_callbackFunction(100.0);
             progressBar << "\r[";
             for (int ii = 0; ii < 100/stepLag; ii++)
                 progressBar << "-";
@@ -1679,17 +1726,14 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
     theDomain->removeRecorders();
 
-
-
     return 100;
+
 }
-
-
 
 
 int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationAnalysis* theTransientAnalysis)
 {
-	if (subStep > 10)
+    if (subStep > 10)
 		return -10;
     int success;
     for (int i=0; i < 3; i++)
@@ -1782,7 +1826,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         rockDen = basicSettings["rockDen"];
         rockVs = basicSettings["rockVs"];
         sElemX = basicSettings["eSizeH"];
-        sElemX = 1.0;
+        sElemX = 1.0;  // force element size to be 1.0 in the horizontal direction
         slopex1 = basicSettings["slopex1"];
         slopex2 = basicSettings["slopex2"];
         if (sElemX<minESizeH)
@@ -1803,7 +1847,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set slopex2 " << slopex2 << endln;
 
 
-    s << "# ------------------------------------------ \n";
+    s << "\n# ------------------------------------------ \n";
     s << "# 1. Build nodes and elements                \n";
     s << "# ------------------------------------------ \n \n";
     double yCoord = 0;
@@ -1822,11 +1866,12 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     std::vector<double> vPermVec;
     std::vector<double> hPermVec;
 
-    // TODO: ndof is 2 or 3?
-    theNode = new Node(numNodes + 1, 3, 0.0, yCoord, 0.0); theDomain->addNode(theNode);
-    theNode = new Node(numNodes + 2, 3, 0.0, yCoord, zthick); theDomain->addNode(theNode);
-    theNode = new Node(numNodes + 3, 3, sElemX, yCoord, zthick); theDomain->addNode(theNode);
-    theNode = new Node(numNodes + 4, 3, sElemX, yCoord, 0.0); theDomain->addNode(theNode);
+    // TODO: ndof is 2 or 3? 
+    // 2D: 3   3D: 4
+    theNode = new Node(numNodes + 1, 4, 0.0, yCoord, 0.0); theDomain->addNode(theNode);
+    theNode = new Node(numNodes + 2, 4, 0.0, yCoord, zthick); theDomain->addNode(theNode);
+    theNode = new Node(numNodes + 3, 4, sElemX, yCoord, zthick); theDomain->addNode(theNode);
+    theNode = new Node(numNodes + 4, 4, sElemX, yCoord, 0.0); theDomain->addNode(theNode);
 
 
 
@@ -2056,7 +2101,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 //evoid  = emax - Dr * (emax - emin);
 
                 double thisDr = mat["Dr"];
-                double nd = 3;//mat["nd"];
+                int nd = 3;//mat["nd"];
                 double rho = mat["rho"];
                 double refShearModul = mat["refShearModul"];
                 double refBulkModul = mat["refBulkModul"];
@@ -2085,13 +2130,12 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
                 //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                 //TODO: PM4Silt->PDMY02
                 //TODO: deal with noYieldSurf
-                theMat = new PM4Silt(matTag, nd,rho,refShearModul,refBulkModul,frictionAng,peakShearStra,
-                                     refPress,pressDependCoe,PTAng,contrac1,contrac3,dilat1,dilat3,contrac2,dilat2,liquefac1,liquefac2
-                                       ,e,cs1,cs2,cs3,pa,c);
+                theMat = new PressureDependMultiYield02(matTag,nd,rho,refShearModul,refBulkModul,frictionAng,
+                       peakShearStra, refPress,  pressDependCoe,PTAng,contrac1,contrac3,  dilat1,dilat3,20,0,
+                              contrac2, dilat2,liquefac1,liquefac2,e,cs1,cs2,cs3,pa);
                 s << "nDMaterial PressureDependMultiYield02 "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "<<refBulkModul<<" "<<frictionAng<<" "<<peakShearStra<<" "<<
                         refPress<<" "<<pressDependCoe<<" "<<PTAng<<" "<<contrac1<<" "<<contrac3<<" "<<dilat1<<" "<<dilat3<<" 20 "<<contrac2<<" "<<dilat2<<" "<<liquefac1<<" "<<liquefac2
                           <<" "<<e<<" "<<cs1<<" "<<cs2<<" "<<cs3<<" "<<pa<<" "<<endln;
-
             }
             else if(!matType.compare("ManzariDafalias"))
                         {
@@ -2155,7 +2199,6 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
-
             int numEleThisLayer = static_cast<int> (std::round(thickness / eSizeV));
             numEleThisLayer = std::max(1,numEleThisLayer);
             double t = thickness / numEleThisLayer;
@@ -2163,13 +2206,13 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
             for (int i=1; i<=numEleThisLayer;i++)
             {
                 yCoord += t ;
-                theNode = new Node(numNodes + 1, 3, 0.0, yCoord, 0.0);
+                theNode = new Node(numNodes + 1, 4, 0.0, yCoord, 0.0);
                 theDomain->addNode(theNode);
-                theNode = new Node(numNodes + 2, 3, 0.0, yCoord, zthick);
+                theNode = new Node(numNodes + 2, 4, 0.0, yCoord, zthick);
                 theDomain->addNode(theNode);
-                theNode = new Node(numNodes + 3, 3, sElemX, yCoord, zthick);
+                theNode = new Node(numNodes + 3, 4, sElemX, yCoord, zthick);
                 theDomain->addNode(theNode);
-                theNode = new Node(numNodes + 4, 3, sElemX, yCoord, 0.0);
+                theNode = new Node(numNodes + 4, 4, sElemX, yCoord, 0.0);
                 theDomain->addNode(theNode);
 
 
@@ -2196,14 +2239,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
-                double alpha = 1.5e-6;
-                //theEle = new SSPbrickUP(numElems + 1, numNodes - 3, numNodes - 2, numNodes - 1, numNodes , numNodes + 1, numNodes + 2, numNodes + 3, numNodes + 4,
-                //                       *theMat, uBulk, 1.0, 1.0, 1.0, 1.0, evoid, alpha, 0.0, g * 1.0, 0.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
-                // TODO: use SSPbrickUP
-                theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
-                                       *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, alpha, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
-                hPermVec.push_back(hPerm);
-                vPermVec.push_back(vPerm);
+                double alpha = 1.5e-6; // seems different from 2D
                 /*
                 s << "element SSPbrickUP "<<numElems + 1<<" "
                     <<numNodes - 3 <<" "<<numNodes - 2<<" "<< numNodes +2<<" "<< numNodes+1 <<" "
@@ -2217,17 +2253,35 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
                 double epsilon = 1.0e-19;
+                double b1 = 0.0, b2 = 0.0, b3 = 0.0;
                 if (fabs(-1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g)<epsilon)
-                    s << std::setprecision(5) << 0.0 <<" ";
-                else s << std::setprecision(5) << -1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g <<" ";
+                    s << std::setprecision(5) << 0.0 <<" "; 
+                else {
+                b1 = -1.0*sin(slopex1*pi/180.) * cos(slopex2*pi/180.) * g;
+                s << std::setprecision(5) << b1 <<" ";}
 
                 if (fabs(cos(slopex1*pi/180.) * g)<epsilon)
                     s << std::setprecision(5) << 0.0 <<" ";
-                else s << std::setprecision(5) << cos(slopex1*pi/180.) * g <<" ";
+                else {
+                    b2 = cos(slopex1*pi/180.) * g;
+                    s << std::setprecision(5) << b2 <<" ";}
 
                 if (fabs(-1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g)<epsilon)
                     s << std::setprecision(5) << 0.0 <<endln;
-                else s << std::setprecision(5) << -1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g <<endln;
+                else {
+                    b3 = -1.0*sin(slopex1*pi/180.)*sin(slopex2*pi/180.) * g ;
+                    s << std::setprecision(5) << b3 <<endln;}
+
+                theEle = new SSPbrickUP(numElems + 1,
+                                        numNodes - 3, numNodes - 2, numNodes - 1, numNodes ,
+                                        numNodes + 1, numNodes + 2, numNodes + 3, numNodes + 4,
+                                       *theMat, uBulk, 1.0, 1.0, 1.0, 1.0, evoid, alpha,
+                                        b1, b2 ,b3); // -9.81 * theMat->getRho() TODO: theMat->getRho()
+                // TODO: use SSPbrickUP
+                //theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
+                //                       *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, alpha, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
+                hPermVec.push_back(hPerm);
+                vPermVec.push_back(vPerm);
 
 
                 /*
@@ -2264,6 +2318,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
                 theDomain->addElement(theEle);
 
+                // TODO: not sure...
                 theParameter = new Parameter(numElems + 1, 0, 0, 0);
                 sprintf(paramArgs[1], "%d", theMat->getTag());
                 theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
@@ -2291,13 +2346,14 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "\n\n";
 
 
+
     s << "# ------------------------------------------ \n";
     s << "# 2. Apply boundary conditions.              \n";
     s << "# ------------------------------------------ \n \n";
 
     s << "# 2.1 Apply fixities at base              \n\n";
     SP_Constraint *theSP;
-    int sizeTheSPtoRemove = 8 ; // for 3D it's 8; for 2D it's 2
+    int sizeTheSPtoRemove = 2 ; // for 3D it's 2; for 2D it's 2
     ID theSPtoRemove(sizeTheSPtoRemove); // these fixities should be removed later on if compliant base is used
 
     theSP = new SP_Constraint(1, 0, 0.0, true);
@@ -2311,52 +2367,38 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theDomain->addSP_Constraint(theSP);
     theSPtoRemove(1) = theSP->getTag();
 
-    s << "fix 1 0 1 1 0" << endln;
-
-    theSP = new SP_Constraint(2, 0, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSPtoRemove(1) = theSP->getTag();
+    s << "fix 1 1 1 1 0" << endln;
 
     theSP = new SP_Constraint(2, 1, 0.0, true);
     theDomain->addSP_Constraint(theSP);
 
-    theSP = new SP_Constraint(2, 2, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSPtoRemove(1) = theSP->getTag();
-
-    s << "fix 2 0 1 1 0" << endln << endln;
-
-    theSP = new SP_Constraint(3, 0, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSPtoRemove(0) = theSP->getTag();
+    s << "fix 2 0 1 0 0" << endln << endln;
 
     theSP = new SP_Constraint(3, 1, 0.0, true);
     theDomain->addSP_Constraint(theSP);
 
-    theSP = new SP_Constraint(3, 2, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSPtoRemove(1) = theSP->getTag();
-
-    s << "fix 3 0 1 1 0" << endln;
-
-    theSP = new SP_Constraint(4, 0, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSPtoRemove(1) = theSP->getTag();
+    s << "fix 3 0 1 0 0" << endln;
 
     theSP = new SP_Constraint(4, 1, 0.0, true);
     theDomain->addSP_Constraint(theSP);
 
-    theSP = new SP_Constraint(4, 2, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSPtoRemove(1) = theSP->getTag();
+    s << "fix 4 0 1 0 0" << endln << endln;
 
-    s << "fix 4 0 1 1 0" << endln << endln;
+    MP_Constraint *theMP_base;
+    int crrdim_base = 2 ;//For 3D it's 3; for 2d, it's 2
+    Matrix Ccr_base(crrdim_base, crrdim_base);
+    ID rcDOF_base(crrdim_base);
+    Ccr_base(0, 0) = 1.0;
+    Ccr_base(1, 1) = 1.0;
+    rcDOF_base(0) = 0;
+    rcDOF_base(1) = 2;
+    theMP_base = new MP_Constraint(1, 2, Ccr_base, rcDOF_base, rcDOF_base); theDomain->addMP_Constraint(theMP_base);
+    theMP_base = new MP_Constraint(1, 3, Ccr_base, rcDOF_base, rcDOF_base); theDomain->addMP_Constraint(theMP_base);
+    theMP_base = new MP_Constraint(1, 4, Ccr_base, rcDOF_base, rcDOF_base); theDomain->addMP_Constraint(theMP_base);
 
-    s << "equalDOF  1 2 1" << endln ;
-    s << "equalDOF  1 3 1" << endln ;
-    s << "equalDOF  1 4 1" << endln << endln;
-
-
+    s << "equalDOF  1 2 1 3" << endln ;
+    s << "equalDOF  1 3 1 3" << endln ;
+    s << "equalDOF  1 4 1 3" << endln << endln;
 
     s << "# 2.2 Apply periodic boundary conditions    \n\n";
     MP_Constraint *theMP;
@@ -2364,6 +2406,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     Matrix Ccr(crrdim, crrdim);
     ID rcDOF(crrdim);
     // TODO: get clarified about the dimensions of Crr and rfDOF
+    // Confirmed for 3D
     Ccr(0, 0) = 1.0;
     Ccr(1, 1) = 1.0;
     Ccr(2, 2) = 1.0;
@@ -2373,6 +2416,10 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     for (int nodeCount = 4; nodeCount < numNodes; nodeCount += 4)
     {
         theMP = new MP_Constraint(nodeCount + 1, nodeCount + 2, Ccr, rcDOF, rcDOF);
+        theDomain->addMP_Constraint(theMP);
+        theMP = new MP_Constraint(nodeCount + 1, nodeCount + 3, Ccr, rcDOF, rcDOF);
+        theDomain->addMP_Constraint(theMP);
+        theMP = new MP_Constraint(nodeCount + 1, nodeCount + 4, Ccr, rcDOF, rcDOF);
         theDomain->addMP_Constraint(theMP);
         s << "equalDOF " << nodeCount + 1 << " "<< nodeCount + 2 << " 1 2 3" << endln;
         s << "equalDOF " << nodeCount + 1 << " "<< nodeCount + 3 << " 1 2 3" << endln;
@@ -2393,34 +2440,6 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
-    s << "# ------------------------------------------------------------\n";
-    s << "# 4. Add the compliant base                                   \n";
-    s << "# ------------------------------------------------------------\n\n";
-
-    s << "# 4.1 Set basic properties of the base. \n\n";
-    int dashMatTag = soilMatTags.size() + 1;
-    double colArea = sElemX * colThickness;
-    double vis_C = dashpotCoeff * colArea;
-    double cFactor = colArea * dashpotCoeff;
-
-    const int numberTheViscousMats = 2; // for 3D it's 2, for 2d it's 1
-    UniaxialMaterial* theViscousMats[numberTheViscousMats];
-
-    theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
-    OPS_addUniaxialMaterial(theViscousMats[0]);
-
-    theViscousMats[1] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
-    OPS_addUniaxialMaterial(theViscousMats[1]);
-
-    s << "set colThickness "<< colThickness << endln;
-    s << "set sElemX " << sElemX << endln;
-    s << "set colArea [expr $sElemX*$colThickness]" << endln; // [expr $sElemX*$thick(1)]
-    s << "set rockVs "<< rockVs << endln;
-    s << "set rockDen " << rockDen << endln;
-    s << "set dashpotCoeff  [expr $rockVs*$rockDen]" << endln; // [expr $rockVs*$rockDen]
-    s << "uniaxialMaterial Viscous " << dashMatTag <<" "<<"[expr $dashpotCoeff*$colArea] 1"<<endln;
-    s << "set cFactor [expr $colArea*$dashpotCoeff]" << endln;
-
     /*
     if (theModelType.compare("2D")) // 3D
     {
@@ -2429,137 +2448,6 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         // TODO: s <<
     }
     */
-
-
-    s << "\n\n# 4.2 Create dashpot nodes and apply proper fixities. \n\n";
-
-    theNode = new Node(numNodes + 1, 3, 0.0, 0.0, 0.0);
-    theDomain->addNode(theNode); // TODO ?
-    theNode = new Node(numNodes + 2, 3, 0.0, 0.0, 0.0);
-    theDomain->addNode(theNode); // TODO ?
-
-
-    s << "model BasicBuilder -ndm 3 -ndf 3" << endln << endln;
-    s << "node " << numNodes + 1 << " 0.0 0.0 0.0" << endln;
-    s << "node " << numNodes + 2 << " 0.0 0.0 0.0" << endln;
-    s << "node " << numNodes + 3 << " 0.0 0.0 0.0" << endln;
-
-
-    theSP = new SP_Constraint(numNodes + 1, 0, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSP = new SP_Constraint(numNodes + 1, 1, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSP = new SP_Constraint(numNodes + 1, 2, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    s << "fix " << numNodes + 1 << " 1 1 1" << endln;
-
-    theSP = new SP_Constraint(numNodes + 2, 1, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSP = new SP_Constraint(numNodes + 2, 2, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    s << "fix " << numNodes + 2 << " 0 1 1" << endln;
-
-    theSP = new SP_Constraint(numNodes + 3, 0, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    theSP = new SP_Constraint(numNodes + 3, 1, 0.0, true);
-    theDomain->addSP_Constraint(theSP);
-    s << "fix " << numNodes + 3 << " 1 1 0" << endln;
-
-    s << endln;
-
-
-
-
-    s << "# 4.3 Apply equalDOF to the node connected to the column. \n\n";
-
-    int numConn = 2; // for 3D it's 2, for 2D it's 1
-    Matrix Ccrconn(numConn, numConn);
-    ID rcDOFconn(numConn);
-    Ccrconn(0, 0) = 1.0;Ccrconn(1, 1) = 1.0;
-    rcDOFconn(0) = 0;
-    rcDOFconn(1) = 2;
-    theMP = new MP_Constraint(1, numNodes + 2, Ccrconn, rcDOFconn, rcDOFconn);
-    theDomain->addMP_Constraint(theMP); //TODO
-    s << "equalDOF " << 1 << " "<< numNodes + 2 << " 1" << endln;
-    s << "equalDOF " << 1 << " "<< numNodes + 3 << " 3" << endln;
-
-
-
-    /*
-    s << "\n\n# 4.4 Remove fixities created for gravity. \n\n";
-
-    for (int i_remove = 0; i_remove < sizeTheSPtoRemove; i_remove++)
-    {
-        theSP = theDomain->removeSP_Constraint(theSPtoRemove(i_remove));
-        delete theSP;
-    }
-    // TODO:
-    s << "remove sp 1 1" << endln;
-    s << "remove sp 2 1" << endln;
-    s << "remove sp 3 1" << endln;
-    s << "remove sp 4 1" << endln;
-    s << "remove sp 1 3" << endln;
-    s << "remove sp 2 3" << endln;
-    s << "remove sp 3 3" << endln;
-    s << "remove sp 4 3" << endln;
-
-
-    s << "\n\n# 4.5 Apply equalDOF for the first 4 nodes (3D) or 2 nodes (2D). \n\n";
-
-    int numMP1 = 2;// for 3D it's 2, for 2D it's 1
-    Matrix constrainInXZ(numMP1, numMP1);
-    ID constDOF(numMP1);
-    */
-    /*
-    if (!theModelType.compare("2D")) //2D
-    {
-        constrainInXZ(0, 0) = 1.0;
-        constDOF(0) = 0;
-        theMP = new MP_Constraint(1, 2, constrainInXZ, constDOF, constDOF);
-        theDomain->addMP_Constraint(theMP);
-        s << "equalDOF " << 1 << " "<< 2 << " 1 " << endln;
-    }
-    */
-    /*
-    //theModelType.compare("3D")
-    constrainInXZ(0, 0) = 1.0; constrainInXZ(1, 1) = 1.0;
-    constDOF(0) = 0; constDOF(1) = 2;
-    theMP = new MP_Constraint(1, 2, constrainInXZ, constDOF, constDOF);
-    theDomain->addMP_Constraint(theMP);
-    theMP = new MP_Constraint(1, 3, constrainInXZ, constDOF, constDOF);
-    theDomain->addMP_Constraint(theMP);
-    theMP = new MP_Constraint(1, 4, constrainInXZ, constDOF, constDOF);
-    theDomain->addMP_Constraint(theMP);
-    s << "equalDOF " << 1 << " "<< 2 << " 1 3" << endln;
-    s << "equalDOF " << 1 << " "<< 3 << " 1 3" << endln;
-    s << "equalDOF " << 1 << " "<< 4 << " 1 3" << endln;
-    */
-
-
-
-
-    s << "\n\n# 4.4 Create the dashpot element. \n\n";
-
-    Vector x(3);
-    Vector y(3);
-    // default values for x and y can be found in zerolength.cpp
-    x(0) = 1.0;
-    x(1) = 0.0;
-    x(2) = 0.0;
-    y(0) = 0.0;
-    y(1) = 1.0;
-    y(2) = 0.0;
-    int numberDirections = 2;// for 3D it's 2, for 2D it's 1
-    ID directions(numberDirections);
-    directions(0) = 0;
-    directions(1) = 2; // 3D
-    //element zeroLength [expr $nElemT+1]  $dashF $dashS -mat [expr $numLayers+1]  -dir 1
-    theEle = new ZeroLength(numElems + 1, 3, numNodes + 1, numNodes + 2, x, y, 2, theViscousMats, directions); //TODO ?
-    theDomain->addElement(theEle);
-    s << "element zeroLength "<<numElems + 1 <<" "<< numNodes + 1 <<" "<< numNodes + 2<<" -mat "<<dashMatTag<<"  -dir 1" << endln;
-    s << "element zeroLength "<<numElems + 2 <<" "<< numNodes + 1 <<" "<< numNodes + 3<<" -mat "<<dashMatTag<<"  -dir 3" << endln;
-    s << "\n\n\n";
-
 
 
     s << "# ------------------------------------------ \n";
@@ -2586,17 +2474,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     OPS_Stream *theOutputStream;
     Recorder *theRecorder;
 
-    // record last node's results
+    // record last node's results, surface
     ID nodesToRecord(1);
     nodesToRecord(0) = numNodes;
-
-    int dimDofToRecord = 3;// For 3D it's 4, for 2d it's 3
-    ID dofToRecord(dimDofToRecord);
-    dofToRecord(0) = 0;
-    dofToRecord(1) = 1;
-    dofToRecord(2) = 3;//dofToRecord(2) = 2;
-    //dofToRecord(3) = 3;// 3D
-
 
 
     s << "# 3.1 elastic gravity analysis (transient) \n\n";
@@ -2712,58 +2592,11 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     for (int i=0; i != soilMatTags.size(); i++)
         s << "updateMaterialStage -material "<< soilMatTags[i] <<" -stage 1" << endln ;
 
-    // add parameters: FirstCall for plastic gravity analysis
-    sprintf(paramArgs[0], "FirstCall");
-    ElementIter &theElementIterFC = theDomain->getElements();
-    int nParaPlus = 0;
-    while ((theEle = theElementIterFC()) != 0)
-    {
-        int theEleTag = theEle->getTag();
-        theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
-        sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
-        theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-        theDomain->addParameter(theParameter);
-        nParaPlus += 1;
-
-        //setParameter -value 0 -ele $elementTag FirstCall $matTag
-        //s << "setParameter -value 0 -ele "<<theEleTag<<" FirstCall "<< matNumDict[theEleTag] << endln;
-    }
-
-    // add parameters: poissonRatio for plastic gravity analysis
-    sprintf(paramArgs[0], "poissonRatio");
-    ElementIter &theElementIter = theDomain->getElements();
-    while ((theEle = theElementIter()) != 0)
-    {
-        int theEleTag = theEle->getTag();
-        theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
-        sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
-        theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-        theDomain->addParameter(theParameter);
-        nParaPlus += 1;
-
-        //setParameter -value 0 -ele $elementTag poissonRatio $matTag
-        //s << "setParameter -value 0.3 -ele "<< theEleTag <<" poissonRatio "<< matNumDict[theEleTag] << endln;
-    }
-    //TODO: the $i ?  in setParameter -value 0.3 -eleRange $layerBound($i) $layerBound([expr $i+1]) poissonRatio $i
-
-    // update FirstCall and poissonRatio
-    theParamIter = theDomain->getParameters();
-    while ((theParameter = theParamIter()) != 0)
-    {
-        int paraTag = theParameter->getTag();
-        if (paraTag>numElems & paraTag<=(numElems+nParaPlus/2.))
-        {// FirstCall
-            theParameter->update(0.0);
-        }else if (paraTag>(numElems+nParaPlus/2.)){// poissonRatio
-            theParameter->update(0.3);
-        }
-    }
-    s << endln;
 
 
     if(doAnalysis)
     {
-        converged = theAnalysis->analyze(10,1.0);
+        converged = theAnalysis->analyze(40, 5.0e-2);
 
         if (!converged)
         {
@@ -2781,8 +2614,10 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
     s << "# 3.3 Update element permeability for post gravity analysis"<< endln << endln;
 
-    // add parameters: hPerm for dynamic analysis
-    sprintf(paramArgs[0], "hPerm");
+    int nParaPlus = 0;
+
+    // add parameters: xPerm for dynamic analysis
+    sprintf(paramArgs[0], "xPerm");
     ElementIter &theElementIterhPerm = theDomain->getElements();
     while ((theEle = theElementIterhPerm()) != 0)
     {
@@ -2794,8 +2629,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         nParaPlus += 1;
     }
 
-    // add parameters: vPerm for dynamic analysis
-    sprintf(paramArgs[0], "vPerm");
+    // add parameters: yPerm for dynamic analysis
+    sprintf(paramArgs[0], "yPerm");
     ElementIter &theElementItervPerm = theDomain->getElements();
     while ((theEle = theElementItervPerm()) != 0)
     {
@@ -2807,24 +2642,52 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         nParaPlus += 1;
     }
 
-    // update hPerm and vPerm
+    // add parameters: zPerm for dynamic analysis
+    sprintf(paramArgs[0], "zPerm");
+    ElementIter &theElementIterzPerm = theDomain->getElements();
+    while ((theEle = theElementIterzPerm()) != 0)
+    {
+        int theEleTag = theEle->getTag();
+        theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
+        sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
+        theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
+        theDomain->addParameter(theParameter);
+        nParaPlus += 1;
+    }
+
+    /*
+    // update z,y,zPerm 
     theParamIter = theDomain->getParameters();
     int tmpcounter=0;
-    while ((theParameter = theParamIter()) != 0) // /*TODO: This may be a problem.*/
+    while ((theParameter = theParamIter()) != 0) // TODO: This may be a problem.
     {
         tmpcounter+=1;
         int paraTag = theParameter->getTag();
+
+        double thishPerm = hPermVec[theEleTag-1];
+        double thisvPerm = vPermVec[theEleTag-1];
+
         if (paraTag>(numElems+nParaPlus/2.) & paraTag<=(numElems+3.*nParaPlus/4.))
         {// hperm
-            theParameter->update(1.0e-7/9.81/*TODO*/);
+            theParameter->update(-1.0e-7/g);
 
         }else if (paraTag>(numElems+3.*nParaPlus/4.)){// vPerm
-            theParameter->update(1.0e-7/9.81/*TODO*/);
+            theParameter->update(-1.0e-7/g);
         }
     }
+    */
 
-    theElementIter = theDomain->getElements();
-    int tmpcount = 1;
+    theParamIter = theDomain->getParameters();
+    int tmpcounter=0;
+    while ((theParameter = theParamIter()) != 0) // TODO: This may be a problem.
+    {
+        tmpcounter+=1;
+        int paraTag = theParameter->getTag();
+
+    }
+
+    ElementIter &theElementIter = theDomain->getElements();
+    int tmpcount = 0;
     while ((theEle = theElementIter()) != 0 && tmpcount <= numElems)
     {
         tmpcount += 1;
@@ -2832,25 +2695,19 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         //setParameter -value 1 -ele $elementTag hPerm $matTag
         double thishPerm = hPermVec[theEleTag-1];
         double thisvPerm = vPermVec[theEleTag-1];
-        s << "setParameter -value "<<std::to_string(thishPerm/9.81)/*TODO*/<<" -ele "<< theEleTag<<" xPerm "<<endln;
-        s << "setParameter -value "<<std::to_string(thisvPerm/9.81)/*TODO*/<<" -ele "<< theEleTag<<" yPerm "<<endln;
-        s << "setParameter -value "<<std::to_string(thishPerm/9.81)/*TODO*/<<" -ele "<< theEleTag<<" zPerm "<<endln;
+
+        theDomain->getParameter(numElems + tmpcount)->update(-thishPerm/g);
+        theDomain->getParameter(numElems + 1*numElems + tmpcount)->update(-thisvPerm/g);
+        theDomain->getParameter(numElems + 2*numElems + tmpcount)->update(-thishPerm/g);
+        s << "setParameter -value "<<std::to_string(-thishPerm/g)<<" -ele "<< theEleTag<<" xPerm "<<endln;
+        s << "setParameter -value "<<std::to_string(-thisvPerm/g)<<" -ele "<< theEleTag<<" yPerm "<<endln;
+        s << "setParameter -value "<<std::to_string(-thishPerm/g)<<" -ele "<< theEleTag<<" zPerm "<<endln;
     }
     s << endln << endln << endln;
-
-
-
-
-
-
-
-
 
     s << "setTime 0.0" << endln;
     s << "wipeAnalysis" << endln;
     s << "remove recorders" << endln << endln << endln;
-
-
 
     //setTime 0.0
     //wipeAnalysis
@@ -2861,11 +2718,184 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
+    s << "# ------------------------------------------------------------\n";
+    s << "# 4. Add the compliant base                                   \n";
+    s << "# ------------------------------------------------------------\n\n";
+
+    s << "# 4.1 Set basic properties of the base. \n\n";
+    int dashMatTag = soilMatTags.size() + 1;
+    double colArea = sElemX * colThickness;
+    double vis_C = dashpotCoeff * colArea;
+    double cFactor = colArea * dashpotCoeff;
+
+    const int numberTheViscousMats = 2; // for 3D it's 2, for 2d it's 1
+    UniaxialMaterial* theViscousMats[numberTheViscousMats];
+
+    theViscousMats[0] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
+    OPS_addUniaxialMaterial(theViscousMats[0]);
+
+    theViscousMats[1] = new ViscousMaterial(dashMatTag, vis_C, 1.0);
+    OPS_addUniaxialMaterial(theViscousMats[1]);
+
+    s << "set colThickness "<< colThickness << endln;
+    s << "set sElemX " << sElemX << endln;
+    s << "set colArea [expr $sElemX*$colThickness]" << endln; // [expr $sElemX*$thick(1)]
+    s << "set rockVs "<< rockVs << endln;
+    s << "set rockDen " << rockDen << endln;
+    s << "set dashpotCoeff  [expr $rockVs*$rockDen]" << endln; // [expr $rockVs*$rockDen]
+    s << "uniaxialMaterial Viscous " << dashMatTag <<" "<<"[expr $dashpotCoeff*$colArea] 1"<<endln;
+    s << "set cFactor [expr $colArea*$dashpotCoeff]" << endln;
 
 
 
+    s << "\n\n# 4.2 Create dashpot nodes and apply proper fixities. \n\n";
+
+    theNode = new Node(numNodes + 1, 3, 0.0, 0.0, 0.0);
+    theDomain->addNode(theNode); 
+    theNode = new Node(numNodes + 2, 3, 0.0, 0.0, 0.0);
+    theDomain->addNode(theNode); 
+    theNode = new Node(numNodes + 3, 3, 0.0, 0.0, 0.0);
+    theDomain->addNode(theNode); 
 
 
+    s << "model BasicBuilder -ndm 3 -ndf 3" << endln << endln;
+    s << "node " << numNodes + 1 << " 0.0 0.0 0.0" << endln;
+    s << "node " << numNodes + 2 << " 0.0 0.0 0.0" << endln;
+    s << "node " << numNodes + 3 << " 0.0 0.0 0.0" << endln;
+
+
+    theSP = new SP_Constraint(numNodes + 1, 0, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    theSP = new SP_Constraint(numNodes + 1, 1, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    theSP = new SP_Constraint(numNodes + 1, 2, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    s << "fix " << numNodes + 1 << " 1 1 1" << endln;
+
+    theSP = new SP_Constraint(numNodes + 2, 1, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    theSP = new SP_Constraint(numNodes + 2, 2, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    s << "fix " << numNodes + 2 << " 0 1 1" << endln;
+
+    theSP = new SP_Constraint(numNodes + 3, 0, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    theSP = new SP_Constraint(numNodes + 3, 1, 0.0, true);
+    theDomain->addSP_Constraint(theSP);
+    s << "fix " << numNodes + 3 << " 1 1 0" << endln;
+
+    s << endln;
+
+
+    s << "# 4.3 Apply equalDOF to the node connected to the column. \n\n";
+
+    int numConn = 1; 
+    Matrix Ccrconn(numConn, numConn);
+    Ccrconn(0, 0) = 1.0;
+
+    ID rcDOFconn(numConn);
+    rcDOFconn(0) = 0;
+    theMP = new MP_Constraint(1, numNodes + 2, Ccrconn, rcDOFconn, rcDOFconn);
+    theDomain->addMP_Constraint(theMP); 
+    rcDOFconn(0) = 2;
+    theMP = new MP_Constraint(1, numNodes + 3, Ccrconn, rcDOFconn, rcDOFconn);
+    theDomain->addMP_Constraint(theMP); 
+
+    s << "equalDOF " << 1 << " "<< numNodes + 2 << " 1" << endln;
+    s << "equalDOF " << 1 << " "<< numNodes + 3 << " 3" << endln;
+
+
+    for (int i_remove = 0; i_remove < sizeTheSPtoRemove; i_remove++)
+    {
+        theSP = theDomain->removeSP_Constraint(theSPtoRemove(i_remove));
+        delete theSP;
+    }
+    // TODO:
+    s << "remove sp 1 1" << endln;
+    s << "remove sp 1 3" << endln;
+    /*
+    s << "remove sp 2 1" << endln;
+    s << "remove sp 3 1" << endln;
+    s << "remove sp 4 1" << endln;
+    s << "remove sp 1 3" << endln;
+    s << "remove sp 2 3" << endln;
+    s << "remove sp 3 3" << endln;
+    s << "remove sp 4 3" << endln;
+    */
+
+    /*
+
+
+    s << "\n\n# 4.5 Apply equalDOF for the first 4 nodes (3D) or 2 nodes (2D). \n\n";
+
+    int numMP1 = 2;// for 3D it's 2, for 2D it's 1
+    Matrix constrainInXZ(numMP1, numMP1);
+    ID constDOF(numMP1);
+    */
+    /*
+    if (!theModelType.compare("2D")) //2D
+    {
+        constrainInXZ(0, 0) = 1.0;
+        constDOF(0) = 0;
+        theMP = new MP_Constraint(1, 2, constrainInXZ, constDOF, constDOF);
+        theDomain->addMP_Constraint(theMP);
+        s << "equalDOF " << 1 << " "<< 2 << " 1 " << endln;
+    }
+    */
+    /*
+    //theModelType.compare("3D")
+    constrainInXZ(0, 0) = 1.0; constrainInXZ(1, 1) = 1.0;
+    constDOF(0) = 0; constDOF(1) = 2;
+    theMP = new MP_Constraint(1, 2, constrainInXZ, constDOF, constDOF);
+    theDomain->addMP_Constraint(theMP);
+    theMP = new MP_Constraint(1, 3, constrainInXZ, constDOF, constDOF);
+    theDomain->addMP_Constraint(theMP);
+    theMP = new MP_Constraint(1, 4, constrainInXZ, constDOF, constDOF);
+    theDomain->addMP_Constraint(theMP);
+    s << "equalDOF " << 1 << " "<< 2 << " 1 3" << endln;
+    s << "equalDOF " << 1 << " "<< 3 << " 1 3" << endln;
+    s << "equalDOF " << 1 << " "<< 4 << " 1 3" << endln;
+    */
+
+
+
+    s << "\n\n# 4.5 Create the dashpot element. \n\n";
+
+    Vector x(3);
+    Vector y(3);
+    // default values for x and y can be found in zerolength.cpp
+    x(0) = 1.0;
+    x(1) = 0.0;
+    x(2) = 0.0;
+    y(0) = 0.0;
+    y(1) = 1.0;
+    y(2) = 0.0;
+    int numberDirections = 1;// for 3D it's 2, for 2D it's 1
+    ID directions(numberDirections);
+    directions(0) = 0;
+    //directions(1) = 2; // 3D
+    //element zeroLength [expr $nElemT+1]  $dashF $dashS -mat [expr $numLayers+1]  -dir 1
+    // TODO: double check
+
+    UniaxialMaterial* theViscousMats_x[1]; theViscousMats_x[0] = theViscousMats[0];
+    UniaxialMaterial* theViscousMats_z[1]; theViscousMats_z[0] = theViscousMats[1];
+
+    theEle = new ZeroLength(numElems + 1, 3, numNodes + 1, numNodes + 2, x, y, 1, theViscousMats_x, directions); //TODO ?
+    theDomain->addElement(theEle);
+
+
+
+    directions(0) = 2;
+    //directions(1) = 2; // 3D
+    //element zeroLength [expr $nElemT+1]  $dashF $dashS -mat [expr $numLayers+1]  -dir 1
+    // TODO: double check
+    theEle = new ZeroLength(numElems + 2, 3, numNodes + 1, numNodes + 3, x, y, 1, theViscousMats_z, directions); //TODO ?
+    theDomain->addElement(theEle);
+
+
+    s << "element zeroLength "<<numElems + 1 <<" "<< numNodes + 1 <<" "<< numNodes + 2<<" -mat "<<dashMatTag<<"  -dir 1" << endln;
+    s << "element zeroLength "<<numElems + 2 <<" "<< numNodes + 1 <<" "<< numNodes + 3<<" -mat "<<dashMatTag<<"  -dir 3" << endln;
+    s << "\n\n\n";
 
 
     s << "# ------------------------------------------------------------\n";
@@ -2875,7 +2905,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     //s << "model BasicBuilder -ndm 3 -ndf 4" << endln; // TODO: it seems this is not necessary.
 
 
-    s << "\n\n# ------------------------------------------------------------\n";
+    s << "# ------------------------------------------------------------\n";
     s << "# 5.1 Apply the rock motion                                    \n";
     s << "# ------------------------------------------------------------\n\n";
     int numSteps = 0;
@@ -2894,23 +2924,37 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set mSeriesx2 \"Path -dt $motionDT -filePath Rock-y.vel -factor $cFactor\""<<endln;
 
     // using a stress input with the dashpot
-    if (theMotionX->isInitialized())
+    if (theMotionX->isInitialized() && theMotionZ->isInitialized())
     {
-        LoadPattern *theLP = new LoadPattern(1, vis_C);
+        LoadPattern *theLP = new LoadPattern(10, vis_C);
         theLP->setTimeSeries(theMotionX->getVelSeries());
 
+        LoadPattern *theLPz = new LoadPattern(11, vis_C);
+        theLPz->setTimeSeries(theMotionZ->getVelSeries());
+
         NodalLoad *theLoad;
-        int numLoads = 3; // for 3D it's 4, for 2D it's 3
+        int numLoads = 4; // for 3D it's 4, for 2D it's 3
         Vector load(numLoads);
         load(0) = 1.0;
         load(1) = 0.0;
         load(2) = 0.0;
-        //load(3) = 0.0;
+        load(3) = 0.0;
 
         //theLoad = new NodalLoad(1, numNodes + 2, load, false); theLP->addNodalLoad(theLoad);
-        theLoad = new NodalLoad(1, 1, load, false);
+        theLoad = new NodalLoad(99999998, 1, load, false);
         theLP->addNodalLoad(theLoad);
         theDomain->addLoadPattern(theLP);
+
+        NodalLoad *theLoadz;
+        Vector loadz(numLoads);
+        loadz(0) = 0.0;
+        loadz(1) = 0.0;
+        loadz(2) = 1.0;
+        loadz(3) = 0.0;
+
+        theLoadz = new NodalLoad(99999999, 1, loadz, false);
+        theLPz->addNodalLoad(theLoadz);
+        theDomain->addLoadPattern(theLPz);
 
         s << "pattern Plain 10 $mSeries {"<<endln;
         s << "    load 1  1.0 0.0 0.0 0.0" << endln;
@@ -2942,18 +2986,17 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     //theTest->setTolerance(1.0e-5);
 
 
-    /*
-    s << "constraints Transformation" << endln;
-    s << "test NormDispIncr 1.0e-4 35 0" << endln; // TODO
-    s << "algorithm   Newton" << endln;
-    s << "numberer    RCM" << endln;
-    s << "system SparseGeneral" << endln;//BandGeneral
-
+    
+    //s << "constraints Transformation" << endln;
+    //s << "test NormDispIncr 1.0e-4 35 0" << endln; // TODO
+    //s << "algorithm   Newton" << endln;
+    //s << "numberer    RCM" << endln;
+    //s << "system SparseGeneral" << endln;//BandGeneral
 
 
     // create analysis objects - I use static analysis for gravity
     theModel = new AnalysisModel();
-    theTest = new CTestNormDispIncr(1.0e-4, 35, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
+    theTest = new CTestNormDispIncr(1.0e-3, 55, 1);                    // 2. test NormDispIncr 1.0e-7 30 1
     theSolnAlgo = new NewtonRaphson(*theTest);                              // 3. algorithm   Newton (TODO: another option: KrylovNewton)
     //StaticIntegrator *theIntegrator = new LoadControl(0.05, 1, 0.05, 1.0); // *
     //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
@@ -2987,7 +3030,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     //double natFreq = SRM_layering.getNaturalPeriod();
     double pi = 4.0 * atan(1.0);
 
-
+    // try no Rayleigh Damping
     // method in N10_T3
     double fmin = 5.01;
     double Omegamin  = fmin * 2.0 * pi;
@@ -3000,7 +3043,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         //opserr << "f1 = " << natFreq << "    f2 = " << 5.0 * natFreq << endln;
         opserr << "a0 = " << a0 << "    a1 = " << a1 << endln;
     }
-    theDomain->setRayleighDampingFactors(a0, a1, 0.0, 0.0);
+    theDomain->setRayleighDampingFactors(a0, 0.0, a1, 0.0);
+    
 
     DirectIntegrationAnalysis* theTransientAnalysis;
     theTransientAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theTransientIntegrator, theTest);
@@ -3011,19 +3055,23 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     // reset time in the domain
     theDomain->setCurrentTime(0.0);
 
-    s << "set gamma_dynm " << gamma_dynm << endln;
-    s << "set beta_dynm " << beta_dynm << endln;
-    s << "integrator  Newmark $gamma_dynm $beta_dynm" << endln;
-    s << "set a0 " << a0 << endln;
-    s << "set a1 " << a1 << endln;
-    s << "rayleigh    $a0 $a1 0.0 0.0" << endln;
+
+    //s << "set gamma_dynm " << gamma_dynm << endln;
+    //s << "set beta_dynm " << beta_dynm << endln;
+    //s << "integrator  Newmark $gamma_dynm $beta_dynm" << endln;
+    //s << "set a0 " << a0 << endln;
+    //s << "set a1 " << a1 << endln;
+    //s << "rayleigh    $a0 $a1 0.0 0.0" << endln;
+    ////s << "analysis Transient" << endln << endln;
     //s << "analysis Transient" << endln << endln;
-    s << "analysis Transient" << endln << endln;
 
-    */
-
+    
 
 
+
+
+
+    // benchmark solver
 
     s << "constraints Penalty 1.e14 1.e14"<<endln;
     s << "test        NormDispIncr 1.0e-3 55 "<<endln;
@@ -3036,22 +3084,28 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
-    // count quad elements
+    // count brick elements
     ElementIter &theElementIterh = theDomain->getElements();
-    std::vector<int> quadElem;
+    std::vector<int> brickUPElem;
     while ((theEle = theElementIterh()) != 0)
     {
         int theEleTag = theEle->getTag();
-        if (theEle->getNumDOF() == 12) // quad ele
-            quadElem.push_back(theEleTag);
+        if (theEle->getNumDOF() == 32) // brickup ele
+            brickUPElem.push_back(theEleTag);
     }
-    int numQuadEles = quadElem.size();
+    int numBrickUPEles = brickUPElem.size();
 
 
+    s << "\n";
     s << "# ------------------------------------------------------------\n";
     s << "# 5.3 Define outputs and recorders                            \n";
     s << "# ------------------------------------------------------------\n\n";
-
+    
+    int dimDofToRecord = 3;
+    ID dofToRecord(dimDofToRecord);
+    dofToRecord(0) = 0;
+    dofToRecord(1) = 1;
+    dofToRecord(2) = 2;
 
     // Record the response at the surface
     std::string outFile = theOutputDir + PATH_SEPARATOR + "surface.acc";
@@ -3082,7 +3136,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     nodesToRecord(0) = 1;
 
     dofToRecord.resize(1);
-    dofToRecord(0) = 0; // only record the x dof
+    dofToRecord(0) = 0; dofToRecord(1) = 1; dofToRecord(2) = 2; 
 
     outFile = theOutputDir + PATH_SEPARATOR + "base.acc";
     theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
@@ -3125,7 +3179,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         nodesToRecord(i) = i+1;
     dofToRecord.resize(2);
     dofToRecord(0) = 0;
-    dofToRecord(1) = 1;
+    dofToRecord(1) = 2;
 
     outFile = theOutputDir + PATH_SEPARATOR + "displacement.out";
     theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
@@ -3143,7 +3197,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theDomain->addRecorder(*theRecorder);
 
     dofToRecord.resize(1);
-    dofToRecord(0) = 2;
+    dofToRecord(0) = 3;
     outFile = theOutputDir + PATH_SEPARATOR + "porePressure.out";
     theOutputStream = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
     theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "vel", *theDomain, *theOutputStream, motionDT, true, NULL);
@@ -3157,9 +3211,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
     // Record element results
     OPS_Stream* theOutputStream2;
-    ID elemsToRecord(quadElem.size());
-    for (int i=0;i<quadElem.size();i+=1)
-        elemsToRecord(i) = quadElem[i];
+    ID elemsToRecord(brickUPElem.size());
+    for (int i=0;i<brickUPElem.size();i+=1)
+        elemsToRecord(i) = brickUPElem[i];
     const char* eleArgs = "stress";
     outFile = theOutputDir + PATH_SEPARATOR + "stress.out";
     theOutputStream2 = new DataFileStream(outFile.c_str(), OVERWRITE, 2, 0, false, 6, false);
@@ -3172,9 +3226,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theRecorder = new ElementRecorder(&elemsToRecord, &eleArgsStrain, 1, true, *theDomain, *theOutputStream2, motionDT, NULL);
     theDomain->addRecorder(*theRecorder);
 
-    s<< "recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  stress"<<endln;
-    s<< "recorder Element -file out_tcl/strain.out -time -dT $recDT  -eleRange 1 "<<numQuadEles<<"  strain"<<endln;
-    s<< endln << endln;
+    s<< "recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 "<<numBrickUPEles<<"  stress"<<endln;
+    s<< "recorder Element -file out_tcl/strain.out -time -dT $recDT  -eleRange 1 "<<numBrickUPEles<<"  strain"<<endln;
+    s<< endln;
 
 
 
@@ -3400,7 +3454,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set endT    [clock seconds]" <<endln;
     s << "puts \"Finished with dynamic analysis...\"" <<endln;
     s << "puts \"Analysis execution time: [expr $endT-$startT] seconds\"" <<endln;
-    s << "" <<endln;
+    s << "print -file out_tcl/Domain-3D-s3hark-tcl.out" <<endln;
 
 
 
@@ -3416,21 +3470,19 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 
 
 
-    /*
-    OPS_Stream* theOutputStreamAll;
-    theOutputStreamAll = new DataFileStream("Domain.out", OVERWRITE, 2, 0, false, 6, false);
-    theDomain->Print(*theOutputStreamAll);
-    opserr << theOutputStreamAll;
-    delete theOutputStreamAll;
-    */
+    
 
-    if(doAnalysis)
+    
+   //doAnalysis = true;
+
+        if(doAnalysis)
     {
 
         bool useSubstep = false;
+        int stepLag = 2;
 
         if(!useSubstep)
-        {/*
+        {   // no substepping
             double totalTime = dT * nSteps;
             int success = 0;
 
@@ -3479,65 +3531,87 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
             opsout << progressBar.str().c_str();
             opsout.flush();
             opsout << endln;
-            */
         } else { // substep
-            /*
-            opserr << "Analysis started:" << endln;
+            opserr << "Analysis started (substepping):" << endln;
             double finalTime = dT * remStep;
             int success = 0;
             double currentTime = 0.;
             std::stringstream progressBar;
+            int currentProgress = 0;
+            int remStept = 0;
+            double timeMaker = 0.;
+
             while(fabs(success)<1 && currentTime < finalTime )
             {
+
                 int subStep = 0;
                 success = theTransientAnalysis->analyze(1, dT);
                 if(fabs(success)>0)
-                {
-                    success = subStepAnalyze(dT/2., subStep, theTransientAnalysis);
+                {   // analysisi failed at currenttime
+
+                    success = subStepAnalyze(dT/2., subStep+1, theTransientAnalysis);
                 } else {
-                    int currentProgress = int(currentTime/finalTime *100.);
-                    int remStept = 100-currentProgress;
-                    if (currentProgress % 5 == 0 && currentProgress > 5)
+                    currentProgress = int(currentTime/finalTime *100.);
+                    if (currentProgress > timeMaker)
                     {
-                        progressBar << "\r[";
-                        for (int ii = 0; ii < currentProgress/5; ii++)
-                            progressBar << "-";
-                        progressBar << " 🚌  ";
-                        for (int ii = 0; ii < remStept/5; ii++)
-                            progressBar << ".";
+                        timeMaker += 1;
+                        //std::cout << currentProgress << endln;
+                        remStept = 100-currentProgress;
+                        if (currentProgress % stepLag == 0 && currentProgress > stepLag)
+                        {
+                            progressBar << "\r[";
+                            for (int ii = 0; ii < currentProgress/stepLag; ii++)
+                                progressBar << "-";
+                            progressBar << " 🚌  ";
+                            for (int ii = 0; ii < remStept/stepLag; ii++)
+                                progressBar << ".";
 
-                        progressBar << "]  " << currentProgress << "%";
-                        opsout << progressBar.str().c_str();
-                        opsout.flush();
-
-                        if (callback) m_callbackFunction(currentTime/finalTime *100.);
+                            progressBar << "]  " << currentProgress << "%";
+                            opsout << progressBar.str().c_str();
+                            opsout.flush();
+                            if (callback) m_callbackFunction(currentTime/finalTime *100.);
+                        }
                     }
 
                     currentTime = theDomain->getCurrentTime();
                 }
             }
 
+            OPS_Stream* theOutputStreamAll;
+            theOutputStreamAll = new DataFileStream("/Users/simcenter/Codes/SimCenter/s3hark/bin/Domain-3D-s3hark.out", OVERWRITE, 2, 0, false, 6, false);
+            theDomain->Print(*theOutputStreamAll);
+            opserr << theOutputStreamAll;
+            delete theOutputStreamAll;
+
 
             opserr << "Site response analysis done..." << endln;
             if (callback) m_callbackFunction(100.0);
             progressBar << "\r[";
-            for (int ii = 0; ii < 20; ii++)
+            for (int ii = 0; ii < 100/stepLag; ii++)
                 progressBar << "-";
 
             progressBar << "]  🚌   100%\n";
             opsout << progressBar.str().c_str();
             opsout.flush();
             opsout << endln;
-            */
-        }
 
+        }
 
     } else{
         std::cout << "tcl file built." << std::endl;
     }
+
+    OPS_Stream* theOutputStreamAll;
+    theOutputStreamAll = new DataFileStream("/Users/simcenter/Codes/SimCenter/s3hark/bin/Domain-3D-s3hark.out", OVERWRITE, 2, 0, false, 6, false);
+    theDomain->Print(*theOutputStreamAll);
+    opserr << theOutputStreamAll;
+    delete theOutputStreamAll;
+
+
+
     theDomain->removeRecorders();
 
-    return 0;
+    return 100;
 }
 
 

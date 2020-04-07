@@ -535,9 +535,6 @@ bool RockOutcrop::inputFromJSON(QJsonObject& inobj)
     cleanTable();
     cleanTable();
 
-
-
-
     QJsonObject basicSettings = inobj["basicSettings"].toObject();
     QString groundMotion = basicSettings["groundMotion"].toString();
     theTabManager->updateGMPath(groundMotion);
@@ -1054,9 +1051,19 @@ bool RockOutcrop::outputToJSON(QJsonObject &root)
 
 void RockOutcrop::on_killBtn_clicked()
 {
-    openseesProcess->kill();
-    emit signalProgress(0);
-    ui->progressBar->hide();
+        openseesProcess->kill();
+        if (shark)
+        {
+            shark->setStopSignal();
+            shark->requestInterruption();
+            shark->quit();
+            shark->wait();
+            delete shark;
+            shark = nullptr;
+        }
+        emit signalProgress(0);
+        ui->progressBar->hide();
+
 }
 
 void RockOutcrop::on_reBtn_clicked()
@@ -1320,7 +1327,7 @@ void RockOutcrop::on_runBtn_clicked()
             {   // do FEA in opensees
 
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
-                                                     analysisDir.toStdString(),outputDir.toStdString(),femLog.toStdString(), m_callbackptr);
+                                                     analysisDir.toStdString(),outputDir.toStdString(),femLog.toStdString());
                 if (simDim==3)
                 {
                     theTabManager->setSimulationD(3);
@@ -1337,9 +1344,10 @@ void RockOutcrop::on_runBtn_clicked()
                 emit runBtnClicked();
 
             } else {// internal FEA
-                //emit signalInvokeInternalFEA();
+                emit signalInvokeInternalFEA();
                 //emit runBtnClicked();
 
+                /*
                 SiteResponse *srt = new SiteResponse(srtFileName.toStdString(),
                                                      analysisDir.toStdString(),
                                                      outputDir.toStdString(),
@@ -1348,14 +1356,16 @@ void RockOutcrop::on_runBtn_clicked()
                 if (simDim==3)
                 {
                     theTabManager->setSimulationD(3);
-                    srt->buildTcl3D();
+                    srt->run3D();
                 }
                 else
                 {
                     theTabManager->setSimulationD(2);
-                    srt->buildTcl();
+                    srt->run();
                 }
+                */
 
+                /*
                 int msg = QMessageBox::information(this,tr("Path error"), "Please specify the correct path of OpenSees in the Configure tab.", tr("OK, I'll do it."), tr("Tutorial"));
                 //QMessageBox::information(this,tr("Path error"), "OpenSees is not found in your environment. Analysis didn't run", tr("OK."));
                 if(msg==1)
@@ -1365,6 +1375,11 @@ void RockOutcrop::on_runBtn_clicked()
                 }
                 ui->progressBar->hide();
                 theTabManager->getTab()->setCurrentIndex(0);
+                */
+
+                //int msg = QMessageBox::information(this,tr("FEA Running"), "s3hark started.", tr("OK"));
+                //QMessageBox::information(this,tr("Path error"), "OpenSees is not found in your environment. Analysis didn't run", tr("OK."));
+
 
             }
 
@@ -1376,7 +1391,7 @@ void RockOutcrop::on_runBtn_clicked()
 
 
 // callback setups
-void RockOutcrop::refreshRun(double step) {
+bool RockOutcrop::refreshRun(double step) {
     int p = int(floor(step));
     qDebug() << step;
     if(step<100.)
@@ -1385,7 +1400,7 @@ void RockOutcrop::refreshRun(double step) {
     }
     else
     {
-        QMessageBox::information(this,tr("SRT Information"), "Analysis is done.", tr("OK."));
+        /*
         theTabManager->getTab()->setCurrentIndex(2);
         theTabManager->setGMViewLoaded();
         theTabManager->reFreshGMTab();
@@ -1401,13 +1416,38 @@ void RockOutcrop::refreshRun(double step) {
 
         emit signalProgress(100);
         ui->progressBar->hide();
+        QMessageBox::information(this,tr("s3hark Information"), "Analysis in s3hark is done.", tr("OK."));
+        */
+
+
+        postProcessor = new PostProcessor(outputDir);
+        profiler->updatePostProcessor(postProcessor);
+        theTabManager->updatePostProcessor(postProcessor);
+        connect(postProcessor, SIGNAL(updateFinished()), profiler, SLOT(onPostProcessorUpdated()));
+        postProcessor->update();
+
+        theTabManager->setGMViewLoaded();
+        theTabManager->reFreshGMTab();
+
+        theTabManager->reFreshGMView();
+        theTabManager->getTab()->setCurrentIndex(2);
+        resultsTab->setCurrentIndex(1);
+
+        QMessageBox::information(this,tr("s3hark Information"), "Analysis in s3hark is done.", tr("OK."));
+
+        emit signalProgress(100);
+        ui->progressBar->hide();
+
+        on_killBtn_clicked();
+
     }
+    return true;
 }
 
 void RockOutcrop::onInternalFEAInvoked()
 {
 
-    SSSharkThread *shark = new SSSharkThread(srtFileName,analysisDir,outputDir,femLog, this);
+    shark = new SSSharkThread(srtFileName,analysisDir,outputDir,femLog, this);
     connect(shark,SIGNAL(updateProgress(double)), this, SLOT(onInternalFEAUpdated(double)));
     shark->start();
 }

@@ -202,6 +202,8 @@ SOURCES += $$PWD/UI/RockOutcrop.cpp \
     #$$PWD/FEM/ErrorHandler.cpp \
     $$PWD/FEM/ElasticIsotropicPlaneStrain2D.cpp \
     #$$PWD/FEM/ElasticIsotropicPlaneStress2D.cpp \
+    $$PWD/FEM/MultiYieldSurface.cpp \
+    $$PWD/FEM/PressureDependMultiYield02.cpp \
     $$PWD/SiteResponse/EffectiveFEModel.cpp \
     $$PWD/SiteResponse/Mesher.cpp \
     $$PWD/SiteResponse/soillayer.cpp \
@@ -210,7 +212,8 @@ SOURCES += $$PWD/UI/RockOutcrop.cpp \
     #$$PWD/SiteResponse/FEModel3D.cpp
     $$PWD/UI/ProfileManager.cpp \
     $$PWD/UI/PostProcessor.cpp \
-    $$PWD/UI/SSSharkThread.cpp
+    $$PWD/UI/SSSharkThread.cpp \
+    $$PWD/FEM/T2Vector.cpp
 
 
 HEADERS  += $$PWD/UI/RockOutcrop.h \
@@ -394,6 +397,8 @@ HEADERS  += $$PWD/UI/RockOutcrop.h \
     #$$PWD/FEM/ElasticIsotropicPlaneStress2D.h \
     $$PWD/FEM/SSPquad.h \
     $$PWD/FEM/SSPquadUP.h \
+    $$PWD/FEM/MultiYieldSurface.h \
+    $$PWD/FEM/PressureDependMultiYield02.h \
     $$PWD/SiteResponse/Mesher.h \
     $$PWD/SiteResponse/EffectiveFEModel.h \
     $$PWD/SiteResponse/soillayer.h \
@@ -401,7 +406,8 @@ HEADERS  += $$PWD/UI/RockOutcrop.h \
     $$PWD/SiteResponse/siteLayering.h \
     $$PWD/UI/ProfileManager.h \
     $$PWD/UI/PostProcessor.h \
-    $$PWD/UI/SSSharkThread.h
+    $$PWD/UI/SSSharkThread.h \
+    $$PWD/FEM/T2Vector.h
 
 
 FORMS    += $$PWD/UI/MainWindow.ui \

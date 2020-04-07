@@ -853,6 +853,7 @@ void PostProcessor::calcRu()
 
     if(File.open(QIODevice::ReadOnly)) {
         QTextStream in(&File);
+        double tmp = 0.0;
         while(!in.atEnd()) {
             QString line = in.readLine();
             QStringList thisLine = line.split(" ");
@@ -866,7 +867,7 @@ void PostProcessor::calcRu()
                 int step = dim==3 ? 6 : 3;
                 for (int i=startpoint; i<thisLine.size();i+=step)// TODO: 3D?
                 {
-                    double tmp = (thisLine[i].trimmed().toDouble());
+                    tmp = (thisLine[i].trimmed().toDouble());
                     thisv << tmp;
                 }
                 if(v.size()!=thisv.size() && v.size()<1)// first time
