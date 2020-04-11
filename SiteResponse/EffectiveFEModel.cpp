@@ -935,48 +935,6 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	s << "# 3.3 Update element permeability for post gravity analysis"<< endln << endln;
 
-	// add parameters: hPerm for dynamic analysis
-	sprintf(paramArgs[0], "hPerm");
-	ElementIter &theElementIterhPerm = theDomain->getElements();
-	while ((theEle = theElementIterhPerm()) != 0)
-	{
-		int theEleTag = theEle->getTag();
-		theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
-		sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
-		theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-		theDomain->addParameter(theParameter);
-		nParaPlus += 1;
-	}
-
-	// add parameters: vPerm for dynamic analysis
-	sprintf(paramArgs[0], "vPerm");
-	ElementIter &theElementItervPerm = theDomain->getElements();
-	while ((theEle = theElementItervPerm()) != 0)
-	{
-		int theEleTag = theEle->getTag();
-		theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
-		sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
-		theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-		theDomain->addParameter(theParameter);
-		nParaPlus += 1;
-	}
-
-	// update hPerm and vPerm 
-	theParamIter = theDomain->getParameters();
-    int tmpcounter=0;
-    while ((theParameter = theParamIter()) != 0) // /*TODO: This may be a problem.*/
-	{
-        tmpcounter+=1;
-		int paraTag = theParameter->getTag();
-		if (paraTag>(numElems+nParaPlus/2.) & paraTag<=(numElems+3.*nParaPlus/4.))
-		{// hperm
-			theParameter->update(1.0e-7/9.81/*TODO*/);
-
-		}else if (paraTag>(numElems+3.*nParaPlus/4.)){// vPerm
-			theParameter->update(1.0e-7/9.81/*TODO*/);
-		}
-	}
-
 	theElementIter = theDomain->getElements();
 	while ((theEle = theElementIter()) != 0)
 	{
@@ -984,8 +942,14 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 		//setParameter -value 1 -ele $elementTag hPerm $matTag
         double thishPerm = hPermVec[theEleTag-1];
         double thisvPerm = vPermVec[theEleTag-1];
-        s << "setParameter -value "<<thishPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" hPerm "<<endln;
-        s << "setParameter -value "<<thisvPerm/9.81/*TODO*/<<" -ele "<< theEleTag<<" vPerm "<<endln;
+
+        Information myInfox(-thishPerm/g);
+        theEle->updateParameter(3,myInfox);
+        Information myInfoy(-thisvPerm/g);
+        theEle->updateParameter(4,myInfoy);
+
+        s << "setParameter -value "<<-thishPerm/g/*TODO*/<<" -ele "<< theEleTag<<" hPerm "<<endln;
+        s << "setParameter -value "<<-thisvPerm/g/*TODO*/<<" -ele "<< theEleTag<<" vPerm "<<endln;
 	}
 	s << endln << endln << endln;
 
