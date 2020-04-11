@@ -780,8 +780,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     //TransientIntegrator*
     theIntegrator = new Newmark(gamma, beta);// * Newmark(0.5, 0.25) // 6. integrator  Newmark $gamma $beta
     //ConstraintHandler*
-    theHandler = new PenaltyConstraintHandler(1.0e16, 1.0e16);          // 1. constraints Penalty 1.0e15 1.0e15
-    //ConstraintHandler *theHandler = new TransformationConstraintHandler(); // *
+    theHandler = new PenaltyConstraintHandler(1.0e14, 1.0e14);          // 1. constraints Penalty 1.0e15 1.0e15
+    //ConstraintHandler * theHandler = new TransformationConstraintHandler(); // *
     //theHandler = new TransformationConstraintHandler(); // *
     //RCM *
     theRCM = new RCM();
@@ -843,15 +843,24 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
 	s << "# 3.2 plastic gravity analysis (transient)" << endln << endln;
-
+/*
+    ElementIter &theElementIter1 = theDomain->getElements();
+    while ((theEle = theElementIter1()) != 0)
+    {
+        Information stateInfo(1.0);
+        theEle->updateParameter(1,stateInfo);
+    }
+    */
 	// update material response to plastic
 	theParamIter = theDomain->getParameters();
 	while ((theParameter = theParamIter()) != 0)
 	{
-		theParameter->update(1.0);
+        theParameter->update(1.0);
 		// //updateMaterialStage -material $i -stage 1.0
 		//s << "updateMaterialStage -material "<< theParameter->getTag() <<" -stage 1" << endln ; 
 	}
+
+
 	s << endln;
 
 	for (int i=0; i != soilMatTags.size(); i++)
@@ -3066,7 +3075,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
     theDomain->addRecorder(*theRecorder);
 
-    double recDT = motionDT*10;
+    double recDT = motionDT;
     s << "set recDT " << recDT << endln;
     s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
     s<< "eval \"recorder Node -file out_tcl/surface.acc -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  accel\""<<endln;// 1 2
