@@ -764,7 +764,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "analysis Transient" << endln << endln;
 	
 	s << "set startT  [clock seconds]" << endln;
-	s << "analyze     10 1.0" << endln;
+    s << "analyze     10 1.0" << endln;
 	s << "puts \"Finished with elastic gravity analysis...\"" << endln << endln;
 
 	// create analysis objects - I use static analysis for gravity
@@ -811,7 +811,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
     // transient
-	converged = theAnalysis->analyze(10,1.0); 
+    converged = theAnalysis->analyze(10,1.0);
 	if (!converged)
 	{
 		opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
@@ -1122,7 +1122,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     double dT = 0.0005; // This is the time step in solution
     double motionDT = theMotionX->getDt();//  0.005; // This is the time step in the motion record. TODO: use a funciton to get it
     int nStepsMotion = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
-    int nSteps = int(nStepsMotion * motionDT / dT + 1);
+    int nSteps = int((nStepsMotion-1) * motionDT / dT);
     int remStep = nSteps;
 	s << "set dT " << dT << endln;
 	s << "set motionDT " << motionDT << endln;
@@ -1168,7 +1168,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "# ------------------------------------------------------------\n\n";
 	// I have to change to a transient analysis
 	// remove the static analysis and create new transient objects
-	delete theIntegrator;
+    //delete theIntegrator;
 	//delete theAnalysis;
 
 	//theTest->setTolerance(1.0e-5);
@@ -1241,7 +1241,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         //opserr << "f1 = " << natFreq << "    f2 = " << 5.0 * natFreq << endln;
 		opserr << "a0 = " << a0 << "    a1 = " << a1 << endln;
 	}
-	theDomain->setRayleighDampingFactors(a0, a1, 0.0, 0.0);
+    theDomain->setRayleighDampingFactors(a0, a1, 0.0, 0.0);
 
     //DirectIntegrationAnalysis* theTransientAnalysis;
 	theTransientAnalysis = new DirectIntegrationAnalysis(*theDomain, *theHandler, *theNumberer, *theModel, *theSolnAlgo, *theSOE, *theTransientIntegrator, theTest);
@@ -1257,8 +1257,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "integrator  Newmark $gamma_dynm $beta_dynm" << endln;
 	s << "set a0 " << a0 << endln;
 	s << "set a1 " << a1 << endln;
-	s << "rayleigh    $a0 $a1 0.0 0.0" << endln;
-	//s << "analysis Transient" << endln << endln;
+    s << "rayleigh    $a0 $a1 0.0 0.0" << endln;
 	s << "analysis Transient" << endln << endln;
 	
 	// count quad elements
@@ -1539,7 +1538,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "puts \"Finished with dynamic analysis...\"" << endln << endln;
 
 	s << endln;
-	s << "print -file out_tcl/Domain.out" << endln << endln;
+    //s << "print -file out_tcl/Domain.out" << endln << endln;
 	
 	s << "wipe" << endln;
     s << "puts \"Site response analysis is finished.\""<< endln;
@@ -1699,12 +1698,14 @@ int SiteResponseModel::trueRun()
 
     theDomain->removeRecorders();
 
+    /*
     // write domain
     OPS_Stream* theOutputStreamAll;
     theOutputStreamAll = new DataFileStream("/Users/simcenter/Codes/SimCenter/s3hark/bin/s3hark.out", OVERWRITE, 2, 0, false, 6, false);
     theDomain->Print(*theOutputStreamAll);
     opserr << theOutputStreamAll;
     delete theOutputStreamAll;
+    */
 
     return 100;
 
@@ -3370,7 +3371,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set endT    [clock seconds]" <<endln;
     s << "puts \"Finished with dynamic analysis...\"" <<endln;
     s << "puts \"Analysis execution time: [expr $endT-$startT] seconds\"" <<endln;
-    s << "print -file out_tcl/Domain-3D-s3hark-tcl.out" <<endln;
+    //s << "print -file out_tcl/Domain-3D-s3hark-tcl.out" <<endln;
 
 
 
