@@ -288,6 +288,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     std::vector<double> vPermVec;
     std::vector<double> hPermVec;
 
+    std::map<int, std::string> eleTypeDict;
+
 	theNode = new Node(numNodes + 1, 3, 0.0, yCoord); theDomain->addNode(theNode);
 	theNode = new Node(numNodes + 2, 3, sElemX, yCoord); theDomain->addNode(theNode);
 	s << "model BasicBuilder -ndm 2 -ndf 3  \n\n";
@@ -530,9 +532,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                 //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                 //TODO: PM4Silt->PDMY02
                 //TODO: deal with noYieldSurf
-                theMat = new PM4Silt(matTag, nd,rho,refShearModul,refBulkModul,frictionAng,peakShearStra,
-                                     refPress,pressDependCoe,PTAng,contrac1,contrac3,dilat1,dilat3,contrac2,dilat2,liquefac1,liquefac2
-                                       ,e,cs1,cs2,cs3,pa,c);
+                theMat = new PressureDependMultiYield02(matTag,nd,rho,refShearModul,refBulkModul,frictionAng,
+                       peakShearStra, refPress,  pressDependCoe,PTAng,contrac1,contrac3,  dilat1,dilat3,20,0,
+                              contrac2, dilat2,liquefac1,liquefac2,e,cs1,cs2,cs3,pa);
                 s << "nDMaterial PressureDependMultiYield02 "<<matTag << " "<<nd<<" "<<rho<<" "<<refShearModul<<" "<<refBulkModul<<" "<<frictionAng<<" "<<peakShearStra<<" "<<
                         refPress<<" "<<pressDependCoe<<" "<<PTAng<<" "<<contrac1<<" "<<contrac3<<" "<<dilat1<<" "<<dilat3<<" 20 "<<contrac2<<" "<<dilat2<<" "<<liquefac1<<" "<<liquefac2
                           <<" "<<e<<" "<<cs1<<" "<<cs2<<" "<<cs3<<" "<<pa<<" "<<endln;
@@ -640,6 +642,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				theDomain->addElement(theEle);
 
 				matNumDict[numElems + 1] = theMat->getTag();
+                eleTypeDict[numElems + 1] = matType;
 
 
 
@@ -757,7 +760,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "analysis Transient" << endln << endln;
 	
 	s << "set startT  [clock seconds]" << endln;
-    s << "analyze     10 10.0" << endln;
+    s << "analyze     10 1.0" << endln;
 	s << "puts \"Finished with elastic gravity analysis...\"" << endln << endln;
 
 	// create analysis objects - I use static analysis for gravity
@@ -804,7 +807,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
     // transient
-    converged = theAnalysis->analyze(10,10.0);
+    converged = theAnalysis->analyze(10,1.0);
 	if (!converged)
 	{
 		opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
@@ -840,10 +843,23 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     ElementIter &theElementIter1 = theDomain->getElements();
     while ((theEle = theElementIter1()) != 0)
     {
-        Information stateInfo(1.0);
-        theEle->updateParameter(5,stateInfo);
+        int theEleTag = theEle->getTag();
+        if(!eleTypeDict[theEleTag].compare("PM4Sand")
+         || !eleTypeDict[theEleTag].compare("PM4Silt")
+         || !eleTypeDict[theEleTag].compare("ManzariDafalias")
+         || !eleTypeDict[theEleTag].compare("Elastic"))
+        {
+            Information stateInfo(1.0);
+            theEle->updateParameter(5,stateInfo);
+        } else if(!eleTypeDict[theEleTag].compare("PDMY")
+                  || !eleTypeDict[theEleTag].compare("PDMY02")
+                  || !eleTypeDict[theEleTag].compare("PIMY")
+                  || !eleTypeDict[theEleTag].compare("J2Bounding"))
+        {
+            Information stateInfo(1);
+            theEle->updateParameter(1,stateInfo);
+        }
     }
-
 	s << endln;
 
 	for (int i=0; i != soilMatTags.size(); i++)
@@ -854,12 +870,16 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	int nParaPlus = 0;
 	while ((theEle = theElementIterFC()) != 0)
 	{
+
 		int theEleTag = theEle->getTag();
-
-        Information myInfox(0);
-        theEle->updateParameter(8,myInfox);
-
-		s << "setParameter -value 0 -ele "<<theEleTag<<" FirstCall "<< matNumDict[theEleTag] << endln;
+        if(!eleTypeDict[theEleTag].compare("PM4Sand")
+         || !eleTypeDict[theEleTag].compare("PM4Silt")
+         || !eleTypeDict[theEleTag].compare("Elastic"))
+        {
+            Information myInfox(0);
+            theEle->updateParameter(8,myInfox);
+            s << "setParameter -value 0 -ele "<<theEleTag<<" FirstCall "<< matNumDict[theEleTag] << endln;
+        }
 	}
 
 	// add parameters: poissonRatio for plastic gravity analysis
@@ -868,11 +888,17 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	{
 		int theEleTag = theEle->getTag();
 
-        Information myInfox(0.3);
-        theEle->updateParameter(7,myInfox);
+        if(!eleTypeDict[theEleTag].compare("ManzariDafalias")
+                || !eleTypeDict[theEleTag].compare("PM4Sand")
+                || !eleTypeDict[theEleTag].compare("PM4Silt")
+                || !eleTypeDict[theEleTag].compare("Elastic"))
+        {
+            Information myInfox(0.3);
+            theEle->updateParameter(7,myInfox);
 
-		//setParameter -value 0 -ele $elementTag poissonRatio $matTag
-        s << "setParameter -value 0.3 -ele "<< theEleTag <<" poissonRatio "<< matNumDict[theEleTag] << endln;
+            //setParameter -value 0 -ele $elementTag poissonRatio $matTag
+            s << "setParameter -value 0.3 -ele "<< theEleTag <<" poissonRatio "<< matNumDict[theEleTag] << endln;
+        }
     }
     s << endln;
 
@@ -880,7 +906,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
     if(doAnalysis)
     {
-        converged = theAnalysis->analyze(10,10.0);
+        converged = theAnalysis->analyze(10,1.0);
 
         if (!converged)
         {
@@ -891,7 +917,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         }
         opserr << "Finished with plastic gravity analysis..." endln;
     }
-    s << "analyze     10 10.0" << endln;
+    s << "analyze     10 1.0" << endln;
     s << "puts \"Finished with plastic gravity analysis...\"" << endln << endln;
 	
 
