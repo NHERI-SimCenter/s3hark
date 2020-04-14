@@ -283,11 +283,6 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	NDMaterial *theMat;
 
 	Element *theEle;
-	Parameter *theParameter;
-	char **paramArgs = new char *[2];
-	paramArgs[0] = new char[15];
-	paramArgs[1] = new char[5];
-	sprintf(paramArgs[0], "materialState");
 	std::map<int, int> matNumDict;
 	std::vector<int> soilMatTags;
     std::vector<double> vPermVec;
@@ -398,12 +393,16 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                 //evoid  = emax - thisDr * (emax - emin);
 				rho_d = Gs / (1 + evoid);
 				rho_s = rho_d *(1.0+evoid/Gs);
-
 				//theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
 				theMat = new PM4Sand(matTag, thisDr,G0,hpo,thisDen,P_atm,h0,emax,emin,nb,nd,Ado,z_max,cz,ce,phic,nu,cgd,cdr,ckaf,Q,R,m,Fsed_min,p_sedo);
 				s << "nDMaterial PM4Sand " << matTag<< " " << thisDr<< " " <<G0<< " " <<hpo<< " " <<thisDen<< " " <<P_atm<< " " <<h0<< " "<<emax<< " "<<emin<< " " <<
 				nb<< " " <<nd<< " " <<Ado<< " " <<z_max<< " " <<cz<< " " <<ce<< " " <<phic<< " " <<nu<< " " <<cgd<< " " <<cdr<< " " <<ckaf<< " " <<
 				Q<< " " <<R<< " " <<m<< " " <<Fsed_min<< " " <<p_sedo << endln;
+
+                /*
+                theMat = new PM4Sand(matTag, thisDr,G0,hpo,thisDen);
+                s << "nDMaterial PM4Sand " << matTag<< " " << thisDr<< " " <<G0<< " " <<hpo<< " " <<thisDen << endln;
+                */
             }else if(!matType.compare("PM4Silt"))
             {
                 double thisDr = mat["Dr"];
@@ -611,28 +610,34 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 				ns << numNodes + 2 << " " << sElemX << " " << yCoord << endln;
 
                 double alpha = 1.0e-8;
-				theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
-                                       *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, alpha, 0.0, g * 1.0); // -9.81 * theMat->getRho() TODO: theMat->getRho()
-                hPermVec.push_back(hPerm);
-                vPermVec.push_back(vPerm);
+
 
 				s << "element SSPquadUP "<<numElems + 1<<" " 
 					<<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
                     << theMat->getTag() << " " << "1.0 "<<uBulk<<" 1.0 1.0 1.0 " <<evoid << " "<< alpha<< " ";
+                double b1 = 0.0, b2 = 0.0;
                 slopex1 = slopex1 > 90 ? (180.-slopex1) : slopex1;
                 if (slopex1 <= 90)
-                    s<< std::to_string(-1.0 * g * sin(slopex1*pi/180.)) <<" "<< std::to_string(g * cos(slopex1*pi/180.))  << endln;
+                {
+                    b1 = -1.0 * g * sin(slopex1*pi/180.);
+                    b2 = g * cos(slopex1*pi/180.);
+                    s<< std::to_string(b1) <<" "<< std::to_string(b2)  << endln;
+                }
                 else
-                    s<< std::to_string(1.0 * g * sin((180-slopex1)*pi/180.)) <<" "<< std::to_string(g * cos((180-slopex1)*pi/180.))  << endln;
+                {
+                    b1 = 1.0 * g * sin((180-slopex1)*pi/180.);
+                    b2 = g * cos((180-slopex1)*pi/180.);
+                    s<< std::to_string(b1) <<" "<< std::to_string(b2)  << endln;
+                }
 				es << numElems + 1<<" " <<numNodes - 1 <<" "<<numNodes<<" "<< numNodes + 2<<" "<< numNodes + 1<<" "
 					<< theMat->getTag() << endln;
 
-				theDomain->addElement(theEle);
+                theEle = new SSPquadUP(numElems + 1, numNodes - 1, numNodes, numNodes + 2, numNodes + 1,
+                                       *theMat, 1.0, uBulk, 1.0, 1.0, 1.0, evoid, alpha, b1, b2); // -9.81 * theMat->getRho() TODO: theMat->getRho()
+                hPermVec.push_back(hPerm);
+                vPermVec.push_back(vPerm);
 
-				theParameter = new Parameter(numElems + 1, 0, 0, 0);
-				sprintf(paramArgs[1], "%d", theMat->getTag());
-				theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-				theDomain->addParameter(theParameter);
+				theDomain->addElement(theEle);
 
 				matNumDict[numElems + 1] = theMat->getTag();
 
@@ -718,18 +723,6 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "# ------------------------------------------ \n \n";
 
 	// update material stage to consider elastic behavior
-	// TODO: question: do it for any material type?
-	ParameterIter &theParamIter = theDomain->getParameters();
-	while ((theParameter = theParamIter()) != 0)
-	{
-		theParameter->update(0.0);
-	}
-	s << endln;
-
-	for (int i=0; i != soilMatTags.size(); i++)
-		s << "updateMaterialStage -material "<< soilMatTags[i] <<" -stage 0" << endln << endln ; 
-
-
 
 	// create the output streams
 	OPS_Stream *theOutputStream;
@@ -750,8 +743,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 	s << "# 3.1 elastic gravity analysis (transient) \n\n";
 
-	double gamma = 5./6.;
-    double beta = 4./9.;
+    double gamma = 0.8333;// 5./6.;
+    double beta = 0.4444;//4./9.;
 
 	s << "constraints Transformation" << endln;
 	s << "test NormDispIncr 1.0e-4 35 1" << endln;
@@ -764,7 +757,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "analysis Transient" << endln << endln;
 	
 	s << "set startT  [clock seconds]" << endln;
-    s << "analyze     10 1.0" << endln;
+    s << "analyze     10 10.0" << endln;
 	s << "puts \"Finished with elastic gravity analysis...\"" << endln << endln;
 
 	// create analysis objects - I use static analysis for gravity
@@ -811,7 +804,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
     // transient
-    converged = theAnalysis->analyze(10,1.0);
+    converged = theAnalysis->analyze(10,10.0);
 	if (!converged)
 	{
 		opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
@@ -843,23 +836,13 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
 
 	s << "# 3.2 plastic gravity analysis (transient)" << endln << endln;
-/*
+
     ElementIter &theElementIter1 = theDomain->getElements();
     while ((theEle = theElementIter1()) != 0)
     {
         Information stateInfo(1.0);
-        theEle->updateParameter(1,stateInfo);
+        theEle->updateParameter(5,stateInfo);
     }
-    */
-	// update material response to plastic
-	theParamIter = theDomain->getParameters();
-	while ((theParameter = theParamIter()) != 0)
-	{
-        theParameter->update(1.0);
-		// //updateMaterialStage -material $i -stage 1.0
-		//s << "updateMaterialStage -material "<< theParameter->getTag() <<" -stage 1" << endln ; 
-	}
-
 
 	s << endln;
 
@@ -867,57 +850,37 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 		s << "updateMaterialStage -material "<< soilMatTags[i] <<" -stage 1" << endln ; 
 
 	// add parameters: FirstCall for plastic gravity analysis
-	sprintf(paramArgs[0], "FirstCall");
 	ElementIter &theElementIterFC = theDomain->getElements();
 	int nParaPlus = 0;
 	while ((theEle = theElementIterFC()) != 0)
 	{
 		int theEleTag = theEle->getTag();
-		theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
-		sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
-		theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-		theDomain->addParameter(theParameter);
-		nParaPlus += 1;
 
-		//setParameter -value 0 -ele $elementTag FirstCall $matTag
+        Information myInfox(0);
+        theEle->updateParameter(8,myInfox);
+
 		s << "setParameter -value 0 -ele "<<theEleTag<<" FirstCall "<< matNumDict[theEleTag] << endln;
 	}
 
 	// add parameters: poissonRatio for plastic gravity analysis
-	sprintf(paramArgs[0], "poissonRatio");
 	ElementIter &theElementIter = theDomain->getElements();
 	while ((theEle = theElementIter()) != 0)
 	{
 		int theEleTag = theEle->getTag();
-		theParameter = new Parameter(numElems + nParaPlus + 1, 0, 0, 0);
-		sprintf(paramArgs[1], "%d", matNumDict[theEleTag]);
-		theEle->setParameter(const_cast<const char**>(paramArgs), 2, *theParameter);
-		theDomain->addParameter(theParameter);
-		nParaPlus += 1;
+
+        Information myInfox(0.3);
+        theEle->updateParameter(7,myInfox);
 
 		//setParameter -value 0 -ele $elementTag poissonRatio $matTag
-		s << "setParameter -value 0.3 -ele "<< theEleTag <<" poissonRatio "<< matNumDict[theEleTag] << endln;
-	}
-	//TODO: the $i ?  in setParameter -value 0.3 -eleRange $layerBound($i) $layerBound([expr $i+1]) poissonRatio $i
+        s << "setParameter -value 0.3 -ele "<< theEleTag <<" poissonRatio "<< matNumDict[theEleTag] << endln;
+    }
+    s << endln;
 
-	// update FirstCall and poissonRatio
-	theParamIter = theDomain->getParameters();
-	while ((theParameter = theParamIter()) != 0)
-	{
-		int paraTag = theParameter->getTag();
-		if (paraTag>numElems & paraTag<=(numElems+nParaPlus/2.))
-		{// FirstCall
-			theParameter->update(0.0);
-		}else if (paraTag>(numElems+nParaPlus/2.)){// poissonRatio
-			theParameter->update(0.3);
-		}
-	}
-	s << endln;
 
 
     if(doAnalysis)
     {
-        converged = theAnalysis->analyze(10,1.0);
+        converged = theAnalysis->analyze(10,10.0);
 
         if (!converged)
         {
@@ -928,7 +891,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         }
         opserr << "Finished with plastic gravity analysis..." endln;
     }
-    s << "analyze     10 1.0" << endln;
+    s << "analyze     10 10.0" << endln;
     s << "puts \"Finished with plastic gravity analysis...\"" << endln << endln;
 	
 
@@ -936,20 +899,26 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "# 3.3 Update element permeability for post gravity analysis"<< endln << endln;
 
 	theElementIter = theDomain->getElements();
+    char out[64];
 	while ((theEle = theElementIter()) != 0)
 	{
 		int theEleTag = theEle->getTag();
 		//setParameter -value 1 -ele $elementTag hPerm $matTag
-        double thishPerm = hPermVec[theEleTag-1];
-        double thisvPerm = vPermVec[theEleTag-1];
+        double thishPerm = -hPermVec[theEleTag-1]/g;
+        double thisvPerm = -vPermVec[theEleTag-1]/g;
 
-        Information myInfox(-thishPerm/g);
+        // precision
+        sprintf(out, "%.*g", 6, thishPerm);thishPerm = strtod(out, 0);
+        sprintf(out, "%.*g", 6, thisvPerm);thisvPerm = strtod(out, 0);
+
+        Information myInfox(thishPerm);
         theEle->updateParameter(3,myInfox);
-        Information myInfoy(-thisvPerm/g);
+        Information myInfoy(thisvPerm);
         theEle->updateParameter(4,myInfoy);
 
-        s << "setParameter -value "<<-thishPerm/g/*TODO*/<<" -ele "<< theEleTag<<" hPerm "<<endln;
-        s << "setParameter -value "<<-thisvPerm/g/*TODO*/<<" -ele "<< theEleTag<<" vPerm "<<endln;
+        s << "setParameter -value "<< std::setprecision(6) << thishPerm<<" -ele "<< theEleTag<<" hPerm "<<endln;
+        s << "setParameter -value "<< std::setprecision(6) << thisvPerm<<" -ele "<< theEleTag<<" vPerm "<<endln;
+
 	}
 	s << endln << endln << endln;
 
@@ -982,15 +951,6 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "set dashpotCoeff  [expr $rockVs*$rockDen]" << endln; // [expr $rockVs*$rockDen]
 	s << "uniaxialMaterial Viscous " << dashMatTag <<" "<<"[expr $dashpotCoeff*$colArea] 1"<<endln;
 	s << "set cFactor [expr $colArea*$dashpotCoeff]" << endln;
-
-	/*
-	if (theModelType.compare("2D")) // 3D
-	{
-		theViscousMats[1] = new ViscousMaterial(numLayers + 20, vis_C, 1.0);
-		OPS_addUniaxialMaterial(theViscousMats[1]);
-		// TODO: s << 
-	}
-	*/
 
 
     s << "\n\n# 4.2 Create dashpot nodes and apply proper fixities. \n\n";
@@ -1062,20 +1022,20 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 
     s << "\n\n# 4.6 Create the dashpot element. \n\n";
 
-	Vector x(3);
-	Vector y(3);
-	x(0) = 1.0;
-	x(1) = 0.0;
-	x(2) = 0.0;
-	y(0) = 0.0;
-	y(1) = 1.0;
-	y(2) = 0.0;
+    Vector x(1);
+    Vector y(1);
+    x(0) = 1.0;
+    //x(1) = 0.0;  //|-----------> what???
+    //x(2) = 0.0;  //|-----------> I change the dimension of x and y from 3 to 1, and the results are still the same?
+    y(0) = 0.0;
+    //y(1) = 1.0;
+    //y(2) = 0.0;
 	int numberDirections = 1;// for 3D it's 2
 	ID directions(numberDirections);
 	directions(0) = 0; 
 	//directions(1) = 2; // 3D
 	//element zeroLength [expr $nElemT+1]  $dashF $dashS -mat [expr $numLayers+1]  -dir 1
-	theEle = new ZeroLength(numElems + 1, 2, numNodes + 1, numNodes + 2, x, y, 1, theViscousMats, directions); //TODO ?
+    theEle = new ZeroLength(numElems + 1, 2, numNodes + 1, numNodes + 2, x, y, 1, theViscousMats, directions); //TODO ?
 	theDomain->addElement(theEle);
 	s << "element zeroLength "<<numElems + 1 <<" "<< numNodes + 1 <<" "<< numNodes + 2<<" -mat "<<dashMatTag<<"  -dir 1" << endln;
 	s << "\n\n\n";
@@ -1136,11 +1096,11 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         theLP->setTimeSeries(theMotionX->getVelSeries());
 
 		NodalLoad *theLoad;
-		int numLoads = 3; // for 3D it's 4
+        int numLoads = 3; // for 3D it's 4
 		Vector load(numLoads);
 		load(0) = 1.0;
-		load(1) = 0.0;
-		load(2) = 0.0;
+        load(1) = 0.0;
+        load(2) = 0.0;
 		//load(3) = 0.0;
 
 		//theLoad = new NodalLoad(1, numNodes + 2, load, false); theLP->addNodalLoad(theLoad);
@@ -1235,6 +1195,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	double ximin = 0.025;
 	double a0 = ximin * Omegamin; //# factor to mass matrix
 	double a1 = ximin / Omegamin; //# factor to stiffness matrix
+
+    a0 = 0.787;
+    a1 = 0.0007942;
 
 	if (PRINTDEBUG)
 	{
