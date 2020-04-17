@@ -1619,14 +1619,16 @@ int SiteResponseModel::trueRun()
             std::stringstream progressBar;
             for (int analysisCount = 0; analysisCount < remStep; ++analysisCount)
             {
+                std::cout << "step: " << analysisCount << " / " << remStep-1 << endln;
                 if (!forward) break;
                 //int converged = theAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
-                double stepDT = dt[analysisCount];
+                //double stepDT = dt[analysisCount];
                 //int converged = theTransientAnalysis->analyze(1, stepDT, stepDT / 2.0, stepDT * 2.0, 1); // *
                 //int converged = theTransientAnalysis->analyze(1, 0.01, 0.005, 0.02, 1);
                 int converged = theTransientAnalysis->analyze(1, dT);
                 if (!converged)
                 {
+                    std::cout << "Converged at time " << theDomain->getCurrentTime() << endln;
                     opserr << "Converged at time " << theDomain->getCurrentTime() << endln;
 
                     if (analysisCount % (int)(remStep / 20) == 0)
@@ -1641,14 +1643,24 @@ int SiteResponseModel::trueRun()
                         progressBar << "]  " << (int)(100 * analysisCount / remStep) << "%";
                         opsout << progressBar.str().c_str();
                         opsout.flush();
+
                         if (callback && forward)
                             forward = m_callbackFunction(100.0 * analysisCount / remStep);
                     }
                 }
                 else
                 {
-                    opserr << "Site response analysis did not converge." << endln;
-                    exit(-1);
+                    std::cout << "Site response analysis did not converge. Trying substepping..." << endln;
+                    opserr << "Site response analysis did not converge. Trying substepping..." << endln;
+
+                    int subStep = 0;
+                    success = subStepAnalyze(dT/2., subStep+1, theTransientAnalysis);
+                    if(!fabs(success)<1)
+                    {
+                        std::cout << "Substepping didn't work... exit" << endln;
+                        opserr << "Substepping didn't work... exit" << endln;
+                        exit(-1);
+                    }
                 }
             }
             opserr << "Site response analysis done..." << endln;
@@ -1745,9 +1757,10 @@ int SiteResponseModel::trueRun()
 
 int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationAnalysis* theTransientAnalysis)
 {
-    if (subStep > 10)
-		return -10;
-    int success;
+    int maxsubstep = 10;
+    if (subStep > maxsubstep)
+        return -maxsubstep;
+    int success = 0;
     for (int i=0; i < 3; i++)
 	{
 		opserr << "Try dT = " << dT << endln;
@@ -1756,7 +1769,7 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationA
         if(fabs(success) > 0.0 )
         {
             success = subStepAnalyze(dT/2.0, subStep+1,theTransientAnalysis);
-            if(success == -10)
+            if(success == -maxsubstep)
                 return success;
         } else {
             if (i==1)
@@ -1766,7 +1779,7 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationA
         }
 	}
 	
-	return 0;
+    return success;
 
 }
 
@@ -1830,6 +1843,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     json basicSettings;
     double dampingCoeff,dashpotCoeff,groundWaterTable,rockDen,rockVs;
     std::string groundMotion;
+
     try
     {
         basicSettings = SRT["basicSettings"];
@@ -1900,6 +1914,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     ns << numNodes + 2 << " 0.0 " << yCoord << " " << zthick << " " << endln;
     ns << numNodes + 3 << " " << sElemX << " " << yCoord << " " << zthick << " " << endln;
     ns << numNodes + 4 << " " << sElemX << " " << yCoord << " 0.0 "  << endln;
+
+    std::map<int, std::string> eleTypeDict;
 
     s << std::scientific << std::setprecision(14);
 
@@ -2381,7 +2397,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
 */
                 matNumDict[numElems + 1] = theMat->getTag();
 
-
+                eleTypeDict[numElems + 1] = matType;
 
                 if (yCoord >= (totalHeight - groundWaterTable))
                 { 	//record dry nodes above ground water table
@@ -2636,8 +2652,24 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     ElementIter &theElementIter = theDomain->getElements();
     while ((theEle = theElementIter()) != 0)
     {
-        Information stateInfo(1);
-        theEle->updateParameter(1,stateInfo);
+        //Information stateInfo(1);
+        //theEle->updateParameter(1,stateInfo);
+        int theEleTag = theEle->getTag();
+        if(!eleTypeDict[theEleTag].compare("PM4Sand")
+         || !eleTypeDict[theEleTag].compare("PM4Silt")
+         || !eleTypeDict[theEleTag].compare("ManzariDafalias")
+         || !eleTypeDict[theEleTag].compare("Elastic"))
+        {
+            Information stateInfo(1.0);
+            theEle->updateParameter(5,stateInfo);
+        } else if(!eleTypeDict[theEleTag].compare("PDMY")
+                  || !eleTypeDict[theEleTag].compare("PDMY02")
+                  || !eleTypeDict[theEleTag].compare("PIMY")
+                  || !eleTypeDict[theEleTag].compare("J2Bounding"))
+        {
+            Information stateInfo(1);
+            theEle->updateParameter(1,stateInfo);
+        }
     }
 
     s << endln;
