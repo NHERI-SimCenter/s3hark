@@ -4,12 +4,14 @@ INCLUDEPATH += $$PWD/ \
                $$PWD/Include \
                $$PWD/FEM \
                $$PWD/SiteResponse \
-               $$PWD/UI
+               $$PWD/UI \
+               #/Users/simcenter/Codes/Research/OpenSees/OpenSees/OTHER/SuperLU_5.1.1/SRC
 
 unix {
 # You need to modify this section if your blas and lapack is in a different place
 INCLUDEPATH += /usr/local/opt/lapack/include \
-               /usr/local/include
+               /usr/local/include \
+
 
 # You need to modify this section if your blas and lapack is in a different place
 #LIBS += /usr/local/opt/lapack/lib/libblas.3.8.0.dylib \
@@ -22,7 +24,7 @@ LIBS += -llapack
 win32: {
 # You must append your lapack include path if it is not in a standard place.
 INCLUDEPATH += FEM \
-               SiteResponse
+            += SiteResponse
 
 LIBS += "The path to the file lapack.lib"
 LIBS += "The path to the file blas.lib"
@@ -115,6 +117,9 @@ SOURCES += $$PWD/UI/RockOutcrop.cpp \
     $$PWD/FEM/Information.cpp \
     $$PWD/FEM/Integrator.cpp \
     $$PWD/FEM/J2CyclicBoundingSurface.cpp \
+    $$PWD/FEM/ManzariDafalias.cpp \
+    $$PWD/FEM/ManzariDafalias3D.cpp \
+    $$PWD/FEM/ManzariDafaliasPlaneStrain.cpp \
     $$PWD/FEM/LegendreBeamIntegration.cpp \
     $$PWD/FEM/LinearCrdTransf3d.cpp \
     $$PWD/FEM/LinearSeries.cpp \
@@ -204,6 +209,8 @@ SOURCES += $$PWD/UI/RockOutcrop.cpp \
     #$$PWD/FEM/ElasticIsotropicPlaneStress2D.cpp \
     $$PWD/FEM/MultiYieldSurface.cpp \
     $$PWD/FEM/PressureDependMultiYield02.cpp \
+    $$PWD/FEM/PressureDependMultiYield.cpp \
+    $$PWD/FEM/PressureIndependMultiYield.cpp \
     $$PWD/SiteResponse/EffectiveFEModel.cpp \
     $$PWD/SiteResponse/Mesher.cpp \
     $$PWD/SiteResponse/soillayer.cpp \
@@ -213,7 +220,15 @@ SOURCES += $$PWD/UI/RockOutcrop.cpp \
     $$PWD/UI/ProfileManager.cpp \
     $$PWD/UI/PostProcessor.cpp \
     $$PWD/UI/SSSharkThread.cpp \
-    $$PWD/FEM/T2Vector.cpp
+    $$PWD/FEM/T2Vector.cpp \
+    $$PWD/FEM/PlainHandler.cpp \
+    #$$PWD/FEM/SuperLU.cpp \
+    #$$PWD/FEM/SparseGenColLinSOE.cpp \
+    #$$PWD/FEM/Accelerator.cpp \
+    #$$PWD/FEM/AcceleratedNewton.cpp \
+    #$$PWD/FEM/KrylovAccelerator.cpp \
+    #$$PWD/FEM/KrylovNewton.cpp \
+    #$$PWD/FEM/SparseGenColLinSolver.cpp
 
 
 HEADERS  += $$PWD/UI/RockOutcrop.h \
@@ -297,6 +312,9 @@ HEADERS  += $$PWD/UI/RockOutcrop.h \
     $$PWD/FEM/Information.h \
     $$PWD/FEM/Integrator.h \
     $$PWD/FEM/J2CyclicBoundingSurface.h \
+    $$PWD/FEM/ManzariDafalias.h \
+    $$PWD/FEM/ManzariDafalias3D.h \
+    $$PWD/FEM/ManzariDafaliasPlaneStrain.h \
     $$PWD/FEM/LegendreBeamIntegration.h \
     $$PWD/FEM/LinearCrdTransf3d.h \
     $$PWD/FEM/LinearSeries.h \
@@ -399,6 +417,8 @@ HEADERS  += $$PWD/UI/RockOutcrop.h \
     $$PWD/FEM/SSPquadUP.h \
     $$PWD/FEM/MultiYieldSurface.h \
     $$PWD/FEM/PressureDependMultiYield02.h \
+    $$PWD/FEM/PressureDependMultiYield.h \
+    $$PWD/FEM/PressureIndependMultiYield.h \
     $$PWD/SiteResponse/Mesher.h \
     $$PWD/SiteResponse/EffectiveFEModel.h \
     $$PWD/SiteResponse/soillayer.h \
@@ -407,7 +427,16 @@ HEADERS  += $$PWD/UI/RockOutcrop.h \
     $$PWD/UI/ProfileManager.h \
     $$PWD/UI/PostProcessor.h \
     $$PWD/UI/SSSharkThread.h \
-    $$PWD/FEM/T2Vector.h
+    $$PWD/FEM/T2Vector.h \
+    $$PWD/FEM/PlainHandler.h \
+
+    #$$PWD/FEM/SuperLU.h \
+    #$$PWD/FEM/SparseGenColLinSOE.h \
+    #$$PWD/FEM/Accelerator.h \
+    #$$PWD/FEM/AcceleratedNewton.h \
+    #$$PWD/FEM/KrylovAccelerator.h \
+    #$$PWD/FEM/KrylovNewton.h \
+    #$$PWD/FEM/SparseGenColLinSolver.h
 
 
 FORMS    += $$PWD/UI/MainWindow.ui \

@@ -152,7 +152,12 @@ OBJS = \
 	   T2Vector.o \
 	   SSPbrickUP.o \
 	   MultiYieldSurface.o \
-	   PressureDependMultiYield02.o
+	   PressureDependMultiYield02.o \
+	   PressureDependMultiYield.o \
+	   PressureIndependMultiYield.o \
+	   ManzariDafalias.o \
+	   ManzariDafalias3D.o \
+	   ManzariDafaliasPlaneStrain.o 
 
 
 
