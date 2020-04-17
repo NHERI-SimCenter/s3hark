@@ -48,7 +48,14 @@ int PostProcessor::checkDim(){
 }
 
 void PostProcessor::check3DStress()
-{
+{   // if tcl recorder is like this:
+    // recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 30  stress 6
+    // no need to run this function
+    // if it is like this:
+    // recorder Element -file out_tcl/stress.out -time -dT $recDT  -eleRange 1 30  stress
+    // then the dimention of each out put of an element is 7
+    // run this function to trim it to be 6
+
     //stressFileName
     QFile file(esmat3DFileName);
     eleCount = 0;
@@ -107,7 +114,7 @@ void PostProcessor::check3DStress()
 void PostProcessor::update()
 {
     checkDim();
-    if (dim==3) check3DStress();
+    //if (dim==3) check3DStress();
 
     calcDepths();
     calcRuDepths();
