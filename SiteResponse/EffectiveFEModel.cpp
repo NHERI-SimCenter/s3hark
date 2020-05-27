@@ -576,7 +576,8 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
                             //theMat = new ElasticIsotropicMaterial(matTag, 20000.0, 0.3, thisDen);
                             //TODO: PM4Silt->ManzariDafalias
                             theMat = new ManzariDafalias(matTag, G0, nu, e_init, Mc, c, lambda_c, e0, ksi, P_atm, m, h0, ch, nb, A0, nd, z_max, cz, Den);
-                            s << "nDMaterial ManzariDafalias " << matTag<< " " << G0<< " " <<nu<< " " <<e_init<< " " <<Mc<< " " <<c<< " " <<lambda_c<< " " <<e0<< " " <<ksi<< " " <<P_atm<< " " <<m<< " " <<h0<< " " <<ch<< " " <<nb<< " " <<A0<< " " <<nd<< " " <<z_max<< " " <<cz<< " " <<Den << endln;
+                            s << "nDMaterial ManzariDafalias " << matTag<< " " << G0<< " " <<nu<< " " <<e_init<< " " <<Mc<< " " <<c<< " " <<lambda_c<< " "
+                              <<e0<< " " <<ksi<< " " <<P_atm<< " " <<m<< " " <<h0<< " " <<ch<< " " <<nb<< " " <<A0<< " " <<nd<< " " <<z_max<< " " <<cz<< " " <<Den << endln;
                         }
             else if(!matType.compare("J2Bounding"))
                         {
@@ -1450,7 +1451,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 	s << "	if {$subStep > 10} {" << endln;
 	s << "		return -10" << endln;
 	s << "	}" << endln;
-    s << "	for {set i 0} {$i < 3} {incr i} {" << endln;
+    s << "	for {set i 1} {$i < 3} {incr i} {" << endln;
 	s << "		puts \"Try dT = $dT\"" << endln;
 	s << "		set success [analyze 1 $dT]" << endln;
 	s << "		if {$success != 0} {" << endln;
@@ -1688,9 +1689,10 @@ int SiteResponseModel::trueRun()
 
                 int subStep = 0;
                 success = theTransientAnalysis->analyze(1, dT);
+                std::cout << "current time is: " << currentTime << " \n";
                 if(fabs(success)>0)
                 {   // analysisi failed at currenttime
-
+                    std::cout << "analysisi failed at time: " << currentTime << ". Try substepping ... \n";
                     success = subStepAnalyze(dT/2., subStep+1, theTransientAnalysis);
                 } else {
                     currentProgress = int(currentTime/finalTime *100.);
@@ -1759,9 +1761,12 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationA
 {
     int maxsubstep = 10;
     if (subStep > maxsubstep)
+    {
+        std::cout << "subStep greater than max substeps " << maxsubstep << "existing substepping. \n";
         return -maxsubstep;
+    }
     int success = 0;
-    for (int i=0; i < 3; i++)
+    for (int i=1; i < 3; i++)
 	{
 		opserr << "Try dT = " << dT << endln;
         success = theTransientAnalysis->analyze(1, dT);// 0 means success
@@ -1770,7 +1775,10 @@ int SiteResponseModel::subStepAnalyze(double dT, int subStep, DirectIntegrationA
         {
             success = subStepAnalyze(dT/2.0, subStep+1,theTransientAnalysis);
             if(success == -maxsubstep)
+            {
+                std::cout << "reached max substeps " << maxsubstep << "existing substepping. \n";
                 return success;
+            }
         } else {
             if (i==1)
                 opserr << "Substep " << subStep << " : Left side converged with dT = " << dT;
