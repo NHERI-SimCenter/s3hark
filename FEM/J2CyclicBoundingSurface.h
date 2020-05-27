@@ -54,6 +54,7 @@ public:
 		double rho,
 		double h,
 		double m,
+		double h0,
 		double chi,
 		double beta);
 
@@ -123,6 +124,7 @@ protected:
 	double m_density;     // material density
 	double m_h_par;       // exponential hardening parameter
 	double m_m_par;       // exponential hardening parameter
+	double m_h0_par;
 	double m_beta;        // Integration scheme parameter beta = 0, explicit. beta = 1, implicit. beta = 0.5 mid point rule
 
 
@@ -140,6 +142,7 @@ protected:
 	Vector m_stress_np1;         //stress vector time n+1
 	Vector m_stress_vis_n;
 	Vector m_stress_vis_n1;
+	Vector m_stress_t_n1;
 	Matrix m_Cep;
 	Matrix m_Ce;
 
@@ -183,5 +186,4 @@ protected:
 	bool debugFlag;
 
 }; //end of J2CyclicBoundingSurface declarations
-
 #endif
