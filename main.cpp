@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setApplicationName("s3hark");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("1.1.0");
+    QCoreApplication::setApplicationVersion("1.5");
 
     //
     // set up logging of output messages for user debugging
