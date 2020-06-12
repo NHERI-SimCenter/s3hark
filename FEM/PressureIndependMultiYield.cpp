@@ -40,7 +40,7 @@ void* OPS_PressureIndependMultiYield()
 
     int argc = OPS_GetNumRemainingInputArgs() + 2;
 
-    char * arg[] = {"nd", "rho", "refShearModul", "refBulkModul",
+    const char * arg[] = {"nd", "rho", "refShearModul", "refBulkModul",
 		    "cohesi", "peakShearStra",
 		    "frictionAng (=0)", "refPress (=100)", "pressDependCoe (=0.0)",
 		    "numberOfYieldSurf (=20)"};
