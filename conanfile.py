@@ -1,7 +1,7 @@
 from conans import ConanFile, tools, VisualStudioBuildEnvironment
 import os
 
-class CommonConan(ConanFile):
+class S3harkConan(ConanFile):
     name = "s3hark"
     version = "1.1.1.1"
     license = "BSD"
@@ -30,12 +30,14 @@ class CommonConan(ConanFile):
 
     def configure(self):
         if self.settings.os == "Windows":
-           self.options["libcurl"].with_winssl = True
-           self.options["libcurl"].with_openssl = False
-        
+            self.options["libcurl"].with_winssl = True
+            self.options["libcurl"].with_openssl = False
+            self.options["lapack"].visual_studio = True
+            self.options["lapack"].shared = True
+
         if self.options.withQt:
-           self.options["qt"].qtcharts = True
-           self.options["qt"].qt3d = True
+            self.options["qt"].qtcharts = True
+            self.options["qt"].qt3d = True
 
 
     def build_requirements(self):
@@ -94,3 +96,9 @@ class CommonConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["s3hark"]
+
+    def imports(self):
+        if self.settings.os == "Windows":
+            output = './%s' % self.settings.build_type
+            self.copy("lib*.dll", dst=output, src="bin")
+
