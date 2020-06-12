@@ -139,6 +139,7 @@ int SiteResponse::run()
 {
     if (is3D) run3D();
     else run2D();
+    return 0;
 }
 int SiteResponse::run2D()
 {
