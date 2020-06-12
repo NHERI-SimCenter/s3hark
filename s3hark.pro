@@ -31,8 +31,10 @@ HEADERS  += $$PWD/UI/MainWindow.h
 include($$PWD/ConanHelper.pri)
 include(./s3hark.pri)
 
-
-
+win32{
+    LIBS -= -llapacke.dll.lib -llapack.dll.lib -lblas.dll.lib -lcblas.dll.lib
+    LIBS += -llapacke.dll -llapack.dll -lblas.dll -lcblas.dll
+}
 
 # Notes:
 # /usr/local/lib/libJPEG.dylib -> /usr/local/Cellar/jpeg/9c/lib/libjpeg.dylib
@@ -46,3 +48,6 @@ include(./s3hark.pri)
 
 # /usr/local/lib/libPng.dylib -> /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib
 # /System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib
+
+
+OTHER_FILES += conanfile.py
