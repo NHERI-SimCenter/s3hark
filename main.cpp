@@ -8,6 +8,7 @@
 #include <QTime>
 #include <QSplashScreen>
 #include <QDesktopWidget>
+#include <GoogleAnalytics.h>
 
 static QString logFilePath;
 static bool logToFile = false;
@@ -40,6 +41,9 @@ void customMessageOutput(QtMsgType type, const QMessageLogContext &context, cons
 
 int main(int argc, char *argv[])
 {
+    GoogleAnalytics::SetTrackingId("UA-162363329-1");
+    GoogleAnalytics::StartSession();
+    GoogleAnalytics::ReportStart();
     //
     //Setting Core Application Name, Organization, Version and Google Analytics Tracking Id
     //
@@ -89,7 +93,7 @@ int main(int argc, char *argv[])
 
     // with a splash
     QSplashScreen *splash = new QSplashScreen;
-    splash->setPixmap(QPixmap("/Users/simcenter/Codes/SimCenter/s3hark/docs/images/start.png"));
+    splash->setPixmap(QPixmap(":/resources/images/start.png"));
     splash->showMessage("Loading...   ", Qt::AlignRight);
     splash->show();
     QDateTime n=QDateTime::currentDateTime();
@@ -139,5 +143,11 @@ int main(int argc, char *argv[])
         qDebug() << "could not open stylesheet";
     }
 
-    return a.exec();
+
+    int res = a.exec();
+
+    GoogleAnalytics::EndSession();
+
+    return res;
+
 }

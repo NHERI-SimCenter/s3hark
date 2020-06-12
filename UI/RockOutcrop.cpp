@@ -1273,6 +1273,7 @@ int RockOutcrop::checkDimension()
 
 void RockOutcrop::on_runBtn_clicked()
 {
+    GoogleAnalytics::ReportLocalRun();
     //cleanTable();cleanTable();
 
     int numLayers = ui->totalLayerLineEdit->text().toInt();

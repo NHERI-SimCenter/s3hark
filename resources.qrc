@@ -4,6 +4,7 @@
         <file>resources/images/right.png</file>
         <file>resources/images/2D.png</file>
         <file>resources/images/3D.png</file>
+        <file>resources/images/start.png</file>
         <file>resources/styles/stylesheet.css</file>
         <file>resources/styles/profile.css</file>
         <file>resources/ui/PlotView.qml</file>
