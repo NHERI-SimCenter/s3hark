@@ -16,6 +16,7 @@
 #include <QStandardPaths>
 #include <QCheckBox>
 #include <QDesktopServices>
+#include "GoogleAnalytics.h"
 
 using namespace std::placeholders;
 
