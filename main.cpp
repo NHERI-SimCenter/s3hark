@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     m.show();
 
     m.move ((QApplication::desktop()->width() - m.width())/2,(QApplication::desktop()->height() - m.height())/2);
-    splash->finish(&m);
+    //splash->finish(&m);
     delete splash;
 
     //
