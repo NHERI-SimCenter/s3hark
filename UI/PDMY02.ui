@@ -266,7 +266,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Parameters of PDMY model </string>
+    <string>Parameters of PDMY02 model </string>
    </property>
   </widget>
   <widget class="QLabel" name="line1_2">
