@@ -1,5 +1,5 @@
 // gitter 
-((window.gitter = {}).chat = {}).options = {room: 's3hark/community'};
+//((window.gitter = {}).chat = {}).options = {room: 's3hark/community'};
 
 
 // google analytics
