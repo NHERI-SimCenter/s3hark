@@ -11,7 +11,7 @@ copyright = '2020, NHERI SimCenter'
 author = 'Charles Wang'
 
 # The short X.Y version
-version = '1.1'
+#version = '1.1'
 # The full version, including alpha/beta/rc tags
 release = '1.1.1'
 
@@ -106,11 +106,11 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 #---sphinx-themes-----
-html_theme = 'press'
+html_theme = 'sphinx_rtd_theme' #press
 
 html_theme_options = {
 	'logo_only': True,
-	'style_nav_header_background': '#000000', #64B5F6 #607D8B
+	'style_nav_header_background': '#F2F2F2', #64B5F6 #607D8B
     'analytics_id': 'UA-158130480-5'
 }
 
@@ -126,7 +126,7 @@ html_css_files = [
 # you need to modify custom.js for different git channels
 html_js_files = [
     'custom.js',
-	'https://sidecar.gitter.im/dist/sidecar.v1.js',
+	#'https://sidecar.gitter.im/dist/sidecar.v1.js',
     'https://www.googletagmanager.com/gtag/js?id=UA-158130480-5'
     ]
 

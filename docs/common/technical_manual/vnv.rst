@@ -307,7 +307,6 @@ in Figures :numref:`s3hark3DMatTabs_1`, :numref:`s3hark3DMatTabs_2`, :numref:`s3
 
    Detail soil properties and material model parameters  of a 3D column: Rock
 
-Download the ground motion file from :download:`this link <../../_static/files/SRT-GM-Input-yerbaNSvelocity-2DShaking.json>`. 
 In the ``Configure`` tab, put the path of the downloaded motion file into ``Rock motion``.
 Then, click the ``Analyze`` button to perform the simulation.
 For the verification and validation purposes, |s3harkName|'s results are compared with OpenSees, 
