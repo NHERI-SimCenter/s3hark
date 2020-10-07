@@ -1,0 +1,80 @@
+
+
+QTabWidget::pane {
+    border: 1px solid black;
+    background: white;
+}
+
+QTabWidget::tab-bar:top {
+    top: 1px;
+}
+
+QTabWidget::tab-bar:bottom {
+    bottom: 1px;
+}
+
+QTabWidget::tab-bar:left {
+    right: 1px;
+}
+
+QTabWidget::tab-bar:right {
+    left: -1px;
+}
+
+QTabBar::tab {
+    border: 1px solid black;
+}
+
+QTabBar::tab:selected {
+    background: white;
+}
+
+QTabBar::tab:!selected {
+    background: #64B5F6; /*#b6fb66;*/ /*#d9f293;*//*b0df24*/
+}
+
+QTabBar::tab:!selected:hover {
+    background: #e6f7ff; /*#eeffcc;*/ /*#999*/
+}
+
+
+
+QTabBar::tab:right:!selected {
+    margin-left: 0px;
+    /*margin-right: 3px;*/
+}
+QTabBar::tab:right:selected {
+    margin-left: -3px;
+    margin-right: 0px;
+    border-left-color: none;
+
+}
+
+
+
+
+
+QTabBar::tab:top:last, QTabBar::tab:bottom:last,
+QTabBar::tab:top:only-one, QTabBar::tab:bottom:only-one {
+    margin-right: 0;
+}
+
+
+
+QTabBar::tab:left, QTabBar::tab:right {
+    min-height: 10ex;
+    max-height: 25ex;
+    min-width: 2ex;
+    max-width: 3ex;
+
+    margin-bottom: -1px;
+    padding: 4px 4px 5px 5px;
+}
+
+
+
+
+QTabBar::tab:left:last, QTabBar::tab:right:last,
+QTabBar::tab:left:only-one, QTabBar::tab:right:only-one {
+    margin-bottom: 0;
+}

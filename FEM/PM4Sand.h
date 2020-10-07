@@ -18,9 +18,11 @@
 **                                                                    **
 ** ****************************************************************** */
 
-// Written: Long Chen, Pedro Arduino
-//          Nov 2016, University of Washington
-//          Modified Sep 2018
+// Author: Long Chen, Pedro Arduino
+// Computational Geomechanics Group
+// University of Washington
+// Date:           Nov 2016
+// Last Modified:  Sep 2018
 
 // Description: This file contains the implementation for the PM4Sand class.
 // PM4Sand(Version 3.1): A Sand Plasticity Model For Earthquake Engineering Applications
@@ -59,13 +61,10 @@ public:
 		double R = 1.5, double m = 0.01, double Fsed_min = -1, double p_sdeo = -1, int integrationScheme = 1, int tangentType = 0,
 		double TolF = 1.0e-7, double TolR = 1.0e-7);
 	// full constructor
-	PM4Sand(int tag, 
-		double Dr, double G0, double hp0, double mDen, 
-		double P_atm = 101.3, double h0 = -1, double emax = 0.8, double emin = 0.5, double nb = 0.5, double nd = 0.1, 
-		double Ado = -1, double z_max = -1, double cz = 250, double ce = -1, double phi_cv = 33.0, double nu = 0.3, 
-		double Cgd = 2.0, double Cdr = -1, double Ckaf = -1, double Q = 10,
-		double R = 1.5, double m = 0.01, double Fsed_min = -1, double p_sdeo = -1, 
-		int integrationScheme = 1, int tangentType = 0,
+	PM4Sand(int tag, double Dr, double G0, double hp0, double mDen, double P_atm = 101.3, double h0 = -1, double emax = 0.8,
+		double emin = 0.5, double nb = 0.5, double nd = 0.1, double Ado = -1, double z_max = -1, double cz = 250,
+		double ce = -1, double phi_cv = 33.0, double nu = 0.3, double Cgd = 2.0, double Cdr = -1, double Ckaf = -1, double Q = 10,
+		double R = 1.5, double m = 0.01, double Fsed_min = -1, double p_sdeo = -1, int integrationScheme = 1, int tangentType = 0,
 		double TolF = 1.0e-7, double TolR = 1.0e-7);
 	// null constructor
 	PM4Sand();
@@ -194,7 +193,7 @@ protected:
 	double mMb;
 	double mMd;
 	double mMcur;       // current stress ratio
-	Vector mTracker;      // internal paramter tracker
+	Vector mTracker;      // internal parameter tracker
 
 	double	mTolF;			// max drift from yield surface
 	double	mTolR;			// tolerance for Newton iterations

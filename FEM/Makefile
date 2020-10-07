@@ -148,7 +148,17 @@ OBJS = \
        ViscousMaterial.o \
        ZeroLength.o \
        PM4Sand.o \
-       PM4Silt.o
+       PM4Silt.o \
+	   T2Vector.o \
+	   SSPbrickUP.o \
+	   MultiYieldSurface.o \
+	   PressureDependMultiYield02.o \
+	   PressureDependMultiYield.o \
+	   PressureIndependMultiYield.o \
+	   ManzariDafalias.o \
+	   ManzariDafalias3D.o \
+	   ManzariDafaliasPlaneStrain.o 
+
 
 
 archive: $(OBJS)

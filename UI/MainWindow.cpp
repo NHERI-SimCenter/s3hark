@@ -1,562 +1,374 @@
-#include <QQuickView>
 #include "MainWindow.h"
-#include "ui_MainWindow.h"
-#include "InsertWindow.h"
-#include <QQmlContext>
+#include <RockOutcrop.h>
 
-#include <QTime>
-
-#include <QtQuick/qquickitem.h>
-#include <QtQuick/qquickview.h>
-
-#include <QStringList>
-
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QThread>
-
-#include <QTabWidget>
-
-#include "SiteResponse.h"
-
-#include <QUiLoader>
-
-#include "TabManager.h"
-#include <QFileInfo>
+#include <QRect>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QVBoxLayout>
+#include <HeaderWidget.h>
+#include <FooterWidget.h>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
 {
 
-    // random seed
-    unsigned uintTime = static_cast<unsigned>(QTime::currentTime().msec());
-    qsrand(uintTime);
+    QRect rec = QGuiApplication::primaryScreen()->geometry();
+    int height = this->height()<int(0.35*rec.height())?int(0.35*rec.height()):this->height();
+    int width  = this->width()<int(0.35*rec.width())?int(0.35*rec.width()):this->width();
+    this->resize(width, height);
 
+    QWidget *centralWidget = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout();
+    centralWidget->setLayout(layout);
 
-    ui->setupUi(this);
-    updateCtrl();
+    //
+    // add SimCenter Header
+    //
 
-    QStringList pages;
-    int totalPage = ui->tableView->totalPage();
-    for( int i = 1; i <= totalPage; ++i)
-        pages.append( QString("%1").arg(i) );
-    ui->gotoPageBox->addItems(pages);
+    //QString appName(QString("s") + QChar(0x00B3) + "hark");
+    QString appName = "<P><b><i><FONT COLOR='#000000' FONT SIZE = 4>";
+    appName.append(QString("S") + QChar(0x00B3) + "HARK    &nbsp;&nbsp;&nbsp;&nbsp;🦈");
+    appName.append("</i></b></P></br>");
+    HeaderWidget *header = new HeaderWidget();
+    header->setHeadingText(appName);
+    layout->addWidget(header);
 
-    connect(ui->tableView, SIGNAL(insertAct()), this, SLOT(insertAbove()) );
-    connect(ui->tableView, SIGNAL(insertBelowAct()), this, SLOT(insertBelow()) );
-    connect(ui->tableView, SIGNAL(removeAct()), this, SLOT(remove()) );
-    //connect(ui->styleBtn, SIGNAL(clicked(bool)), ui->tableView, SLOT(styleView(bool)) );
-    //ui->styleBtn->setVisible(false);
+    theRockOutcropWidget = new RockOutcrop();
+    //    this->setCentralWidget(theWidget);
+    layout->addWidget(theRockOutcropWidget);
 
-    connect(ui->prePageBtn, SIGNAL(clicked()), this, SLOT(prevPage()) );
-    connect(ui->nextPageBtn, SIGNAL(clicked()), this, SLOT(nextPage()) );
-    //connect(ui->gotoPageBtn, SIGNAL(clicked()), this, SLOT(gotoPage()) );
-    connect(ui->gotoPageBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(gotoPage(int)) );
+    //
+    // add SimCenter footer
+    //
 
-    connect(ui->totalLayerLineEdit, SIGNAL(editingFinished()), this, SLOT(onTotalLayerChanged()) );
+    FooterWidget *footer = new FooterWidget();
+    layout->addWidget(footer);
 
+    this->setCentralWidget(centralWidget);
 
-    ui->prePageBtn->setFocusPolicy(Qt::NoFocus);
-    ui->prePageBtn->setFixedSize(20, 20);
-    ui->prePageBtn->setIconSize(ui->prePageBtn->size());
-    ui->prePageBtn->setStyleSheet("border:none;");
-    ui->prePageBtn->setIcon(QIcon(":/resources/images/left.png"));
-
-    ui->nextPageBtn->setFocusPolicy(Qt::NoFocus);
-    ui->nextPageBtn->setFixedSize(20, 20);
-    ui->nextPageBtn->setIconSize(ui->nextPageBtn->size());
-    ui->nextPageBtn->setStyleSheet("border:none;");
-    ui->nextPageBtn->setIcon(QIcon(":/resources/images/right.png"));
-
-    ui->gotoPageBox->setFixedWidth(60);
-    ui->gotoPageBox->hide();
-    ui->curPageLabel->hide();
-
+    this->createActions();
+    /*
     // margins of centralWidget
     centralWidget()->layout()->setContentsMargins(0, 0, 0, 0);
     statusBar()->hide();
     ui->mainToolBar->hide();
-
-
-
-    QFile file(":/resources/styles/stylesheet.css");
-    if(file.open(QFile::ReadOnly)) {
-      QString styleSheet = QLatin1String(file.readAll());
-      this->setStyleSheet(styleSheet);
-    }
-
-    // validator for total layers, must be int between 0 and 1000
-    ui->totalLayerLineEdit->setValidator(new QIntValidator(0, 1000, this));
-
-    // when an element is selected, the whole row is selected
-    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    // validator for height, must be double
-    ui->totalHeight->setValidator(new QDoubleValidator(0.0,10000.0,2,ui->totalHeight));
-    // change the total height if soil layer is edited
-    connect(ui->totalHeight, SIGNAL(editingFinished()),this, SLOT(totalHeightChanged()) );
-
-    //connect(this, SIGNAL(gwtChanged(const QString)), this, SLOT(on_gwtEdit_textChanged(const QString)));
-
-    ui->gwtEdit->setValidator(new QDoubleValidator(0.0,10000.0,2,ui->gwtEdit));
-
-    // add a default layer
-    if(ui->tableView->m_sqlModel->rowCount()<1)
-    {
-        QList<QVariant> valueList;
-        valueList << "Layer 1" << "3" << "" << "" << "" << "";
-        ui->tableView->insertAt(valueList,0);
-        ui->tableView->setTotalHeight(3);
-        ui->totalHeight->setText("3");
-        ui->totalLayerLineEdit->setText("1");
-    }
-
-    // add QQuickwidget for displaying soil layers
-    QQuickView *plotView = new QQuickView();
-    plotView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    plotView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-
-    //QWidget *
-    plotContainer = QWidget::createWindowContainer(plotView, this);
-    //plotContainer->setFixedSize(QSize(200, 800));
-    plotContainer->setMinimumSize(layerViewWidth,layerTableHeight);
-    plotContainer->setMaximumSize(layerViewWidth,layerTableHeight);
-    plotContainer->setFocusPolicy(Qt::TabFocus);
-    plotView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/plotView.qml")));
-    ui->plotView_verticalLayout->addWidget(plotContainer);
-
-    // add QQuickwidget for displaying mesh
-    QQuickView *meshView = new QQuickView();
-    meshView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    meshView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-    QWidget *meshContainer = QWidget::createWindowContainer(meshView, this);
-
-    meshContainer->setMinimumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setMaximumSize(meshViewWidth,layerTableHeight);
-    meshContainer->setFocusPolicy(Qt::TabFocus);
-    meshView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/MeshView.qml")));
-    ui->meshView_verticalLayout->addWidget(meshContainer);
-
-    connect(ui->meshBtn, SIGNAL(clicked()), this, SLOT(on_meshBtn_clicked(bool)) );
-
-    ui->meshBtn->setVisible(true);
-
-    ui->groupBox_Mesh->setVisible(false);
-
-    connect(ui->tableView->m_sqlModel, SIGNAL(thicknessEdited()), this, SLOT(on_thickness_edited()));
-
-    //resize(830 + 80, 350 + 40);
-    resize(830 + 80, 530 + 20);
-
-    ui->tableView->m_sqlModel->deActivateAll();
-
-    connect(ui->tableView, SIGNAL(rowRemoved(int)), this, SLOT(on_rowRemoved(int)));
-
-    //connect(ui->tableView, SIGNAL(pressed(const QModelIndex &)), ui->tableView, SLOT(on_activated(const QModelIndex &)));
-
-
-    connect(this, SIGNAL(tableMoved()), this, SLOT(refresh()));
-
-
-    // material dialog
-    /*
-    QQuickView *matView = new QQuickView();
-    //matView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    //matView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-    matContainer = QWidget::createWindowContainer(matView, this);
-    matContainer->setMinimumSize(layerTableWidth-10,100);
-    matContainer->setMaximumSize(layerTableWidth-10,100);
-    matContainer->setFocusPolicy(Qt::TabFocus);
-    matView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/PM4Sand.qml")));
-    ui->materialLayout->addWidget(matContainer);
-    matContainer->hide();
     */
-
-    dinoView = new QWebEngineView(this);
-    dinoView->load(QUrl::fromLocalFile(QFileInfo("resources/ui/DinoRun/index.html").absoluteFilePath()));
-    dinoView->setVisible(false);
-
-    //ui->reBtn->setVisible(false);
-
-    /*
-
-    dinoView = new QWebEngineView(this);
-    dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
-    //view->show();
-    //dinoView->setMinimumHeight(400);
-    //dinoView->setMaximumHeight(400);
-    //ui->materialLayout->addWidget(dinoView);
-    dinoView->setVisible(false);
-    //ui->reBtn->setVisible(false);
-    ui->tabWidget->addTab(dinoView, "Run");
-    */
-
-/*
-    // add QQuickwidget for displaying soil layers
-    QQuickView *FEMView = new QQuickView();
-    FEMView->rootContext()->setContextProperty("designTableModel", ui->tableView);
-    FEMView->rootContext()->setContextProperty("soilModel", ui->tableView->m_sqlModel);
-    QWidget *FEMContainer = QWidget::createWindowContainer(FEMView, this);
-    //plotContainer->setFixedSize(QSize(200, 800));
-    FEMContainer->setMinimumSize(layerViewWidth,180);
-    FEMContainer->setMaximumSize(layerViewWidth,180);
-    FEMContainer->setFocusPolicy(Qt::TabFocus);
-    FEMView->setSource(QUrl(QStringLiteral("qrc:/resources/ui/FEMView.qml")));
-    ui->tabWidget->addTab(FEMContainer,"FEM");
-    */
-
-
-/*
-    InsertWindow* insertDlg = new InsertWindow(this);
-    QList<QVariant> infos = ui->tableView->currentRowInfo();
-    if( infos.count() >= 5)
-        insertDlg->initInfo(infos);
-
-    connect(insertDlg, SIGNAL(accepted(QList<QVariant>)),
-            ui->tableView, SLOT(insert(QList<QVariant>)) );
-    ui->tabWidget->addTab(insertDlg,"FEM");
-    */
-
-    /*
-    //set path of ui
-    QUiLoader uiLoader;
-    QString uiFileName = ":/UI/test.ui";
-    QFile uiFile(uiFileName);
-    uiFile.open(QIODevice::ReadOnly);
-    // setWorkingDirectory: if uiFile depended on other resources,
-    // setWorkingDirectory needs to be set here
-    //const QDir &workdir(uifileWorkPath);
-    //uiLoader.setWorkingDirectory(workdir);
-    //load ui
-    QWidget* getWidget = uiLoader.load(&uiFile,this);
-    ui->tabWidget->addTab(getWidget,"FEM");
-    //ui->meshView_verticalLayout->addWidget(getWidget);
-    */
-
-    TabManager* theTabManager = new TabManager(ui->tableView, this);
-    theTabManager->init(ui->tabWidget);
-    //connect(ui->tableView, SIGNAL(cellClicked(const QModelIndex &)), theTabManager, SLOT(onTableViewClicked(const QModelIndex &)));
-    connect(ui->tableView->m_sqlModel, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&)), theTabManager, SLOT(onTableViewUpdated(const QModelIndex&,const QModelIndex&)));
-
-    ui->materialLayout->setSizeConstraint(QLayout::SetMaximumSize);
-
-
-
-    //SiteResponse srt ;
-
-
-
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-}
-
-
-void MainWindow::onTotalLayerChanged()
-{
-    int previousNumLayers = ui->tableView->totalSize();
-    int newNumLayers = ui->totalLayerLineEdit->text().toInt();
-    qDebug() << "total layer changed from "<< previousNumLayers << " to " << newNumLayers;
-    if(previousNumLayers < newNumLayers)
-    {
-        QList<QVariant> emptyList;
-        for (int i=0; i<(newNumLayers-previousNumLayers); i++)
-            ui->tableView->insertAtEnd(emptyList);
-    }
-    if(previousNumLayers > newNumLayers & newNumLayers>=0)
-    {
-        for (int i=previousNumLayers; i>newNumLayers; i--)
-            ui->tableView->removeOneRow(i-1);
-    }
-}
-
-
-
-void MainWindow::on_meshBtn_clicked(bool checked)
-{
-
-    Q_UNUSED(checked);
-    if (ui->groupBox_Mesh->isVisible())
-    {
-        ui->groupBox_Mesh->setVisible(false);
-        int w = layerViewWidth + ui->groupBox_SoilLayersTable->size().width();
-        int h = ui->groupBox_Graphic->size().height() ;
-        this->resize(w+80,h+20);
-
-
-    }else{
-        ui->groupBox_Mesh->setVisible(true);
-        //ui->groupBox_Graphic->setVisible(false);
-        //int w =  meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
-        int w = layerViewWidth + meshViewWidth + ui->groupBox_SoilLayersTable->size().width();
-        int h = ui->groupBox_Graphic->size().height() ;
-        this->resize(w+80,h+20);
-    }
-
-}
-
-void MainWindow::updateCtrl()
-{
-
-    ui->totalHeight->setText(QString::number(ui->tableView->totalHeight()));
-    ui->gwtEdit->setText(QString::number(ui->tableView->getGWT()));
-
-    int total = ui->tableView->totalSize();
-    if(total>1)
-    {
-        //ui->totalLabel->setText( tr("Total Layers %1").arg(total) );
-        ui->totalLabel->setText( tr("Total Layers") );
-        ui->totalLayerLineEdit->setText(QString::number(total));
-    }else{
-        //ui->totalLabel->setText( tr("Total Layer %1").arg(total) );
-        ui->totalLabel->setText( tr("Total Layer"));
-        ui->totalLayerLineEdit->setText(QString::number(total));
-    }
-
-    int curPage = ui->tableView->currentPage();
-    int totalPage = ui->tableView->totalPage();
-    ui->curPageLabel->setText( tr("Page %1/%2").arg(curPage).arg(totalPage));
-
-    ui->nextPageBtn->setEnabled(true);
-    ui->prePageBtn->setEnabled(true);
-
-    if ( totalPage == 1)
-    {
-        ui->nextPageBtn->setDisabled(true);
-        ui->prePageBtn->setDisabled(true);
-    }else{
-        if(curPage >= totalPage)
-        {
-            ui->nextPageBtn->setDisabled(true);
-        }else if(curPage == 1)
-        {
-            ui->prePageBtn->setDisabled(true);
-        }else
-        {
-
-        }
-    }
-
-}
-
-void MainWindow::insertWithDialog()
-{
 
 }
 
 
+void MainWindow::createActions() {
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
 
-void MainWindow::insert()// insert from dialog
-{
-
-    QList<QVariant> emptyList;
-    ui->tableView->insertBelow(emptyList);
-    /*
-    InsertWindow* insertDlg = new InsertWindow(this);
-    QList<QVariant> infos = ui->tableView->currentRowInfo();
-    if( infos.count() >= 5)
-        insertDlg->initInfo(infos);
-
-    connect(insertDlg, SIGNAL(accepted(QList<QVariant>)),
-            ui->tableView, SLOT(insert(QList<QVariant>)) );
-    int ok = insertDlg->exec();
-    if( ok )
-    {
-        updateCtrl();
-    }
-    insertDlg->deleteLater();
-
-    int totalPage = ui->tableView->totalPage();
-    int count = ui->gotoPageBox->count();
-    if( count < totalPage)
-    {
-        ui->gotoPageBox->addItem(QString("%1").arg(count+1));
-    }
-    */
-
-}
-
-void MainWindow::insertAbove()
-{
-    QList<QVariant> emptyList;
-    ui->tableView->insertAbove(emptyList);
-    updateCtrl();
-}
-
-void MainWindow::insertBelow()
-{
-    QList<QVariant> emptyList;
-    ui->tableView->insertBelow(emptyList);
-    updateCtrl();
-}
-
-void MainWindow::remove()
-{
-    ui->tableView->remove();
-    updateCtrl();
-    int totalPage = ui->tableView->totalPage();
-
-    int count = ui->gotoPageBox->count();
-    if( count > totalPage)
-    {
-        ui->gotoPageBox->removeItem(count-1);
-    }
-}
-
-void MainWindow::gotoPage(int index)
-{
-    index++;
-    ui->tableView->gotoPage(index);
-    updateCtrl();
-}
-
-void MainWindow::nextPage()
-{
-    ui->tableView->nextPage();
-    updateCtrl();
-}
-
-void MainWindow::prevPage()
-{
-    ui->tableView->previousPage();
-    updateCtrl();
-}
-
-void MainWindow::on_delRowBtn_clicked()
-{
-    emit ui->tableView->removeAct();
-}
-
-void MainWindow::on_addRowBtn_clicked()
-{
-    emit ui->tableView->insertBelowAct();
-}
-
-/**
- * when user input a new height value
- * @brief MainWindow::totalHeightChanged
- * @return
- */
-void MainWindow::totalHeightChanged()
-{
-    ui->tableView->setTotalHeight(ui->totalHeight->text().toDouble());
-    ui->tableView->divideByLayers();
-    //emit gwtChanged(QString::number(ui->tableView->getGWT()));
+    QAction *openAction = new QAction(tr("&Open"), this);
+    openAction->setShortcuts(QKeySequence::Open);
+    openAction->setStatusTip(tr("Open an existing file"));
+    connect(openAction, &QAction::triggered, this, &MainWindow::open);
+    fileMenu->addAction(openAction);
+    //fileToolBar->addAction(openAction);
 
 
+    QAction *saveAction = new QAction(tr("&Save"), this);
+    saveAction->setShortcuts(QKeySequence::Save);
+    saveAction->setStatusTip(tr("Save the document to disk"));
+    connect(saveAction, &QAction::triggered, this, &MainWindow::save);
+    fileMenu->addAction(saveAction);
 
-    qDebug()<<"height changed. => " << ui->totalHeight->text();
-}
-
-void MainWindow::on_thickness_edited()
-{
-
-    ui->totalHeight->setText(QString::number(ui->tableView->totalHeight()));
-
-    // move GWT to new position
-    double originalGWT = ui->tableView->getGWT();
-    ui->gwtEdit->textChanged(QString::number(0));
-    ui->gwtEdit->textChanged(QString::number(originalGWT));
-
-}
-
-void MainWindow::on_rowRemoved(int row)
-{
-    Q_UNUSED(row);
-    // move GWT to new position
-    double originalGWT = ui->tableView->getGWT();
-    ui->gwtEdit->textChanged(QString::number(0));
-    ui->gwtEdit->textChanged(QString::number(originalGWT));
-}
-
-
-
-void MainWindow::on_gwtEdit_textChanged(const QString &newGWT)
-{
-    ui->tableView->setGWT(newGWT.toDouble());
-    qDebug()<<"gwt changed." << newGWT;
-}
-
-
-
-void MainWindow::on_reBtn_clicked()
-{
-    /*
-    ui->tabWidget->addTab(dinoView, "Run");
-    ui->tabWidget->setCurrentIndex(1);
-    ui->tabWidget->setMovable(true);
-    */
-
-
-
-
-
-
-    //ui->tableView->hide();
-
-
-    //dinoView = new QWebEngineView(this);
-    //dinoView->load(QUrl("file:////Users/simcenter/Codes/Sandbox/SRT/SiteResponseTool/resources/ui/DinoRun/index.html"));
-
-    //dinoView->setVisible(true);
-
-    //view->show();
-    //dinoView->setMinimumHeight(400);
-    //dinoView->setMaximumHeight(400);
-    //ui->materialLayout->addWidget(dinoView);
-
+    QAction *saveAsAction = new QAction(tr("&Save As"), this);
+    saveAsAction->setStatusTip(tr("Save the document with new filename to disk"));
+    connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveAs);
+    fileMenu->addAction(saveAsAction);
 
     /*
-    QWidget *w1 = this->ui->tableView;
-    QLabel *label = new QLabel(w1);
-    label->resize(w1->size());
-    label->setPixmap(w1->grab());
-    label->show();
-
-    QPropertyAnimation *animation= new QPropertyAnimation(w1,"geometry");
-    animation->setDuration(500);
-    animation->setStartValue(w1->geometry());
-    animation->setEndValue(QRect(0, 50, w1->width(), w1->height()));
-    animation->start();
-
-
-    emit tableMoved();
-
-    plotContainer->setWindowOpacity(0.1);
-    qDebug() << this->ui->tableView->geometry();
-    qDebug() << QRect(this->ui->tableView->width(), 0, this->ui->tableView->width(), this->ui->tableView->height());
+    thePreferences = SimCenterPreferences::getInstance(this);
+    QAction *preferenceAction = new QAction(tr("&Preferences"), this);
+    preferenceAction->setStatusTip(tr("Set application preferences"));
+    connect(preferenceAction, &QAction::triggered, this, &MainWindow::preferences);
+    fileMenu->addAction(preferenceAction);
     */
 
+    // strangely, this does not appear in menu (at least on a mac)!! ..
+    // does Qt not allow as in tool menu by default?
+    // check for yourself by changing Quit to drivel and it works
+    QAction *exitAction = new QAction(tr("&Quit"), this);
+    connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    exitAction->setStatusTip(tr("Exit the application"));
+    fileMenu->addAction(exitAction);
+
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    QAction *versionAct = helpMenu->addAction(tr("&Version"), this, &MainWindow::version);
+    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
+    QAction *manualAct = helpMenu->addAction(tr("&Manual"), this, &MainWindow::manual);
+    QAction *submitAct = helpMenu->addAction(tr("&Provide Feedback"), this, &MainWindow::submitFeedback);
+    QAction *submitFeature = helpMenu->addAction(tr("&Submit Feature Request"), this, &MainWindow::submitFeatureRequest);
+    QAction *citeAct = helpMenu->addAction(tr("&How to Cite"), this, &MainWindow::cite);
+    QAction *copyrightAct = helpMenu->addAction(tr("&License"), this, &MainWindow::copyright);
 }
 
-void MainWindow::refresh()
+
+bool MainWindow::save()
 {
-    //ui->tableView->move(0,50);
-    QTime dieTime= QTime::currentTime().addMSecs(500);
-    while (QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-    resize(ui->centralWidget->width(),ui->centralWidget->height()+1);
+    if (currentFile.isEmpty()) {
+        return saveAs();
+    } else {
+        return saveFile(currentFile);
+    }
+}
 
+bool MainWindow::saveAs()
+{
+    //
+    // get filename
+    //
 
+    QFileDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
 
-/*
-    QPropertyAnimation *animation1= new QPropertyAnimation(ui->tableView,"geometry");
-    animation1->setDuration(500);
-    animation1->setStartValue(ui->tableView->geometry());
-    animation1->setEndValue(QRect(0, 0, ui->tableView->width(), ui->tableView->height()));
-    animation1->start();
-    */
+    // and save the file
+    return saveFile(dialog.selectedFiles().first());
+}
 
-
-    //ui->tableView->setVisible(true);
-
-
+void MainWindow::open()
+{
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+        loadFile(fileName);
 }
 
 
+void MainWindow::openFile(QString fileName)
+{
+    if (!fileName.isEmpty())
+        loadFile(fileName);
+}
+
+void MainWindow::newFile()
+{
+    // clear old
+   // inputWidget->clear();
+
+    // set currentFile blank
+    setCurrentFile(QString());
+}
 
 
+void MainWindow::setCurrentFile(const QString &fileName)
+{
+    currentFile = fileName;
+    //  setWindowModified(false);
+
+    QString shownName = currentFile;
+    if (currentFile.isEmpty())
+        shownName = "untitled.json";
+
+    setWindowFilePath(shownName);
+}
+
+bool MainWindow::saveFile(const QString &fileName)
+{
+    //
+    // open file
+    //
+
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(QDir::toNativeSeparators(fileName),
+                                  file.errorString()));
+        return false;
+    }
+
+
+    //
+    // create a json object, fill it in & then use a QJsonDocument
+    // to write the contents of the object to the file in JSON format
+    //
+
+    QJsonObject json;
+    theRockOutcropWidget->outputToJSON(json);
+    QJsonDocument doc(json);
+    file.write(doc.toJson());
+
+    // close file
+    file.close();
+
+    // set current file
+    setCurrentFile(fileName);
+
+    return true;
+}
+
+void MainWindow::loadFile(const QString &fileName)
+{
+    //
+    // open file
+    //
+
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
+        return;
+    }
+
+    // validate the document
+    // JsonValidator class already takes a model type param, add additional model types as required
+
+    /*
+    JsonValidator *jval = new JsonValidator();
+    jval->validate(this, BIM, fileName);
+*/
+
+    // place contents of file into json object
+    QString val;
+    val=file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject jsonObj = doc.object();
+
+    // close file
+    file.close();
+
+    // given the json object, create the C++ objects
+    if ( ! (currentFile.isNull() || currentFile.isEmpty()) ) {
+        // theRockOutcropWidget->clear(); no method
+    }
+    theRockOutcropWidget->inputFromJSON(jsonObj);
+
+    setCurrentFile(fileName);
+}
+
+void MainWindow::version()
+{
+    QString versionText("Version 1.1.1");
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(versionText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
+}
+
+void MainWindow::cite()
+{
+    QString citeText("Charles Wang, Frank McKenna, Peter Mackenzie-Helnwein, Wael Elhaddad, Adam Zsarnoczay, Michael Gardner, & Pedro Arduino. (2019, September 27). NHERI-SimCenter/s3hark: Release v1.1.1 (Version v1.1.1). Zenodo. http://doi.org/10.5281/zenodo.3463594");
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(citeText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
+}
+
+
+void MainWindow::about()
+{
+    QString aboutText("A SimCenter Tool For Site Response Analysis");
+    QMessageBox msgBox;
+    QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    msgBox.setText(aboutText);
+    QGridLayout *layout = (QGridLayout*)msgBox.layout();
+    layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+    msgBox.exec();
+}
+
+
+void MainWindow::submitFeedback()
+{
+    QString feedbackURL("https://docs.google.com/forms/d/e/1FAIpQLSfh20kBxDmvmHgz9uFwhkospGLCeazZzL770A2GuYZ2KgBZBA/viewform");
+    QDesktopServices::openUrl(QUrl(feedbackURL, QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
+}
+
+void MainWindow::manual()
+{
+    QString manualURL("https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community//SimCenter/Software/s3hark");
+    QDesktopServices::openUrl(QUrl(manualURL, QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
+}
+
+void MainWindow::submitFeatureRequest()
+{
+    QString featureRequestURL("https://docs.google.com/forms/d/e/1FAIpQLScTLkSwDjPNzH8wx8KxkyhoIT7AI9KZ16Wg9TuW1GOhSYFOag/viewform");
+    QDesktopServices::openUrl(QUrl(featureRequestURL, QUrl::TolerantMode));
+    //QDesktopServices::openUrl(QUrl("https://www.designsafe-ci.org/help/new-ticket/", QUrl::TolerantMode));
+}
+
+void MainWindow::copyright()
+{
+  QMessageBox msgBox;
+  QString copyrightText = QString("\
+                          <p>\
+                          The source code is licensed under a BSD 2-Clause License:<p>\
+                          \"Copyright (c) 2017-2019, The Regents of the University of California (Regents).\"\
+                          All rights reserved.<p>\
+                          <p>\
+                          Redistribution and use in source and binary forms, with or without \
+                          modification, are permitted provided that the following conditions are met:\
+                          <p>\
+                          1. Redistributions of source code must retain the above copyright notice, this\
+                          list of conditions and the following disclaimer.\
+                          \
+                          \
+                          2. Redistributions in binary form must reproduce the above copyright notice,\
+                          this list of conditions and the following disclaimer in the documentation\
+                          and/or other materials provided with the distribution.\
+                          <p>\
+                          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\
+                          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\
+                          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\
+                          DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR\
+                          ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\
+                          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\
+                          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND\
+          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\
+          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\
+          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\
+          <p>\
+          The views and conclusions contained in the software and documentation are those\
+          of the authors and should not be interpreted as representing official policies,\
+          either expressed or implied, of the FreeBSD Project.\
+          <p>\
+          REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, \
+          THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\
+          THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS \
+          PROVIDED \"AS IS\". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT,\
+          UPDATES, ENHANCEMENTS, OR MODIFICATIONS.\
+          <p>\
+          ------------------------------------------------------------------------------------\
+          <p>\
+          The compiled binary form of this application is licensed under a GPL Version 3 license.\
+          The licenses are as published by the Free Software Foundation and appearing in the LICENSE file\
+          included in the packaging of this application. \
+          <p>\
+          ------------------------------------------------------------------------------------\
+          <p>\
+          This software makes use of the QT packages (unmodified): core, gui, widgets and network\
+                                                                   <p>\
+                                                                   QT is copyright \"The Qt Company Ltd&quot; and licensed under the GNU Lesser General \
+                                                                   Public License (version 3) which references the GNU General Public License (version 3)\
+    <p>\
+    The licenses are as published by the Free Software Foundation and appearing in the LICENSE file\
+    included in the packaging of this application. \
+    <p>\
+    ");
+
+  QSpacerItem *theSpacer = new QSpacerItem(700, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+  msgBox.setText(copyrightText);
+  QGridLayout *layout = (QGridLayout*)msgBox.layout();
+  layout->addItem(theSpacer, layout->rowCount(),0,1,layout->columnCount());
+  msgBox.exec();
+
+}

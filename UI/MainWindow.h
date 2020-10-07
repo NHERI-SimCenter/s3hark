@@ -2,12 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QWebEngineView>
-
-namespace Ui {
-class MainWindow;
-}
-
+#include <QString>
+class RockOutcrop;
 
 class MainWindow : public QMainWindow
 {
@@ -16,54 +12,49 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void updateCtrl();
-
 
 private slots:
-    void insert();
-    void insertAbove();
-    void insertBelow();
-    void insertWithDialog();
-    void remove();
-    void gotoPage(int index);
-    void nextPage();
-    void prevPage();
+    void newFile();
+    void open();
+    void openFile(QString filename);
+    bool save();
+    bool saveAs();
 
-    void totalHeightChanged();
-
-    void on_delRowBtn_clicked();
-    void on_addRowBtn_clicked();
-    void on_meshBtn_clicked(bool checked);
-
-    void on_thickness_edited();
-
-    void on_gwtEdit_textChanged(const QString &arg1);
-
-    void on_rowRemoved(int row);
-
-
-
-    void on_reBtn_clicked();
-
-    void onTotalLayerChanged();
-
-    void refresh();
+    void about();
+    void manual();
+    void submitFeedback();
+    void submitFeatureRequest();
+    void version();
+    void copyright();
+    void cite();
 
 signals:
-    void gwtChanged(const QString &newGWT);
-    void tableMoved();
 
 private:
-    Ui::MainWindow *ui;
 
-    int layerViewWidth = 200;
-    int meshViewWidth = 200;
-    int layerTableWidth = 630;
-    int layerTableHeight = 500;//320;
-public:
-    QWidget *plotContainer;
-    QWidget *matContainer;
-    QWebEngineView *dinoView;
+private:
+    void createActions();
+    void setCurrentFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
+    void loadFile(const QString &fileName);
+
+    RockOutcrop *theRockOutcropWidget;
+
+    QMenu *fileMenu;
+    QMenu *editMenu;
+
+    QString currentFile;
+
+    /*
+    QMenu *selectSubMenu;
+    QMenu *toolsMenu;
+    QMenu *optionsMenu;
+    QMenu *helpMenu;
+    QToolBar *fileToolBar;
+    QToolBar *editToolBar;
+*/
 };
+
+
 
 #endif // MAINWINDOW_H

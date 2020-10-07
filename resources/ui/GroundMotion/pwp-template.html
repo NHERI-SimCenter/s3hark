@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+    <title>Motions</title>
+
+    <!-- Load c3.css -->
+    <link href="../../styles/c3.css" rel="stylesheet">
+
+    <!-- Load d3.js and c3.js -->
+    <script src="../../js/d3.v5.min.js" charset="utf-8"></script>
+    <script src="../../js/c3.js"></script>
+
+    <script src="../../js/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+
+    <!-- Load qwebchannel.js -->
+    <script type="text/javascript" src="../../js/qwebchannel.js"></script>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        .box {
+            border: 1px solid white;
+            width: 500px;
+            text-align: center;
+            margin: 0 auto
+        }
+
+        .btn {
+            display: inline/inline-block;
+            width: 50px;
+        }
+
+        .btn {
+            border: 1px solid #0066cc;
+            background-color: #0099cc;
+            color: #ffffff;
+            padding: 5px 10px;
+        }
+
+        #eleBtn {
+            border: 1px solid #043302;
+            background-color: #5fac8e;
+            color: #ffffff;
+            padding: 5px 10px;
+        }
+
+        #nodeBtn {
+            border: 1px solid #062e4e;
+            background-color: #5f64ac;
+            color: #ffffff;
+            padding: 5px 10px;
+        }
+
+        .btn:hover {
+            border: 1px solid #0099cc;
+            background-color: #00aacc;
+            color: #ffffff;
+            padding: 5px 10px;
+        }
+
+        .btn:disabled,
+        .btn[disabled] {
+            border: 1px solid #999999;
+            background-color: #cccccc;
+            color: #666666;
+        }
+    </style>
+</head>
+
+<body id="t" class="offline">
+
+    <div>
+        <p> <br /> </p>
+    </div>
+    <div id="chart" style="height: 180px;"></div>
+    <!--<input type='file' accept='text/plain' onchange='openFile(event)'><br>-->
+    <!--<div id="output"></div>-->
+
+    <script type="text/javascript">
+
+
+
+
+        xd = ['x', 1, 2, 3, 4, 5, 6];
+        yd = ['Demo motion 1', 70, 180, 190, 180, 80, 155];
+        var chart = c3.generate({
+            data: {
+                x: 'x',
+                columns: [
+                    //xd,
+                    //yd
+                ],
+                empty: {
+                    label: {
+                        text: 'Click on one element to see results here.'
+                    }
+                }
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
+            axis: {
+                x: {
+                    label: { text: 'Time (s)', position: 'outer-center' },
+                    tick: {
+                        count: 10,
+                        format: function (x) { return x.toFixed(2); }
+                    }
+
+                },
+                y: {
+                    label: { text: 'PWP (kPa)', position: 'outer-middle' },
+                    tick: {
+                        count: 10,
+                        format: function (x) { return x.toFixed(2); }
+                    }
+
+                }
+            },
+            point: {
+                show: false
+            }
+        });
+
+        /*
+        setTimeout(function () {
+            chart.load({
+                columns: [
+                    ['x', 1, 2, 3, 4, 5, 6],
+                    ['Demo motion 2', 1, 100, 290, 70, 10, 260]
+                ]
+            });
+        }, 500);
+        */
+
+        //UPDATEPOINT
+
+        function showResultAt(elementID) {
+            var queue = [
+                function () {
+                    chart.unload();
+                },
+                function () {
+                    chart.load({
+                        columns: [
+                            xnew,
+                            ynew
+                        ]
+                    });
+                },
+                function () {
+                    chart.load({
+                        columns: [
+                            time,
+                            eval("pwp" + elementID.toString())
+                        ]
+                    });
+                },
+            ];
+            var i = 0;
+            queue.forEach(function (f) {
+                setTimeout(f, 500 * i++);
+            });
+        }
+
+        function output(message) {
+            var output = document.getElementById("output");
+            output.innerHTML = output.innerHTML + message + "<br>";
+        }
+        function modifyAnswerToLife(newAnswer) {
+            document.getElementById("currentAnswer").innerHTML = "Current answer to life: " + newAnswer;
+        }
+        window.onload = function () {
+
+            new QWebChannel(qt.webChannelTransport, function (channel) {
+
+                window.elementModel = channel.objects.elementModel;
+                var gwt = elementModel.activeID;
+
+                elementModel.activeIDChanged.connect(function (activeID) {
+                    showResultAt(activeID);
+                });
+
+
+            });
+        }
+
+
+
+
+
+
+
+
+    </script>
+
+    <div class="box">
+        <input class="btn" id="nodeBtn" style="border: 1px solid #fc0404; " type="button"
+            onclick="location.href='index.html';" value="Node" />
+        <input class="btn" id="eleBtn" type="button" style="width: 60px;" onclick="location.href='strain.html';"
+            value="Element" />
+        &nbsp;&nbsp;&nbsp;
+
+        <input class="btn" type="button" onclick="location.href='acc.html';" value="Accel" />
+        <input class="btn" type="button" onclick="location.href='index.html';" value="Vel" />
+        <input class="btn" type="button" onclick="location.href='disp.html';" value="Disp" />
+        <input style="border: 1px solid #fc0404;" class="btn" type="button" onclick="location.href='pwp.html';"
+            value="PWP" />
+        <input class="btn" type="button" onclick="location.href='sa.html';" value="Sa" />
+
+        <div>
+
+            <div id="output"></div>
+        </div>
+
+    </div>
+</body>
+
+</html>

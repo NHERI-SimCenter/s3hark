@@ -6,7 +6,6 @@
 #include <QTableView>
 #include <QEvent>
 #include <QThread>
-#include <QSqlRecord>
 #include <QPainter>
 #include <QStyledItemDelegate>
 #include <QItemDelegate>
@@ -27,7 +26,7 @@ class BonzaTableView : public QTableView
 {
     Q_OBJECT
     //Q_PROPERTY(double m_nGWT READ getGWT WRITE setGWT NOTIFY gwtChanged)
-    Q_PROPERTY(double m_nGWT MEMBER m_nGWT NOTIFY gwtChanged)
+    Q_PROPERTY(double m_nGWT MEMBER m_nGWT READ getGWT NOTIFY gwtChanged)
 
 
 public:
@@ -36,7 +35,8 @@ public:
 
     // hidden data can not be obtained from current tableview's model
     // I'm getting it from database's model
-    QSqlTableModel* sqlModel() { return m_sqlModel; }
+    //QSqlTableModel* sqlModel() { return m_sqlModel; }//commentednotsure
+    //QAbstractTableModel* sqlModel() { return m_sqlModel; }
 
     QList<QVariant> currentRowInfo() const;
     QList<QVariant> getRowInfo(int r) const;
@@ -47,8 +47,6 @@ public:
     double totalHeight() const {return m_sqlModel->getTotalHeight();}
 
     void setTotalHeight(double h) {m_ntotalHeight = h;}
-
-
 
     BonzaTableModel* m_sqlModel;
 
@@ -61,8 +59,24 @@ public:
     Q_INVOKABLE QString getLayerParsNames(int index){return layerParsName[index];}
     Q_INVOKABLE double getLayerParsValues(int index){return layerParsValue[index];}
 
+    void cleanTable(){
+        m_nStartId = 0;
+         m_nPageSize=PAGESIZE;
+         m_nCurPageSize=0;
+         m_nLastPageSize=0;
+         m_nTotal=0;
 
+         m_nCurPage=1;
+         m_nTotalPage=0;
+
+         m_ntotalHeight=10;
+         m_nGWT = 0;
+    }
+
+
+public:
     Q_INVOKABLE double getGWT();
+
 
     Q_INVOKABLE void setActive(int row)
     {
@@ -96,13 +110,14 @@ public slots:
     void insertBelow(const QList<QVariant> &valueList);
     void insertAbove(const QList<QVariant> &valueList);
     void insertAt(const QList<QVariant> &valueList, int row);
+    void insertAtSilent(const QList<QVariant> &valueList, int row);
     void remove();
     void removeOneRow(int row);
     void removeOnPage();
 
 
 
-    void divideByLayers();
+    void divideByLayers(double, int);
 
 
     void previousPage();
@@ -170,6 +185,12 @@ public:
         QComboBox *editor = new QComboBox(parent);
         editor->addItem("Elastic");
         editor->addItem("PM4Sand");
+        editor->addItem("PM4Silt");
+        editor->addItem("PIMY");
+        editor->addItem("PDMY");
+        editor->addItem("PDMY02");
+        editor->addItem("ManzariDafalias");
+        editor->addItem("J2Bounding");
         return editor;
     }
 

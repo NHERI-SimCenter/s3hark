@@ -17,6 +17,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <numeric>
 
 #include "Vector.h"
 
@@ -34,7 +35,7 @@ int readDT(const char* fileName, int& numSteps, std::vector<double>& dt)
 {
 	int res = -1;
 	numSteps = 0;
-	std::ifstream file(fileName);
+    std::ifstream file(fileName);
 	if (file)
 	{
 		std::string line;
@@ -59,12 +60,13 @@ int readDT(const char* fileName, int& numSteps, std::vector<double>& dt)
 			if ((line == "") || (line[0] == '%') || (line[0] == '#'))
 				continue;
 			std::istringstream lines(line);
-			lines >> t_n1;
+            lines >> t_n1;
 			dt.push_back(t_n1 - t_n);
 			t_n = t_n1;
 			++numSteps;
 		}
 	}
+    numSteps += 1;
 	return res;
 }
 
@@ -109,7 +111,9 @@ OutcropMotion::setMotion(const char* fName)
 
 	// check to see if the time file exists
 	if (readDT(timeFName.c_str(), m_numSteps, m_dt) > 0)
-	{
+    {
+        if (m_dt.size()>0)
+            this->m_dt_avg = std::accumulate( m_dt.begin(), m_dt.end(), 0.0)/ double(m_dt.size());
 		// assuming acceleration is in g's
 		if (fileExists(accFName.c_str()))
 			theAccSeries = new PathTimeSeries(1, accFName.c_str(), timeFName.c_str(), 9.81, true);
