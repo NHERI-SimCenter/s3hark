@@ -356,7 +356,7 @@ void ProfileManager::updaterupwpHtml()
     stream << "]; \n";
     stream << "yd = ['Rupwp',NaN";
     for (int i=0;i<rupwp.size();i++)
-        stream << ", " << rupwp[i]/100.0;
+        stream << ", " << rupwp[i];
     stream << ",NaN]; \n";
     text.replace(QString("//UPDATEPOINT"), insertedString);
 
