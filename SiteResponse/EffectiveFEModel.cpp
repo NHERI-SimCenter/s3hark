@@ -1136,10 +1136,9 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
     int nStepsMotion = theMotionX->getNumSteps();//1998;//theMotionX->getNumSteps() ; //1998; // number of motions in the record. TODO: use a funciton to get it
     int nSteps = int((nStepsMotion-1) * motionDT / dT);
     int remStep = nSteps;
-	s << "set dT " << dT << endln;
-	s << "set motionDT " << motionDT << endln;
-    //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
-    s << "set mSeries \"Path -dt $motionDT -filePath Rock-x.vel -factor $cFactor\""<<endln;
+    s << "set dT " << dT << endln;
+    s << "set motionDT " << motionDT << endln;
+    s << "timeSeries Path  1 -dt $motionDT -filePath Rock-x.vel -factor $cFactor \n";
 
     // using a stress input with the dashpot
 	if (theMotionX->isInitialized())
@@ -1147,10 +1146,10 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         LoadPattern *theLP = new LoadPattern(10, vis_C);
         theLP->setTimeSeries(theMotionX->getVelSeries());
 
-		NodalLoad *theLoad;
+	NodalLoad *theLoad;
         int numLoads = 3; // for 3D it's 4
-		Vector load(numLoads);
-		load(0) = 1.0;
+	Vector load(numLoads);
+	load(0) = 1.0;
         load(1) = 0.0;
         load(2) = 0.0;
 		//load(3) = 0.0;
@@ -1160,7 +1159,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
 		theLP->addNodalLoad(theLoad);
 		theDomain->addLoadPattern(theLP);
 
-		s << "pattern Plain 10 $mSeries {"<<endln;
+		s << "pattern Plain 10 1 {"<<endln;
         s << "    load 1  1.0 0.0 0.0" << endln;
 		s << "}" << endln << endln;
 
@@ -2938,8 +2937,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "set dT " << dT << endln;
     s << "set motionDT " << motionDT << endln;
     //s << "set mSeries \"Path -dt $motionDT -filePath /Users/simcenter/Codes/SimCenter/SiteResponseTool/test/RSN766_G02_000_VEL.txt -factor $cFactor\""<<endln;
-    s << "set mSeries \"Path -dt $motionDT -filePath Rock-x.vel -factor $cFactor\""<<endln;
-    s << "set mSeriesx2 \"Path -dt $motionDT -filePath Rock-y.vel -factor $cFactor\""<<endln;
+    s << "timeSeries Path 1 -dt $motionDT -filePath Rock-x.vel -factor $cFactor \n";
+    s << "timeSeries Path 2 -dt $motionDT -filePath Rock-y.vel -factor $cFactor \n";
 
     // using a stress input with the dashpot
     if (theMotionX->isInitialized() && theMotionZ->isInitialized())
@@ -2974,11 +2973,11 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         theLPz->addNodalLoad(theLoadz);
         theDomain->addLoadPattern(theLPz);
 
-        s << "pattern Plain 10 $mSeries {"<<endln;
+        s << "pattern Plain 10 1 {"<<endln;
         s << "    load 1  1.0 0.0 0.0 0.0" << endln;
         s << "}" << endln << endln;
 
-        s << "pattern Plain 11 $mSeriesx2 {"<<endln;
+        s << "pattern Plain 11 2 {"<<endln;
         s << "    load 1  0.0 0.0 1.0 0.0" << endln;
         s << "}" << endln << endln;
 
