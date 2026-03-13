@@ -4,11 +4,9 @@
 #                                                                              #
 #------------------------------------------------------------------------------#
 
-QT       += core gui quick qml webenginewidgets uitools webengine webchannel
+QT  += widgets charts core gui quick qml webenginewidgets uitools webengine webchannel
 
 CONFIG += c++11
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = s3hark
 TEMPLATE = app
@@ -27,8 +25,7 @@ SOURCES += $$PWD/main.cpp \
 
 HEADERS  += $$PWD/UI/MainWindow.h
 
-#include(./SimCenterCommon/Common/Common.pri)
-include($$PWD/ConanHelper.pri)
+include(../SimCenterCommon/Common/Common.pri)
 include(./s3hark.pri)
 
 win32{

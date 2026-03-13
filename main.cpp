@@ -10,6 +10,9 @@
 #include <QDesktopWidget>
 #include <GoogleAnalytics.h>
 
+#include <Utils/FileOperations.h>
+#include <Utils/SimCenterConfigFile.h>
+
 static QString logFilePath;
 static bool logToFile = false;
 
@@ -41,45 +44,30 @@ void customMessageOutput(QtMsgType type, const QMessageLogContext &context, cons
 
 int main(int argc, char *argv[])
 {
-    GoogleAnalytics::SetTrackingId("UA-162363329-1");
-    GoogleAnalytics::StartSession();
-    GoogleAnalytics::ReportStart();
-    //
-    //Setting Core Application Name, Organization, Version and Google Analytics Tracking Id
-    //
 
+    //Setting Core Application Name, Organization, and Version
     QCoreApplication::setApplicationName("s3hark");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("1.5");
+    QCoreApplication::setApplicationVersion("2.0.0");
 
-    //
-    // set up logging of output messages for user debugging
-    //
+    logFilePath = SCUtils::getAppWorkDir();
 
-    // create dir for log file if none yet exists
-    logFilePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-            + QDir::separator() + QCoreApplication::applicationName();
-
-    QDir dirWork(logFilePath);
-    if (!dirWork.exists())
-        if (!dirWork.mkpath(logFilePath)) {
-            qDebug() << "s3hark - main - could not create directory for log file";
-        }
-
-    // remove old log file as want to append to an empty file
+    // full path to debug.log file
     logFilePath = logFilePath + QDir::separator() + QString("debug.log");
+
+    // remove old log file
     QFile debugFile(logFilePath);
     debugFile.remove();
 
-    QByteArray envVar = qgetenv("QTDIR");       //  check if the app is run in Qt Creator
-
+    //  check if the app is run in Qt Creator .. if not turn on logging    
+    QByteArray envVar = qgetenv("QTDIR");       
     if (envVar.isEmpty())
         logToFile = true;
 
     qInstallMessageHandler(customMessageOutput);
 
     qDebug() << "s3hark logFile: " << logFilePath;
-
+    
     //
     // window scaling
     //
@@ -89,6 +77,7 @@ int main(int argc, char *argv[])
     //
     // regular Qt startup
     //
+    
     QApplication a(argc, argv);
 
     // with a splash
@@ -144,6 +133,11 @@ int main(int argc, char *argv[])
     }
 
 
+    GoogleAnalytics::SetMeasurementId("G-7P3PV7SM6J");
+    GoogleAnalytics::SetAPISecret("UxuZgMQaS7aoqpQskrcG9w");
+    GoogleAnalytics::CreateSessionId();
+    GoogleAnalytics::StartSession();    
+    
     int res = a.exec();
 
     GoogleAnalytics::EndSession();
