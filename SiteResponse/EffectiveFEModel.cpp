@@ -257,7 +257,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         basicSettings = SRT["basicSettings"];
         dampingCoeff = basicSettings["dampingCoeff"];
         dashpotCoeff = basicSettings["dashpotCoeff"];
-        groundMotion = basicSettings["groundMotion"];
+        groundMotion = basicSettings.value("groundMotion", "");
         groundWaterTable = basicSettings["groundWaterTable"];
         rockDen = basicSettings["rockDen"];
         rockVs = basicSettings["rockVs"];
