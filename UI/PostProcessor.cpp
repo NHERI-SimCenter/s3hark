@@ -902,7 +902,7 @@ void PostProcessor::calcRu()
     if (m_ru.size()>0)
         m_ru.clear();
     for(int i=0;i<v.size();i++)
-        m_ru.append( v[i] * 100 );
+        m_ru.append( v[i] );
 
 
 
@@ -1012,7 +1012,7 @@ void PostProcessor::calcRupwp()
     if (m_rupwp.size()>0)
         m_rupwp.clear();
     for(int i=0;i<v.size();i++)
-        m_rupwp.append( v[i] * 100 );
+        m_rupwp.append( v[i] );
 
     if (m_initialStress.size()>0)
         m_initialStress.clear();

@@ -655,8 +655,8 @@ void TabManager::writeGM()
                 for(int j=0;j<tV.size();j++)
                     streamTime << QString::number(tV[j].toDouble())+"\n";
                 for(int j=0;j<data.size();j++)
-                    stream << data[j].toString()+"\n";
-                    //stream << QString::number(data[j].toDouble(),'g',16)+"\n";
+                    //stream << data[j].toString()+"\n";
+                    stream << QString::number(data[j].toDouble(),'g',16)+"\n";
 
                 outFile.close();
                 outFileTime.close();

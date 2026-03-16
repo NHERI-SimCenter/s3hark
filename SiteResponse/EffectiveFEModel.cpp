@@ -1313,7 +1313,7 @@ int SiteResponseModel::buildEffectiveStressModel2D(bool doAnalysis)
         theDomain->addRecorder(*theRecorder);
     }
 
-
+    s << "file mkdir out_tcl" << endln;
     s << "set recDT " << recDT << endln;
     s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
     s<< "eval \"recorder Node -file out_tcl/surface.acc -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  accel\""<<endln;// 1 2
@@ -2570,8 +2570,8 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "analysis Transient" << endln << endln;
     */
 
-    double gamma = 0.5;
-    double beta = 0.25;
+    double gamma = 0.8333;// 5./6.;
+    double beta = 0.4444;//4./9.;
     s << "set gamma " << gamma << endln;
     s << "set beta " << beta << endln;
     s << "constraints Penalty 1.e14 1.e14" << endln;
@@ -3076,9 +3076,9 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     theDomain->setCurrentTime(0.0);
 
 
-    //s << "set gamma_dynm " << gamma_dynm << endln;
-    //s << "set beta_dynm " << beta_dynm << endln;
-    //s << "integrator  Newmark $gamma_dynm $beta_dynm" << endln;
+    s << "set gamma_dynm " << gamma_dynm << endln;
+    s << "set beta_dynm " << beta_dynm << endln;
+    s << "integrator  Newmark $gamma_dynm $beta_dynm" << endln;
     //s << "set a0 " << a0 << endln;
     //s << "set a1 " << a1 << endln;
     //s << "rayleigh    $a0 $a1 0.0 0.0" << endln;
@@ -3102,7 +3102,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
     s << "numberer    Plain ;#same with cpp"<<endln;
     s << "#system      SparseGeneral"<<endln;
     s << "system      BandGeneral ;#same with cpp"<<endln;
-    s << "integrator  Newmark $gamma $beta"<<endln;
+    // s << "integrator  Newmark $gamma $beta"<<endln;
     s << "#rayleigh    $a0 $a1 0.0 0.0"<<endln;
     s << "analysis    Transient"<<endln;
 
@@ -3149,7 +3149,7 @@ int SiteResponseModel::buildEffectiveStressModel3D(bool doAnalysis)
         theRecorder = new NodeRecorder(dofToRecord, &nodesToRecord, 0, "disp", *theDomain, *theOutputStream, motionDT, true, NULL);
         theDomain->addRecorder(*theRecorder);
     }
-
+    s << "file mkdir out_tcl" << endln;
     double recDT = motionDT;
     s << "set recDT " << recDT << endln;
     s<< "eval \"recorder Node -file out_tcl/surface.disp -time -dT $recDT -node "<<numNodes<<" -dof 1 2 3  disp\""<<endln;// 1 2
